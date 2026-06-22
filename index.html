@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="pokemon.css">
+        <title>Pokemon Game</title>
+    </head>
+    <body>
+        <h1></h1>
+
+        <!-- screen(main div) -->
+        <div id="container" style="display: inline-block; position: relative;">
+
+            <!-- black screen used for the fade -->
+            <div id="blackDiv" 
+                style="
+                    background-color: black;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    position: absolute;
+                    opacity: 0;
+                    pointer-events: none;
+                    z-index: 10;
+                "
+            ></div>
+
+            <div id="introScreen">
+                <!-- A tutorial scroll to show the player how to play -->
+                <div id="tutorialScroll">
+                    <h1 id="welcomeText"></h1>
+
+                    <h2>Movement</h2>
+                    <p>W - Move Up</p>
+                    <p>A - Move Left</p>
+                    <p>S - Move Down</p>
+                    <p>D - Move Right</p>
+
+                    <h2>Combat</h2>
+                    <p>Click to shoot projectiles</p>
+                    <p>Defeat slimes and stay alive</p>
+
+                    <h2>Economy</h2>
+                    <p>Kill slimes to earn coins</p>
+                    <p>Use coins to buy resources and upgrades</p>
+
+                    <h2>Objectives</h2>
+                    <p>Talk with villagers</p>
+                    <p>Complete quests</p>
+
+                    <button id="startGameBtn" class="button">Begin Adventure</button>
+                </div>
+            </div>
+
+            <!-- where we draw all the things on our game -->
+            <canvas></canvas>
+
+            <!-- Achievements -->
+            <div 
+                id="Achievements"
+                style="
+                    display: none;
+                    position: absolute;
+                    width: 200px;
+                    height: 100px;
+                    top: 0px;
+                    right: 0px;
+                    background-color: rgb(255, 217, 172);
+                    border: 4px darkgoldenrod solid;
+                "
+            >
+                <h1 
+                    style="
+                        color: rgb(188, 148, 44); 
+                        font-size: 12px; padding-top: 5px; 
+                        text-align: center;
+                    "
+                >Achievements:</h1>
+
+                <!-- Meet Adam achievenent -->
+                <h2 
+                    id="achievementMeetAdam" 
+                    style="
+                        color: rgb(188, 148, 44); 
+                        font-size: 8px; padding-top: 5px; 
+                        padding-left: 22px;
+                    " 
+                >* Meet Adam</h2>
+
+                <!-- Enter Adam house Achievement -->
+                <h2 
+                    id="achievementEnteringAdamHouse"
+                    style="
+                        color: rgb(188, 148, 44); 
+                        font-size: 8px; 
+                        padding-top: 5px; 
+                        padding-left: 22px;
+                    " >
+                * Enter Adam house</h2>
+
+                <!-- get into a battle Achievement -->
+                <h2 
+                    id="achievementGetIntoBattle"
+                    style="
+                        color: rgb(188, 148, 44); 
+                        font-size: 8px; 
+                        padding-top: 5px; 
+                        padding-left: 22px;
+                    " >
+                * Enter into battle</h2>
+
+                <!-- Meet Rob Achievement -->
+                <h2 
+                    id="achievementMeetRob"
+                    style="
+                        color: rgb(188, 148, 44); 
+                        font-size: 8px; 
+                        padding-top: 5px; 
+                        padding-left: 22px;
+                    " >
+                * Meet Rob</h2>
+
+                <!-- Find Rob chicken Achievement -->
+                <h2 
+                    id="achievementFindRobChicken"
+                    style="
+                        display: none;
+                        color: rgb(188, 148, 44); 
+                        font-size: 8px; 
+                        padding-top: 5px; 
+                        padding-left: 22px;
+                    " >
+                * Find Rob's Chicken</h2>
+
+                <!-- return Rob's chicken Achievement -->
+                <h2 
+                    id="achievementReturnRobChicken"
+                    style="
+                        display: none;
+                        color: rgb(188, 148, 44); 
+                        font-size: 8px; 
+                        padding-top: 5px; 
+                        padding-left: 22px;
+                    " >
+                * return Rob's Chicken</h2>
+
+                <!-- return to Rob Achievement -->
+                <h2 
+                    id="achievementReturnToRob"
+                    style="
+                        display: none;
+                        color: rgb(188, 148, 44); 
+                        font-size: 8px; 
+                        padding-top: 5px; 
+                        padding-left: 22px;
+                    " >
+                * return to Rob</h2>
+
+                <!-- meet bar seller Achievement -->
+                <h2 
+                    id="achievementMeetBarSeller"
+                    style="
+                        display: none;
+                        color: rgb(188, 148, 44); 
+                        font-size: 8px; 
+                        padding-top: 5px; 
+                        padding-left: 22px;
+                    " >
+                * meet bar seller</h2>
+
+                <!-- enter the bar Achievement -->
+                <h2 
+                    id="achievementEnterBar"
+                    style="
+                        display: none;
+                        color: rgb(188, 148, 44); 
+                        font-size: 8px; 
+                        padding-top: 5px; 
+                        padding-left: 22px;
+                    " >
+                * enter the bar</h2>
+            </div>
+
+            <!-- DIALOGUES -->
+            <!-- dialogue with player 2 in the map -->
+            <div 
+                id="character2Dialogue"
+                class="achievement"
+                style="
+                    width: 150px;
+                    height: 50px;
+                "
+            >Hello! My name is Adam. How can I help you?</div>
+
+            <!-- dialogue with player 2 in the house -->
+            <div 
+                id="character2DialogueHouse"
+                class="achievement"
+                style="
+                    width: 150px;
+                    height: 25px;
+                    top: 285px;
+                    left: 535px;
+                "
+            >Great house, isn't it?</div>
+
+            <!-- Text showing how to enter player 2's house  -->
+            <div
+                id="enterHouse1"
+                style="
+                    display: none;
+                    background-color: black;
+                    color: white;
+                    position: absolute;
+                    width: 75px;
+                    height: 10px;
+                    top: 310px;
+                    left: 467px;
+                    border-radius: 10px;
+                    text-align: center;
+                    font-size: 5px;
+                    padding: 7px;
+                    line-height: 1.5;
+                "
+            >Type 'h' to enter his house</div>
+
+            <!-- dialogue with player 3 in the map -->
+            <div 
+                id="character3Dialogue"
+                class="achievement"
+                style="
+                    width: 170px;
+                    height: 60px;
+                "
+            >Hi! My name is Bob. Would you like to join me for a short walk? It's a perfect day!</div>
+
+            <!-- dialogue with player 4 in the map -->
+            <div 
+                id="character4Dialogue"
+                style="
+                    display: none;
+                    background-color: white;
+                    position: absolute;
+                    width: 170px;
+                    min-height: auto;
+                    top: 0;
+                    left: 0;
+                    border-radius: 10px;
+                    font-size: 8px;
+                    padding: 7px;
+                    line-height: 1.5;
+
+                    flex-direction: column;
+                    gap: 7px;
+                    align-items: center;
+                "
+            >
+                <span id="character4Text">
+                    Hey, how are you? My name is Rob, I need your help.
+                    I lost a chicken... I have to find it!
+                </span>
+                    
+                <img 
+                    src="images/hat.png" 
+                    id="hatImage"
+                    style="
+                        display: none; 
+                        width: 47.5px;
+                        height: 23.5px;
+                        padding-top: 5px;
+                        padding-bottom: 10px;
+                    "
+                >
+    
+                <button id="hatClaimButton">
+                    Claim
+                </button>
+            </div>
+
+            <!-- dialogue with the fisher man(player 6) -->
+            <div 
+                id="character6Dialogue"
+                class="achievement"
+                style="
+                    width: 300px;
+                    height: auto; 
+                    flex-direction: column;
+                "
+            >
+                <span id="character6Text" style="margin-bottom: 8px;">
+                    You won't believe what I found! I found an abandoned cave in the middle of the sea,
+                    there are rumors that there are a lot of treasures there! But monsters are protecting them!
+                </span>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr);">
+                    <button id="buttonGetIntoCave" class="buttonsAchievements">Take me there!</button>
+                    <button id="buttonNotGettingIntoCave" class="buttonsAchievements">I'm not going anywhere near there!</button>
+                </div>
+            
+            </div>
+
+            <!-- dialogue with player 7 in the map -->
+            <div 
+                id="character7Dialogue"
+                class="achievement"
+                style="
+                    width: 170px;
+                    height: 60px;
+                "
+            >Hello! How are you? Would you like to visit my bar?</div>
+
+            <div
+                id="character7DialogueBar"
+                style="
+                    display: none;
+                    flex-direction: column;
+                    position: absolute;
+                    top: 50px;
+                    left: 50px;
+                    right: 50px;
+                    bottom: 50px;
+                    background: rgba(0,0,0,0.6);
+                    backdrop-filter: blur(10px);
+                    padding: 20px;
+                    gap: 15px;
+                    overflow-y: auto;
+                    border-radius: 15px;
+                "
+            >
+                <h1
+                    style="
+                        color: white;
+                        text-align: center;
+                        margin-bottom: 20px;
+                    "
+                >
+                    Bar Shop
+                </h1>
+
+                <!-- Bullets -->
+                <div class="shopItem">
+                    <img src="images/bullet.png">
+
+                    <div class="shopInfo">
+                        <h2>Bullets x5</h2>
+                        <p>Price: 1 Coin</p>
+                    </div>
+
+                    <button id="buyBullets" class="button">
+                        Buy
+                    </button>
+                </div>
+
+                <!-- Wine -->
+                <div class="shopItem">
+                    <img src="images/wine.png">
+
+                    <div class="shopInfo">
+                        <h2>Wine</h2>
+                        <p>Restore 1 HP (player max health 3)</p>
+                        <p>Price: 5 Coins</p>
+                    </div>
+
+                    <button id="buyWine" class="button">
+                        Buy
+                    </button>
+                </div>
+
+                <!-- Exit button -->
+                <button
+                    id="closeShop"
+                    class="button"
+                    style="
+                        width: 120px;
+                        align-self: center;
+                        margin-top: 15px;
+                    "
+                >
+                    Close Shop
+                </button>
+            </div>
+
+            <!-- Text showing how to enter player 7's bar -->
+            <div
+                id="enterbar"
+                style="
+                    display: none;
+                    background-color: black;
+                    color: white;
+                    position: absolute;
+                    width: 75px;
+                    height: 10px;
+                    top: 310px;
+                    left: 467px;
+                    border-radius: 10px;
+                    text-align: center;
+                    font-size: 5px;
+                    padding: 7px;
+                    line-height: 1.5;
+                "
+            >Type 'b' to enter his bar</div>
+
+            <!-- Text above the chicken showing who it belongs to -->
+            <div    
+                id="RobChickenText"
+                style="
+                    display: none;
+                    position: absolute;
+                    background-color: black;
+                    color: white;
+                    width: 65px;
+                    height: 3px;
+                    top: 100px;
+                    left: 100px;
+                    font-size: 5px;
+                    padding: 5px;
+                    border-radius: 8px;
+                "
+            >Rob's chicken</div>
+
+            <!-- Text that telling the player what to do when he find Rob's chicken -->
+             <div    
+                id="catchRobChicken"
+                style="
+                    display: none;
+                    position: absolute;
+                    background-color: black;
+                    color: white;
+                    width: 65px;
+                    height: 12px;
+                    top: 100px;
+                    left: 100px;
+                    font-size: 5px;
+                    padding: 5px;
+                    line-height: 1.2;
+                    text-align: center;
+                    border-radius: 8px;
+                "
+            >enter 'R' to return her to Rob</div>
+
+            <!-- battle things -->
+            <div id="userInterface" style="display: none;">
+                <!-- Represent health bar of draggle (enemy) -->
+                <div 
+                    style="    
+                        background-color: white;
+                        width: 250px;
+                        position: absolute;
+                        top: 50px;
+                        left: 50px;
+                        border: 4px black solid;
+                        padding: 12px;
+                        "
+                    >
+                    <h1>Draggle</h1>
+                    <div style="position: relative;">
+                        <div style="height: 5px; background-color: #ccc; margin-top: 10px;"></div>
+                        <div 
+                            id="enemyHealthBar"
+                            style="
+                                height: 5px;
+                                background-color: green;
+                                position: absolute; 
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                            "
+                        ></div>
+                    </div>
+                </div>
+
+                <!-- Represent health bar of emby (us) -->
+                <div 
+                    style="    
+                        background-color: white;
+                        width: 250px;
+                        position: absolute;
+                        top: 330px;
+                        right: 50px;
+                        border: 4px black solid;
+                        padding: 12px;
+                        "
+                    >
+                    <h1>Emby</h1>
+                    <div style="position: relative;">
+                        <div style="height: 5px; background-color: #ccc; margin-top: 10px;"></div>
+                        <div
+                            id="playerHealthBar" 
+                            style="
+                            height: 5px;
+                            background-color: green;
+                            position: absolute; 
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            "
+                        ></div>
+                    </div>
+                </div>
+
+                <!-- attack bar -->
+                <div 
+                    style="
+                        background-color: white;
+                        height: 140px;
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        border-top: 4px black solid;
+                        display: flex;
+                    "
+                >
+                    <div 
+                        id="dialogueBox"
+                        style="
+                            position: absolute; 
+                            top: 0; 
+                            right: 0; 
+                            bottom: 0; 
+                            left: 0; 
+                            background-color: white;
+                            padding: 12px;
+                            display: none;
+                            cursor: pointer;
+                        "
+                    >
+                    </div>
+
+                    <!-- which attack we use(1 or 2) -->
+                    <div 
+                        id="attacksBox"
+                        style="
+                            width: 66.66%; 
+                            display: grid; grid-template-columns: repeat(3, 1fr);
+                        "
+                    ></div>
+                    <!-- attack type -->
+                    <div
+                        style="
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 33.33%;
+                            border-left: 4px black solid;">
+                        <h1 id="attackType" style="padding: 10px;">Attack Type</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" 
+                integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA==" 
+                crossorigin="anonymous" 
+                referrerpolicy="no-referrer"
+        ></script>
+        <script 
+        src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js" 
+        integrity="sha512-H6cPm97FAsgIKmlBA4s774vqoN24V5gSQL4yBTDOY2su2DeXZVhQPxFK4P6GPdnZqM9fg1G3cMv5wD7e6cFLZQ==" 
+        crossorigin="anonymous" 
+        referrerpolicy="no-referrer">
+        </script>
+        <script src="data/audio.js"></script>
+        <script src="data/collision.js"></script>
+        <script src="data/battleZones.js"></script>
+        <script src="data/houseCollision.js"></script>
+        <script src="data/barCollision.js"></script>
+        <script src="data/caveCollision.js"></script>
+        <script src="data/caveMonstersPositions.js"></script>
+        <script src="data/caveCoinsPositions.js"></script>
+        <script src="data/caveTorchesPositions.js"></script>
+        <script src="data/caveWaterfallsUpPositions.js"></script>
+        <script src="data/caveWaterfallsLeftPositions.js"></script>
+        <script src="data/caveWaterFallsDown.js"></script>
+        <script src="data/caveExitPosition.js"></script>
+        <script src="data/caveEnterBattlePosition.js"></script>
+        <script src="data/attacks.js"></script>
+        <script src="data/monsters.js"></script>
+        <script src="classes.js"></script>
+        <script src="pokemon.js"></script>
+        <script src="house1.js"></script>
+        <script src="bar.js"></script>
+        <script src="cave.js"></script>
+        <script src="caveBattle.js"></script>
+        <script src="battleScene.js"></script>
+    </body>
+</html>

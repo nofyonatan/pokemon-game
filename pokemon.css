@@ -1,0 +1,187 @@
+* {
+  font-family: "Press Start 2P", cursive;
+  user-select: none;
+}
+
+
+body {
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+h1 {
+    margin: 0;
+    font-size: 16px;
+}
+
+button {
+    border: none;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #ddd;
+    cursor: pointer;
+}
+
+#introScreen {
+    position: fixed;
+    inset: 0;
+    background: black;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+}
+
+#tutorialScroll {
+    transform: translateY(-120vh);
+
+    width: 700px;
+    max-width: 90%;
+
+    padding: 40px;
+
+    background: #e6d3a3;
+    border: 10px solid #7a5a2b;
+    border-radius: 20px;
+
+    text-align: center;
+}
+
+#tutorialScroll h1 {
+    margin-bottom: 20px;
+}
+
+#tutorialScroll button {
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 12px 24px;
+    cursor: pointer;
+}
+
+#hatClaimButton {
+    /* position: absolute; */
+    display: none;
+    width: 140px;
+    padding: 10px;
+    bottom: 10px;
+    /* border: 3px solid #3b2a1a; */
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(to bottom, #ffd166, #f4a261);
+    color: white;
+    padding-top: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #9c6644;
+    transition: 0.15s;
+}
+
+#hatClaimButton:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+#hatClaimButton:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #9c6644;
+}
+
+.blur {
+    filter: blur(2.5px);
+}
+
+.button {
+    display: block;
+    width: 160px;
+    padding: 10px;
+    bottom: 10px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(to bottom, #ffd166, #f4a261);
+    color: white;
+    padding-top: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #9c6644;
+    transition: 0.15s;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+.button:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #9c6644;
+}
+
+.shopItem {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.shopItem img {
+    width: 80px;
+    height: 80px;
+}
+
+.shopInfo {
+    flex: 1;
+}
+
+.shopInfo h2 {
+    margin-bottom: 8px;
+}
+
+.shopInfo p {
+    margin: 4px 0;
+}
+
+.achievement {
+    display: none;
+    background-color: white;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border-radius: 10px;
+    font-size: 8px;
+    padding: 7px;
+    line-height: 1.5;
+}
+
+.buttonsAchievements {
+    height: 45px;
+    line-height: 1.5;
+    background: linear-gradient(to bottom, #ffd166, #f4a261);
+    padding-top: 7px;
+    font-size: 7px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #9c6644;
+    transition: 0.15s;
+}
+
+.buttonsAchievements:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+.buttonsAchievements:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #9c6644;
+}
