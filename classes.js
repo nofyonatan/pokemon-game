@@ -42,12 +42,12 @@ class Sprite {
             this.image.height, 
             this.position.x,
             this.position.y,
-            this.width, //(this.image.width / this.frames.max)
-            this.height //this.image.height * this.scale
+            this.width, 
+            this.height 
         );
         c.restore();
 
-        c.strokeStyle = "rgba(255, 0, 0, 0)";
+        c.strokeStyle = "rgba(255, 0, 0, 0.5)";
         if (this.scale === 3) {
             c.strokeRect(this.position.x + 27, this.position.y + 30, 45, 40);
         }
