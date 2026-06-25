@@ -6,6 +6,8 @@ const c = canvas.getContext('2d'); // used to draw on the canvas
 canvas.width = 1024;
 canvas.height = 576;
 
+c.imageSmoothingEnabled = false;
+
 // collisoin
 const collisionsMap = [];
 for (let i = 0; i < collisions.length; i += 70) {
@@ -118,6 +120,8 @@ let getIntoCave = false;
 // the amount of lives player has
 let lives = 3
 // the amount of ammo player have
+let InfiniteAmmo = false;
+let pastNumberOfammo;
 let numberOfammo = 5;
 // the number of coins player collect
 let numberOfCoins = 0;
@@ -1852,7 +1856,12 @@ function drawPlayerState() {
 
     c.font = "15px sans-serif";
     c.fillStyle = "white";
-    c.fillText("X" + numberOfammo, 150, 37);
+    if (!InfiniteAmmo) {
+        c.fillText("X" + numberOfammo, 150, 37);
+    }
+    else if (InfiniteAmmo) {
+        c.fillText("∞", 150, 37);
+    }
 
     // draw number of coins
     c.drawImage(coinImage, 185, 25, 14, 14);
@@ -2049,10 +2058,14 @@ document.querySelector('#buttonNotGettingIntoCave').addEventListener('click', ()
 
 // event listener for creating projectiles
 canvas.addEventListener('click', (event) => {
-    if (numberOfammo <= 0) return; // If you run out of ammo, don't create a bullet.
+    if (!InfiniteAmmo) {
+        if (numberOfammo <= 0) return; // If you run out of ammo, don't create a bullet.
+    }
 
     // dicrease the variable that shows how many bullets have left
-    numberOfammo -= 1;
+    if (!InfiniteAmmo) {
+        numberOfammo -= 1;
+    }
 
     const rect = canvas.getBoundingClientRect(); // where is the canvas on the browser
 

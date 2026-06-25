@@ -54,6 +54,12 @@ class Sprite {
         else if (this.scale === 5) {
             c.strokeRect(this.position.x + 48, this.position.y + 50, 65, 60);
         } 
+        else if (this.scale === 15) {
+            c.strokeRect
+            (
+                this.position.x + this.hitbox.offsetX, this.position.y + this.hitbox.offsetY, this.hitbox.width, this.hitbox.height
+            );
+        }
         else {
             c.strokeRect(this.position.x, this.position.y, this.width, this.height);
         }
@@ -77,7 +83,25 @@ class Sprite {
     }
 }
 
-//
+// regular slime class
+class regularSlime extends Sprite {
+    constructor(config) {
+        super(config);
+
+        this.lives = 1;
+        this.alive = true;
+
+        this.hitbox = {
+            offsetX: 27,
+            offsetY: 30,
+            width: 45,
+            height: 40
+        };
+    }
+}
+
+
+// blue slime class
 class BlueSlime extends Sprite {
     constructor(config) {
         super(config);
@@ -90,6 +114,23 @@ class BlueSlime extends Sprite {
             offsetY: 50,
             width: 65,
             height: 60
+        };
+    }
+}
+
+// red bos slime class
+class RedBosSlime extends Sprite {
+    constructor(config) {
+        super(config);
+
+        this.lives = 100;
+        this.alive = true;
+
+        this.hitbox = {
+            offsetX: 135,
+            offsetY: 150,
+            width: 210,
+            height: 175
         };
     }
 }

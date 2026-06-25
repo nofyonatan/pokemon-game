@@ -775,7 +775,7 @@ function cave() {
 
                         // active a new animation loop:            
                         // start main animation loop
-                        caveBattle();
+                        startCaveBattle();
 
                         // start cave battle music
                         // audio.map.stop();
@@ -815,7 +815,7 @@ function cave() {
             const projectile = projectiles[i];
             const monster = caveMonsters[j];
 
-            // if enemy not alive continue to another loop
+            // if enemy not alive continue to the next loop
             if (!monster.alive) continue;
 
             if (hitboxCollision({
