@@ -2057,16 +2057,25 @@ document.querySelector('#buttonNotGettingIntoCave').addEventListener('click', ()
 })
 
 // event listener for creating projectiles
+let lastShotTime = 0;
+let cooldown = 700
 canvas.addEventListener('click', (event) => {
     if (!InfiniteAmmo) {
         if (numberOfammo <= 0) return; // If you run out of ammo, don't create a bullet.
     }
+
+    const now = Date.now();
+
+    if (now - lastShotTime < cooldown) return;
+
+    lastShotTime = now;
 
     // dicrease the variable that shows how many bullets have left
     if (!InfiniteAmmo) {
         numberOfammo -= 1;
     }
 
+    // create bullet
     const rect = canvas.getBoundingClientRect(); // where is the canvas on the browser
 
     // Where did we click on the canvas?

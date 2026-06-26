@@ -133,20 +133,6 @@ const redBosSlime = new RedBosSlime({
 
 // FUNCTIONS
 function startCaveBattle() {
-    summonLoop();
-    caveBattle();
-}
-
-let summonTime = 5000;
-function summonLoop() {
-    summonMonster();
-
-    setTimeout(summonLoop, summonTime);
-}
-
-function caveBattle() {
-    const animationId = requestAnimationFrame(caveBattle);
-
     // resize canvas
     canvas.width = caveBattleBackground.width;
     canvas.height = caveBattleBackground.height;
@@ -156,6 +142,27 @@ function caveBattle() {
 
     // player has infinite ammo on the cave battle
     InfiniteAmmo = true;
+
+    // the cooldown of the shot is increase because player has inifinite ammo
+    cooldown = 1000;
+
+    // start game
+    summonLoop();
+    caveBattle();
+}
+
+// after how much time we need to summon a monster each time
+let summonTime = 5000;
+function summonLoop() {
+    if (!redBosSlime.alive) return;
+
+    summonMonster();
+
+    setTimeout(summonLoop, summonTime);
+}
+
+function caveBattle() {
+    const animationId = requestAnimationFrame(caveBattle);
 
     // DRAWING
     // clear canvas
@@ -179,10 +186,28 @@ function caveBattle() {
     //     torch.draw();
     // })
 
-    // draw bos slime
+    // draw boss slime
     if (redBosSlime.alive) {
         redBosSlime.draw();
+
+        // draw boss slime a health bar
+        c.fillStyle = "red";
+        c.fillRect(
+            redBosSlime.position.x + redBosSlime.hitbox.offsetX, 
+            redBosSlime.position.y + redBosSlime.hitbox.offsetY - 12, 
+            redBosSlime.hitbox.width, 
+            12
+        );
+
+        c.fillStyle = "green";
+        c.fillRect(
+            redBosSlime.position.x + redBosSlime.hitbox.offsetX, 
+            redBosSlime.position.y + redBosSlime.hitbox.offsetY - 12, 
+            redBosSlime.hitbox.width/100 * redBosSlime.health, 
+            12
+        );
     }
+
 
     // draw slimes
     caveBattleMonsters.forEach(monster => {
@@ -341,7 +366,7 @@ function caveBattle() {
 
         c.beginPath()
         c.arc(monster.position.x + monster.width/2, monster.position.y + monster.height/2, 300, 0 , Math.PI * 2);
-        c.strokeStyle = "rgba(255, 0, 0, 0.5)";
+        c.strokeStyle = "rgba(255, 0, 0, 0)";
         c.stroke();
         c.closePath();
 
@@ -445,6 +470,8 @@ function caveBattle() {
                 enemy: monster,
                 rectangle2: projectile
             })) {
+                if (monster.unkillable) continue;
+
                 // decrease monster lives
                 monster.lives--;
                 // if monster lives is equal to 0 - don't show the monster
@@ -473,9 +500,11 @@ function caveBattle() {
             rectangle2: projectile
         })) {
             // decrease monster lives
-            redBosSlime.lives--;
+            redBosSlime.health--;
+            // update boss summon time(if needed)
+            updateBossPahse();
             // if monster lives is equal to 0 - don't show the monster
-            if (redBosSlime.lives <= 0) {
+            if (redBosSlime.health <= 0) {
                 // enemy not alive (you can't see him)
                 redBosSlime.alive = false
             }
@@ -545,9 +574,29 @@ function summonMonster() {
         })
     )
 
+    caveBattleMonsters[caveBattleMonsters.length - 1].unkillable = true;
+
     gsap.to(caveBattleMonsters[caveBattleMonsters.length - 1].position, {
         x: player.position.x,
         y: player.position.y,
-        duration: 2.5
+        duration: 1.5,
+        onComplete: () => {
+            caveBattleMonsters[caveBattleMonsters.length - 1].unkillable = false;
+        }
     })
+}
+
+function updateBossPahse() {
+    if (redBosSlime.health <= 20) {
+        summonTime = 1000;
+        cooldown = 300;
+    }
+    else if (redBosSlime.health <= 50) {
+        summonTime = 2500;
+        cooldown = 600;
+    }
+    else if (redBosSlime.health <= 75) {
+        summonTime = 3800;
+        cooldown: 800
+    }
 }

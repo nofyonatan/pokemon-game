@@ -47,7 +47,7 @@ class Sprite {
         );
         c.restore();
 
-        c.strokeStyle = "rgba(255, 0, 0, 0.5)";
+        c.strokeStyle = "rgba(255, 0, 0, 0)";
         if (this.scale === 3) {
             c.strokeRect(this.position.x + 27, this.position.y + 30, 45, 40);
         }
@@ -90,6 +90,7 @@ class regularSlime extends Sprite {
 
         this.lives = 1;
         this.alive = true;
+        this.unkillable = false;
 
         this.hitbox = {
             offsetX: 27,
@@ -123,7 +124,7 @@ class RedBosSlime extends Sprite {
     constructor(config) {
         super(config);
 
-        this.lives = 100;
+        this.health = 100;
         this.alive = true;
 
         this.hitbox = {
