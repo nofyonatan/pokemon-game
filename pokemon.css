@@ -185,3 +185,74 @@ button:hover {
     transform: translateY(3px);
     box-shadow: 0 2px 0 #9c6644;
 }
+
+#caveBattle {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 20px;
+
+    box-sizing: border-box;
+}
+
+.caveBattleDivHealthBar {
+    width: auto;
+    background: linear-gradient(to bottom, #ffd166, #f4a261);
+    border: 4px solid #5a381e;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 20px;
+    padding: 10px;
+    box-shadow: 0 6px 10px rgba(0,0,0,.45);
+}
+
+.healthBarBackground {
+    width: 140px;
+    height: 18px;
+
+    background: #742323;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+#caveBattlePlayerHealthBar{
+    height:100%;
+    width:100%;
+
+    background:linear-gradient(#42ff42,#00b300);
+
+    transition:width .2s;
+}
+
+#caveBattleSlimeHealthBar{
+    height:100%;
+    width:100%;
+
+    background:linear-gradient(#42ff42,#00b300);
+
+    transition:width .2s;
+}
+
+.caveBattleDivHealthBar img{
+    width:40px;
+    height:40px;
+}
+
+.healthBarInfo{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+}

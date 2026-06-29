@@ -191,21 +191,21 @@ function caveBattle() {
         redBosSlime.draw();
 
         // draw boss slime a health bar
-        c.fillStyle = "red";
-        c.fillRect(
-            redBosSlime.position.x + redBosSlime.hitbox.offsetX, 
-            redBosSlime.position.y + redBosSlime.hitbox.offsetY - 12, 
-            redBosSlime.hitbox.width, 
-            12
-        );
+        // c.fillStyle = "red";
+        // c.fillRect(
+        //     redBosSlime.position.x + redBosSlime.hitbox.offsetX, 
+        //     redBosSlime.position.y + redBosSlime.hitbox.offsetY - 12, 
+        //     redBosSlime.hitbox.width, 
+        //     12
+        // );
 
-        c.fillStyle = "green";
-        c.fillRect(
-            redBosSlime.position.x + redBosSlime.hitbox.offsetX, 
-            redBosSlime.position.y + redBosSlime.hitbox.offsetY - 12, 
-            redBosSlime.hitbox.width/100 * redBosSlime.health, 
-            12
-        );
+        // c.fillStyle = "green";
+        // c.fillRect(
+        //     redBosSlime.position.x + redBosSlime.hitbox.offsetX, 
+        //     redBosSlime.position.y + redBosSlime.hitbox.offsetY - 12, 
+        //     redBosSlime.hitbox.width/100 * redBosSlime.health, 
+        //     12
+        // );
     }
 
 
@@ -243,7 +243,9 @@ function caveBattle() {
     }
 
     // draw player lives, coins and ammo
-    drawPlayerState();
+    //drawPlayerState();
+
+    document.querySelector('#caveBattle').style.display = "flex";
 
     // MOVEMENT
     let moving = true;// A varible to check whenever we should move or not
@@ -501,6 +503,7 @@ function caveBattle() {
         })) {
             // decrease monster lives
             redBosSlime.health--;
+            document.querySelector('#caveBattleSlimeHealthBar').style.width = redBosSlime.health + "%";
             // update boss summon time(if needed)
             updateBossPahse();
             // if monster lives is equal to 0 - don't show the monster
