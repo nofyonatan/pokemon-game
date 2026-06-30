@@ -186,6 +186,101 @@ button:hover {
     box-shadow: 0 2px 0 #9c6644;
 }
 
+#bossOverlay{
+    display: none;
+
+    position: absolute;
+
+    inset: 0;
+
+    background: rgba(0,0,0,.65);
+
+    z-index: 50;
+}
+
+#caveBattleInstructions{
+    display: none;
+
+    opacity: 1;
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%,-50%);
+
+    width: 520px;
+    max-width: 90%;
+
+    padding: 30px;
+
+    background: linear-gradient(#ffe9b5,#e9b96d);
+
+    border: 6px solid #5d3516;
+
+    border-radius:18px;
+
+    text-align: center;
+
+    box-shadow:
+        0 0 0 5px #8c5b2f inset,
+        0 10px 30px rgba(0,0,0,.5);
+
+    z-index: 100;
+}
+
+#caveBattleInstructions h2{
+    margin: 0;
+    color: #5a381e;
+    font-size: 20px;
+}
+
+#bossIcon{
+    image-rendering: pixelated;
+
+    width: 96px;
+    height: 90px;
+
+    margin-bottom: 15px;
+}
+
+.description{
+    font-size:12px;
+
+    line-height:1.8;
+
+    color:#40220f;
+}
+
+.rewardBox{
+
+    margin:20px 0;
+
+    padding:12px;
+
+    background:#fff4cf;
+
+    border:3px solid #c89b33;
+
+    border-radius:10px;
+}
+
+.warningBox{
+
+    margin-bottom:20px;
+
+    padding:12px;
+
+    background:#ffd3d3;
+
+    border:3px solid #aa3333;
+
+    color:#660000;
+
+    border-radius:10px;
+}
+
 #caveBattle {
     position: absolute;
     top: 0;
@@ -203,7 +298,7 @@ button:hover {
 }
 
 .caveBattleDivHealthBar {
-    width: auto;
+    width: 220px;
     background: linear-gradient(to bottom, #ffd166, #f4a261);
     border: 4px solid #5a381e;
     border-radius: 14px;
