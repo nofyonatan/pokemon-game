@@ -332,6 +332,7 @@ function cave() {
         caveBackground, ...caveBoundaries, ...caveMonsters, ...projectiles, ...caveCoins, ...caveTorches,
          ...caveWaterfallsUp, ...caveWaterfallsLeft, ...caveWaterfallsDown, ...caveExit, ...caveEnterBattle
     ];
+    
     // DRAWING
     // clear canvas
     c.clearRect(0, 0, canvas.width, canvas.height);
@@ -778,8 +779,8 @@ function cave() {
                         startCaveBattle();
 
                         // start cave battle music
-                        // audio.map.stop();
-                        // audio.map.play();
+                        audio.caveBattle.stop();
+                        audio.caveBattle.play();
 
                         // show the screen
                         gsap.to('#blackDiv', {

@@ -55,5 +55,11 @@ const audio = {
         src: 'audio/cave.mp3',
         html5: true,
         loop: true
+    }),
+    caveBattle: new Howl({
+        src: 'audio/caveBattle.mp3',
+        html5: true,
+        loop: true,
+        volume: 0.1
     })
 };

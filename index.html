@@ -556,6 +556,7 @@
             <!-- cave battle -->
             <div id="bossOverlay"></div>
 
+            <!-- insturctions -->
             <div id="caveBattleInstructions">
 
                 <h2>⚔ Boss Battle ⚔</h2>
@@ -579,9 +580,32 @@
                 <button id="startBossFight" class="button" style="width: 220px; margin: auto;">
                     Begin Battle
                 </button>
+            </div>
+
+            <!-- end battle -->
+            <div id="battleResult">
+
+                <img id="resultIcon" src="images/coin.png">
+
+                <h2 id="battleResultTitle">
+                    Victory!
+                </h2>
+
+                <p id="battleResultText">
+                    You defeated the King Slime!
+                </p>
+
+                <div id="battleRewardBox">
+                    🪙 You earned <strong>50 Coins</strong>
+                </div>
+
+                <button id="continueButton" class="button">
+                    Continue
+                </button>
 
             </div>
 
+            <!-- health bars -->
             <div id="caveBattle">
                 <!-- player health bar -->
                 <div class="caveBattleDivHealthBar">

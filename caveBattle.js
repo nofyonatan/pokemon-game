@@ -1,5 +1,9 @@
 // VARIABLES
-let caveBattlePLayerLives = 5;
+let caveBattlePLayerLives = 5; // A variable that represents the amount of health the player has in battle.
+let startBattle = false; // A variable that represents whether the battle should start or not.
+let endBattle = false; // A variable that represents whether the battle should end or not.
+let playerWon = null; // A variable that represents at the end of the game whether the player won (or the slime won)
+let exitBattle = false; // A variable that represents whether to return to the cave or not
 
 // DATA
 // boundries map
@@ -146,6 +150,20 @@ function startCaveBattle() {
     // show instructions
     document.querySelector('#bossOverlay').style.display = "block";
     document.querySelector('#caveBattleInstructions').style.display = "block";
+
+    gsap.from("#caveBattleInstructions", {
+        opacity: 0,
+        scale: 0.8,
+        y: -200,
+        duration: 2,
+        ease: "back.out(1.7)"
+    });
+
+    // So that it doesn't look like the player is moving
+    player.animate = false;
+
+    // start the battle(just the drawing)
+    caveBattle();
 }
 
 // after how much time we need to summon a monster each time
@@ -192,337 +210,396 @@ function caveBattle() {
     });
 
     // draw player
-    player.draw();
+    if (caveBattlePLayerLives > 0) {
+        player.draw();
 
-    // draw hat(if player climed him)
-    if (playerClaimHat) {
-        hat.draw();
-    }
-
-    // draw projectiles and remove them if that went off the screen
-    for (let i = projectiles.length - 1; i >= 0; i--) { 
-        const projectile = projectiles[i];
-
-        // draw projectile
-        projectile.update(); 
-
-        // Check if the projectiles went off the screen
-        if ( 
-            projectile.position.x < 0 || 
-            projectile.position.x > canvas.width || 
-            projectile.position.y < 0 || 
-            projectile.position.y > canvas.height 
-        ) { 
-            projectiles.splice(i, 1); 
-        }   
-    }
-
-    // draw player lives, coins and ammo
-    //drawPlayerState();
-
-    // MOVEMENT
-    let moving = true;// A varible to check whenever we should move or not
-    player.animate = false; // 'true' when the player is moving and need to change frame
-
-    if (keys.w.pressed && lastKey === 'w') {
-        player.animate = true;
-        player.image = player.sprites.up;
-
-        // check for collision with boundaries
-        for (let i = 0; i < caveBattleBoundaries.length; i++) {
-            const Boundary = caveBattleBoundaries[i];
-
-            if (rectangularCollision({
-                rectangle1: player,
-                rectangle2: {...Boundary,
-                    position: {
-                        x: Boundary.position.x,
-                        y: Boundary.position.y + velocity
-                    }
-                }
-            })) {
-                moving = false;
-                break;
-            }
-        }
-
-        if (moving) {
-            player.position.y -= velocity;
-            hat.position.y -= velocity;
-        }
-    }
-    else if (keys.s.pressed && lastKey === 's') {
-        player.animate = true;
-        player.image = player.sprites.down;
-
-        // check for collision with boundaries
-        for (let i = 0; i < caveBattleBoundaries.length; i++) {
-            const Boundary = caveBattleBoundaries[i];
-
-            if (rectangularCollision({
-                rectangle1: player,
-                rectangle2: {...Boundary,
-                    position: {
-                        x: Boundary.position.x,
-                        y: Boundary.position.y - velocity
-                    }
-                }
-            })) {
-                moving = false;
-                break;
-            }
-        }
-
-        if (moving) {
-            player.position.y += velocity;
-            hat.position.y += velocity;
-        }
-    }
-    else if (keys.d.pressed && lastKey === 'd') {
-        player.animate = true;
-        player.image = player.sprites.right;
-
-        // check for collision with boundaries
-        for (let i = 0; i < caveBattleBoundaries.length; i++) {
-            const Boundary = caveBattleBoundaries[i];
-
-            if (rectangularCollision({
-                rectangle1: player,
-                rectangle2: {...Boundary,
-                    position: {
-                        x: Boundary.position.x - velocity,
-                        y: Boundary.position.y
-                    }
-                }
-            })) {
-                moving = false;
-                break;
-            }
-        }
-
-        if (moving) {
-            player.position.x += velocity;
-            hat.position.x += velocity;
-        }
-    }
-    else if (keys.a.pressed && lastKey === 'a') {
-        player.animate = true;
-        player.image = player.sprites.left;
-
-        // check for collision with boundaries
-        for (let i = 0; i < caveBattleBoundaries.length; i++) {
-            const Boundary = caveBattleBoundaries[i];
-
-            if (rectangularCollision({
-                rectangle1: player,
-                rectangle2: {...Boundary,
-                    position: {
-                        x: Boundary.position.x + velocity,
-                        y: Boundary.position.y
-                    }
-                }
-            })) {
-                moving = false;
-                break;
-            }
-        }
-
-        if (moving) {
-            player.position.x -= velocity;
-            hat.position.x -= velocity;
+        // draw hat(if player climed him)
+        if (playerClaimHat) {
+            hat.draw();
         }
     }
 
-    // move monsters(if needed)
-    for (let i = 0; i < caveBattleMonsters.length; i++) {
-        const monster = caveBattleMonsters[i];
-
-        if (!monster.alive) continue;
-
-        c.beginPath()
-        c.arc(monster.position.x + monster.width/2, monster.position.y + monster.height/2, 300, 0 , Math.PI * 2);
-        c.strokeStyle = "rgba(255, 0, 0, 0)";
-        c.stroke();
-        c.closePath();
-
-        // Calculating the distance on the X axis between the player and the monster
-        const dx = player.position.x - monster.position.x;
-
-        // Calculate the distance on the Y axis between the player and the monster
-        const dy = player.position.y - monster.position.y;
-
-        // Calculating the direct distance (in the air) between the player and the monster
-        // According to the Pythagorean theorem
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        // If the player is within the monster's detection radius
-        if (distance < 300) {
-            // change monster sprite
-            monster.image = monster.sprites.walking.right;
-            monster.frames.hold = 10;
-
-            // monster pursuit speed
-            const speed = 1.2;
-
-            // How much the player needs to move in each axis
-            const velocityX = (dx / distance) * speed;
-            const velocityY = (dy / distance) * speed;
-
-            // check collision with boundaries
-            // X-axis
-            let canMoveX = true;
-
-            for (const boundary of caveBattleBoundaries) {
-                if (
-                    hitboxCollision({
-                        enemy: {
-                            ...monster,
-                            position: {
-                                x: monster.position.x + velocityX,
-                                y: monster.position.y
-                            }
-                        },
-                        rectangle2: boundary
-                    })
-                ) {
-                    canMoveX = false;
-                    break;
-                }
-            }
-
-            // Y-axis
-            let canMoveY = true;
-
-            for (const boundary of caveBattleBoundaries) {
-                if (
-                    hitboxCollision({
-                        enemy: {
-                            ...monster,
-                            position: {
-                                x: monster.position.x,
-                                y: monster.position.y + velocityY
-                            }
-                        },
-                        rectangle2: boundary
-                    })
-                ) {
-                    canMoveY = false;
-                    break;
-                }
-            }
-
-
-            // dx / distance and dy / distance
-            // create a normalized vector (length 1)
-            // i.e. just direction without the effect of distance
-
-            // Moving the monster towards the player on the X axis
-            if (canMoveX) {
-                monster.position.x += velocityX;
-            }
-
-            // Moving the monster towards the player on the Y axis
-            if (canMoveY) {
-                monster.position.y += velocityY;
-            }
-        } else {
-            monster.image = monster.sprites.standing.right;
-            monster.frames.hold = 30;
-        }
-    }
-
-    // COLLISION
-    // check collision between projectiles to slimes
-    for (let i = projectiles.length - 1; i >= 0; i--) {
-        for (let j = caveBattleMonsters.length - 1; j >= 0; j--) {
+    if (startBattle && !endBattle) {
+        // draw projectiles and remove them if that went off the screen
+        for (let i = projectiles.length - 1; i >= 0; i--) { 
             const projectile = projectiles[i];
-            const monster = caveBattleMonsters[j];
+
+            // draw projectile
+            projectile.update(); 
+
+            // Check if the projectiles went off the screen
+            if ( 
+                projectile.position.x < 0 || 
+                projectile.position.x > canvas.width || 
+                projectile.position.y < 0 || 
+                projectile.position.y > canvas.height 
+            ) { 
+                projectiles.splice(i, 1); 
+            }   
+        }
+
+        // draw player lives, coins and ammo
+        //drawPlayerState();
+
+        // MOVEMENT
+        let moving = true;// A varible to check whenever we should move or not
+        player.animate = false; // 'true' when the player is moving and need to change frame
+
+        if (keys.w.pressed && lastKey === 'w') {
+            player.animate = true;
+            player.image = player.sprites.up;
+
+            // check for collision with boundaries
+            for (let i = 0; i < caveBattleBoundaries.length; i++) {
+                const Boundary = caveBattleBoundaries[i];
+
+                if (rectangularCollision({
+                    rectangle1: player,
+                    rectangle2: {...Boundary,
+                        position: {
+                            x: Boundary.position.x,
+                            y: Boundary.position.y + velocity
+                        }
+                    }
+                })) {
+                    moving = false;
+                    break;
+                }
+            }
+
+            if (moving) {
+                player.position.y -= velocity;
+                hat.position.y -= velocity;
+            }
+        }
+        else if (keys.s.pressed && lastKey === 's') {
+            player.animate = true;
+            player.image = player.sprites.down;
+
+            // check for collision with boundaries
+            for (let i = 0; i < caveBattleBoundaries.length; i++) {
+                const Boundary = caveBattleBoundaries[i];
+
+                if (rectangularCollision({
+                    rectangle1: player,
+                    rectangle2: {...Boundary,
+                        position: {
+                            x: Boundary.position.x,
+                            y: Boundary.position.y - velocity
+                        }
+                    }
+                })) {
+                    moving = false;
+                    break;
+                }
+            }
+
+            if (moving) {
+                player.position.y += velocity;
+                hat.position.y += velocity;
+            }
+        }
+        else if (keys.d.pressed && lastKey === 'd') {
+            player.animate = true;
+            player.image = player.sprites.right;
+
+            // check for collision with boundaries
+            for (let i = 0; i < caveBattleBoundaries.length; i++) {
+                const Boundary = caveBattleBoundaries[i];
+
+                if (rectangularCollision({
+                    rectangle1: player,
+                    rectangle2: {...Boundary,
+                        position: {
+                            x: Boundary.position.x - velocity,
+                            y: Boundary.position.y
+                        }
+                    }
+                })) {
+                    moving = false;
+                    break;
+                }
+            }
+
+            if (moving) {
+                player.position.x += velocity;
+                hat.position.x += velocity;
+            }
+        }
+        else if (keys.a.pressed && lastKey === 'a') {
+            player.animate = true;
+            player.image = player.sprites.left;
+
+            // check for collision with boundaries
+            for (let i = 0; i < caveBattleBoundaries.length; i++) {
+                const Boundary = caveBattleBoundaries[i];
+
+                if (rectangularCollision({
+                    rectangle1: player,
+                    rectangle2: {...Boundary,
+                        position: {
+                            x: Boundary.position.x + velocity,
+                            y: Boundary.position.y
+                        }
+                    }
+                })) {
+                    moving = false;
+                    break;
+                }
+            }
+
+            if (moving) {
+                player.position.x -= velocity;
+                hat.position.x -= velocity;
+            }
+        }
+
+        // move monsters(if needed)
+        for (let i = 0; i < caveBattleMonsters.length; i++) {
+            const monster = caveBattleMonsters[i];
+
+            if (!monster.alive) continue;
+
+            c.beginPath()
+            c.arc(monster.position.x + monster.width/2, monster.position.y + monster.height/2, 300, 0 , Math.PI * 2);
+            c.strokeStyle = "rgba(255, 0, 0, 0)";
+            c.stroke();
+            c.closePath();
+
+            // Calculating the distance on the X axis between the player and the monster
+            const dx = player.position.x - monster.position.x;
+
+            // Calculate the distance on the Y axis between the player and the monster
+            const dy = player.position.y - monster.position.y;
+
+            // Calculating the direct distance (in the air) between the player and the monster
+            // According to the Pythagorean theorem
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // If the player is within the monster's detection radius
+            if (distance < 300) {
+                // change monster sprite
+                monster.image = monster.sprites.walking.right;
+                monster.frames.hold = 10;
+
+                // monster pursuit speed
+                const speed = 1.2;
+
+                // How much the player needs to move in each axis
+                const velocityX = (dx / distance) * speed;
+                const velocityY = (dy / distance) * speed;
+
+                // check collision with boundaries
+                // X-axis
+                let canMoveX = true;
+
+                for (const boundary of caveBattleBoundaries) {
+                    if (
+                        hitboxCollision({
+                            enemy: {
+                                ...monster,
+                                position: {
+                                    x: monster.position.x + velocityX,
+                                    y: monster.position.y
+                                }
+                            },
+                            rectangle2: boundary
+                        })
+                    ) {
+                        canMoveX = false;
+                        break;
+                    }
+                }
+
+                // Y-axis
+                let canMoveY = true;
+
+                for (const boundary of caveBattleBoundaries) {
+                    if (
+                        hitboxCollision({
+                            enemy: {
+                                ...monster,
+                                position: {
+                                    x: monster.position.x,
+                                    y: monster.position.y + velocityY
+                                }
+                            },
+                            rectangle2: boundary
+                        })
+                    ) {
+                        canMoveY = false;
+                        break;
+                    }
+                }
+
+
+                // dx / distance and dy / distance
+                // create a normalized vector (length 1)
+                // i.e. just direction without the effect of distance
+
+                // Moving the monster towards the player on the X axis
+                if (canMoveX) {
+                    monster.position.x += velocityX;
+                }
+
+                // Moving the monster towards the player on the Y axis
+                if (canMoveY) {
+                    monster.position.y += velocityY;
+                }
+            } else {
+                monster.image = monster.sprites.standing.right;
+                monster.frames.hold = 30;
+            }
+        }
+
+        // COLLISION
+        // check collision between projectiles to slimes
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            for (let j = caveBattleMonsters.length - 1; j >= 0; j--) {
+                const projectile = projectiles[i];
+                const monster = caveBattleMonsters[j];
+
+                // if enemy not alive continue to the next loop
+                if (!monster.alive) continue;
+
+                if (hitboxCollision({
+                    enemy: monster,
+                    rectangle2: projectile
+                })) {
+                    if (monster.unkillable) continue;
+
+                    // decrease monster lives
+                    monster.lives--;
+                    // if monster lives is equal to 0 - don't show the monster
+                    if (monster.lives <= 0) {
+                        // enemy not alive (you can't see him)
+                        monster.alive = false
+                    }
+
+                    // delete projectile
+                    projectiles.splice(i, 1);
+
+                    break;
+                }
+            }
+        }
+
+        // check collision between the boss slime to projectiles
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            const projectile = projectiles[i];
 
             // if enemy not alive continue to the next loop
+            if (!redBosSlime.alive) continue;
+
+            if (hitboxCollision({
+                enemy: redBosSlime,
+                rectangle2: projectile
+            })) {
+                // decrease monster lives
+                redBosSlime.health--;
+                document.querySelector('#caveBattleSlimeHealthBar').style.width = redBosSlime.health + "%";
+                // update boss summon time(if needed)
+                updateBossPahse();
+                // if monster lives is equal to 0 - don't show the monster
+                if (redBosSlime.health <= 0) {
+                    // enemy not alive (you can't see him)
+                    redBosSlime.alive = false
+                    playerWon = true;
+                    endBattle = true;
+                }
+                // delete projectile
+                projectiles.splice(i, 1);
+            }
+        }
+
+        // check collision between projectiles to walls
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            for (let j = 0; j < caveBattleBoundaries.length; j++) {
+                const projectile = projectiles[i];
+                const boundary = caveBattleBoundaries[j];
+
+                if (!projectile) continue;
+
+                if (rectangularCollision({
+                    rectangle1: projectile,
+                    rectangle2: boundary
+                })) {
+                    // delete projectile
+                    projectiles.splice(i, 1);
+                }
+            }
+        }
+
+        // collision between slimes to player
+        for (let i = caveBattleMonsters.length - 1; i >= 0; i--) {
+            const monster = caveBattleMonsters[i];
+
             if (!monster.alive) continue;
 
             if (hitboxCollision({
                 enemy: monster,
-                rectangle2: projectile
+                rectangle2: player
             })) {
-                if (monster.unkillable) continue;
-
-                // decrease monster lives
-                monster.lives--;
-                // if monster lives is equal to 0 - don't show the monster
-                if (monster.lives <= 0) {
-                    // enemy not alive (you can't see him)
-                    monster.alive = false
-                }
-
-                // delete projectile
-                projectiles.splice(i, 1);
-
-                break;
+                monster.alive = false;
+                if (caveBattlePLayerLives > 0) {
+                    caveBattlePLayerLives--;
+                    if (caveBattlePLayerLives <= 0) {
+                        endBattle = true;
+                        playerWon = false;
+                    }
+                } 
+                document.querySelector('#caveBattlePlayerHealthBar').style.width = caveBattlePLayerLives * 20 + '%';
             }
         }
     }
 
-    // check collision between the boss slime to projectiles
-    for (let i = projectiles.length - 1; i >= 0; i--) {
-        const projectile = projectiles[i];
-
-        // if enemy not alive continue to the next loop
-        if (!redBosSlime.alive) continue;
-
-        if (hitboxCollision({
-            enemy: redBosSlime,
-            rectangle2: projectile
-        })) {
-            // decrease monster lives
-            redBosSlime.health--;
-            document.querySelector('#caveBattleSlimeHealthBar').style.width = redBosSlime.health + "%";
-            // update boss summon time(if needed)
-            updateBossPahse();
-            // if monster lives is equal to 0 - don't show the monster
-            if (redBosSlime.health <= 0) {
-                // enemy not alive (you can't see him)
-                redBosSlime.alive = false
-            }
-            // delete projectile
-            projectiles.splice(i, 1);
-        }
+    // END BATTLE
+    // show result
+    if (endBattle) {
+        showResult();
     }
 
-    // check collision between projectiles to walls
-    for (let i = projectiles.length - 1; i >= 0; i--) {
-        for (let j = 0; j < caveBattleBoundaries.length; j++) {
-            const projectile = projectiles[i];
-            const boundary = caveBattleBoundaries[j];
+    // return to cave
+    if (exitBattle) {
+        // // deactivate current animation loop
+        window.cancelAnimationFrame(animationId);
 
-            if (!projectile) continue;
+        // stop cave battle audio
+        audio.caveBattle.stop();
+        audio.caveBattle.seek(0);
 
-            if (rectangularCollision({
-                rectangle1: projectile,
-                rectangle2: boundary
-            })) {
-                // delete projectile
-                projectiles.splice(i, 1);
+        // fade
+        gsap.to('#blackDiv', {
+            opacity: 1, 
+            onComplete() {
+                // change player and hat positions to adjust the cave
+                player.position.x = pastPlayerPosition.x;
+                player.position.y = pastPlayerPosition.y;
+                hat.position.x = pastHatPosition.x;
+                hat.position.y = pastHatPosition.y;
+
+                // active a new animation loop:            
+                // start cave animation loop
+                cave();
+
+                // resize canvas
+                canvas.width = 1024;
+                canvas.height = 576;
+
+                // So that the canvas doesn't blur the figures
+                c.imageSmoothingEnabled = false;
+
+                // start cave battle music
+                audio.cave.stop();
+                audio.cave.play();
+
+                // show the screen
+                gsap.to('#blackDiv', {
+                    opacity: 0,
+                    duration: 0.4,
+                })
             }
-        }
-    }
-
-    // collision between slimes to player
-    for (let i = caveBattleMonsters.length - 1; i >= 0; i--) {
-        const monster = caveBattleMonsters[i];
-
-        if (!monster.alive) continue;
-
-        if (hitboxCollision({
-            enemy: monster,
-            rectangle2: player
-        })) {
-            monster.alive = false;
-            if (caveBattlePLayerLives > 0) {
-                caveBattlePLayerLives--;
-            }
-            document.querySelector('#caveBattlePlayerHealthBar').style.width = caveBattlePLayerLives * 20 + '%';
-        }
+        });
     }
 }
 
@@ -578,6 +655,31 @@ function updateBossPahse() {
     }
 }
 
+function showResult() {
+    // dont show the health bars
+    document.querySelector('#caveBattle').style.display = "none";
+
+    document.querySelector("#bossOverlay").style.display = "block";
+
+    // Changes what the player will see if they win or lose
+    if (playerWon) {
+        document.querySelector('#resultIcon').src = "images/coin.png";
+        document.querySelector("#battleResultTitle").innerText = "Victory!";
+        document.querySelector("#battleResultText").innerText = "You defeated the King Slime!";
+        document.querySelector('#battleRewardBox').innerHTML = "🪙 You earned <strong>50 Coins</strong>";
+    }
+    else if (!playerWon) {
+        document.querySelector('#resultIcon').src = "images/redSlimeHead.png";
+        document.querySelector("#battleResultTitle").innerText = "Defeat";
+        document.querySelector("#battleResultText").innerText = "The King Slime defeated you.";
+        document.querySelector("#battleRewardBox").innerHTML = "💰 All your coins were taken.";
+    }
+
+    document.querySelector("#battleResult").style.display = "block";
+}
+
+// EVENT LISTENERS
+// event listener for starting the fight
 document.querySelector('#startBossFight').addEventListener('click', () => {
     // hide instructions
     gsap.to("#caveBattleInstructions", {
@@ -598,7 +700,28 @@ document.querySelector('#startBossFight').addEventListener('click', () => {
 
             // start game
             summonLoop();
-            caveBattle();
+            startBattle = true; // so the player will be able to move
         }
     });
+})
+
+// event listener for ending battle
+document.querySelector('#continueButton').addEventListener('click', () => {
+    endBattle = false; // so we will not see the result when fade
+    exitBattle = true; // so we will return to the cave
+
+    // hide the battle result
+    document.querySelector("#bossOverlay").style.display = "none";
+    document.querySelector("#battleResult").style.display = "none";
+
+    // add coins to the player if he won, or take all the player coins if he lost
+    if (playerWon) {
+        numberOfCoins += 50;
+    }
+    else if (!playerWon) {
+        numberOfCoins = 0;
+    }
+
+    // we dont want the player to have infinite ammon anymore
+    InfiniteAmmo = false;
 })

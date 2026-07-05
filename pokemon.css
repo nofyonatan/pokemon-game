@@ -281,6 +281,90 @@ button:hover {
     border-radius:10px;
 }
 
+#battleResult{
+    display: none;
+
+    opacity: 1;
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform:translate(-50%,-50%);
+
+    width:480px;
+    max-width:90%;
+
+    padding:35px;
+
+    text-align:center;
+
+    background:linear-gradient(#ffe9b5,#e9b96d);
+
+    border:6px solid #5d3516;
+
+    border-radius:18px;
+
+    box-shadow:
+        0 0 0 5px #8c5b2f inset,
+        0 12px 30px rgba(0,0,0,.5);
+
+    z-index:100;
+}
+
+#resultIcon{
+
+    width:90px;
+    height:90px;
+
+    image-rendering:pixelated;
+
+    margin-bottom:20px;
+}
+
+#battleResultTitle{
+
+    margin:0;
+
+    color:#5a381e;
+
+    font-size:24px;
+}
+
+#battleResultText{
+
+    margin-top:20px;
+
+    font-size:12px;
+
+    line-height:1.8;
+
+    color:#40220f;
+}
+
+#battleRewardBox{
+
+    margin:25px 0;
+
+    padding:15px;
+
+    background:#fff4cf;
+
+    border:3px solid #c89b33;
+
+    border-radius:12px;
+
+    color:#5a381e;
+
+    font-size:12px;
+}
+
+#continueButton{
+
+    margin:auto;
+}
+
 #caveBattle {
     position: absolute;
     top: 0;
