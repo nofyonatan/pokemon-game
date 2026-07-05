@@ -424,6 +424,7 @@ button:hover {
 }
 
 .caveBattleDivHealthBar img{
+    image-rendering: pixelated;
     width:40px;
     height:40px;
 }
