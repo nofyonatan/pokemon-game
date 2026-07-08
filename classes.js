@@ -47,7 +47,7 @@ class Sprite {
         );
         c.restore();
 
-        c.strokeStyle = "rgba(255, 0, 0, 0)";
+        c.strokeStyle = "rgba(255, 0, 0, 0.5)";
         if (this.scale === 3) {
             c.strokeRect(this.position.x + 27, this.position.y + 30, 45, 40);
         }
@@ -111,9 +111,9 @@ class BlueSlime extends Sprite {
         this.alive = true;
 
         this.hitbox = {
-            offsetX: 48,
+            offsetX: 45,
             offsetY: 50,
-            width: 65,
+            width: 68,
             height: 60
         };
     }

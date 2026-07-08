@@ -91,7 +91,7 @@ const caveBoundaries = [];
 
 caveCollisionMap.forEach((row, i) => {
     row.forEach((symbol, j) => {
-        if (symbol === 689) {
+        if (symbol === 681) {
             caveBoundaries.push(
                 new Boundary({
                     position: {
@@ -749,6 +749,11 @@ function cave() {
             if (!enterBattle) {
                 // So that the exit from the cave only happens once and not every frame until he exits.
                 enterBattle = true; 
+
+                // if the achievement of entering the cave battle is on screen - remove it and show the next achievement
+                if (numberAcievement === 12) {
+                    completeAchievement('#achievementEnterCaveBattle');
+                }
 
                 // ENTER BATTLE
                 // deactivate current animation loop

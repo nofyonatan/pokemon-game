@@ -101,7 +101,10 @@ let achievements = [
     '#achievementReturnRobChicken', 
     '#achievementReturnToRob', 
     '#achievementMeetBarSeller',
-    '#achievementEnterBar'
+    '#achievementEnterBar',
+    '#achievementMeetFisherman',
+    '#achievementEnterCave',
+    '#achievementEnterCaveBattle'
 ];
 let numberOfAchievementComplete = 0;
 let achievementRetureRobChickenComplete = false; // // A varible that represents if the achievement of of return Rob's chicken completed
@@ -1100,6 +1103,12 @@ function animate() {
             document.querySelector('#character6Dialogue').style.left = player6.position.x + 50 + "px";
             document.querySelector('#character6Dialogue').style.top = player6.position.y - 70 + "px";
         }
+
+        // if the achievement of meeting the fisherman on screen - 
+        // remove the achievement and show the next achievement(if there is)
+        if (numberAcievement === 10) {
+            completeAchievement('#achievementMeetFisherman')
+        }
     } else {
         document.querySelector('#character6Dialogue').style.display = "none";
     }
@@ -1117,7 +1126,7 @@ function animate() {
         // show how can player enter his bar
         document.querySelector('#enterbar').style.display = "block";
 
-        // if the achievement of meeting bar seller in the screen remove hte achievement and show the next achievement
+        // if the achievement of meeting bar seller in the screen remove the achievement and show the next achievement
         if (numberAcievement === 8) {
             completeAchievement('#achievementMeetBarSeller');
         }
@@ -1264,7 +1273,7 @@ function animate() {
         audio.map.seek(0); // restart music
 
         // hide player achievements
-        document.querySelector('#Achievements').style.display = "none";
+        //document.querySelector('#Achievements').style.display = "none";
 
         // hide dialogue
         document.querySelector('#character6Dialogue').style.display = "none";
@@ -1302,6 +1311,7 @@ function animate() {
         });
     }
 
+    // MOVEMENT
     let moving = true; // A varible to check whenever we should move or not
     player.animate = false; // 'true' when the player is moving and need to change frame
 
@@ -2010,6 +2020,9 @@ document.querySelector('#buttonGetIntoCave').addEventListener('click', () => {
     ) {
         // get into cave
         getIntoCave = true;
+        if (numberAcievement === 11) {
+            completeAchievement('#achievementEnterCave');
+        }
         document.querySelector('#character6Text').innerHTML = "Did you enjoy there?";
         document.querySelector('#buttonGetIntoCave').innerHTML = "Yes! I want to go again!";
         document.querySelector('#buttonNotGettingIntoCave').innerHTML = "No! I will never go there again";
