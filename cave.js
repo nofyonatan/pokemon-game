@@ -323,6 +323,8 @@ function initcave() {
     setTimeout(() => {
         CanGetOutCave = true;
     }, 5000)
+
+    c.imageSmoothingEnabled = false;
 }
 
 function cave() {
@@ -720,9 +722,6 @@ function cave() {
                         audio.map.play();
                         clicked = true;
 
-                        // show player achievements
-                        document.querySelector('#Achievements').style.display = "block";
-
                         // show the screen
                         gsap.to('#blackDiv', {
                             opacity: 0,
@@ -749,11 +748,6 @@ function cave() {
             if (!enterBattle) {
                 // So that the exit from the cave only happens once and not every frame until he exits.
                 enterBattle = true; 
-
-                // if the achievement of entering the cave battle is on screen - remove it and show the next achievement
-                if (numberAcievement === 12) {
-                    completeAchievement('#achievementEnterCaveBattle');
-                }
 
                 // ENTER BATTLE
                 // deactivate current animation loop

@@ -109,7 +109,11 @@ let achievements = [
 let numberOfAchievementComplete = 0;
 let achievementRetureRobChickenComplete = false; // // A varible that represents if the achievement of of return Rob's chicken completed
 let playerClaimHat = false; // A varible that represents if player claim the hat
-let numberAcievement = 1; // A varible that represents the number of achievemnt that shows on the screen
+let numberAcievement = 1; // A varible that represents the number of achievement that shows on the screen
+
+// achievements
+let firstEnemyKilled = false; // A varible that represent if the player killed his first enemy
+let numberPeoplePlayerMeet = 0; //  A variable that represent how many people player has met
 
 // A varible that represents how many times the first button of the dialoge with player 6 has clicked
 let button1DiloguePlayer6Clicks = 0;
@@ -805,6 +809,84 @@ const battle = {
     initiated: false
 };
 
+// ACHIEVEMENTS
+const Achievements = [
+    {
+        icon: "⚔",
+        title: "First Blood",
+        description: "Kill your first slime.",
+        unlocked: false
+    },
+
+    {
+        icon: "💰",
+        title: "beggar",
+        description: "Collect 5 coins.",
+        unlocked: false
+    },
+
+    {
+        icon: "🏠",
+        title: "Explorer",
+        description: "enter a house",
+        unlocked: false
+    },
+
+    {
+        icon: "👨",
+        title: "New neighbor",
+        description: "Meet 5 people",
+        unlocked: false
+    }
+];
+
+// FUNCTIONS
+// function for creating the achievemnts
+function renderAchievements() {
+    const achievementGrid = document.querySelector("#achievementGrid");
+
+    achievementGrid.innerHTML = "";
+
+    Achievements.forEach((achievement) => {
+        const card = document.createElement('div');
+
+        card.classList.add('achievementCard');
+
+        if (achievement.unlocked) {
+            card.classList.add('completed');
+        }
+        else if (!achievement.unlocked) {
+            card.classList.add('locked');
+        }
+
+        card.innerHTML = `
+            <div class="achievementIcon">
+                ${achievement.icon}
+            </div>
+
+            <div class="achievementInfo">
+                <h3>${achievement.title}</h3>
+
+                <p>${achievement.description}</p>
+            </div>
+        `;
+
+        achievementGrid.appendChild(card);
+    });
+}
+renderAchievements();
+
+// function for unlock achievement
+function unlockAchievement(index) {
+    if (Achievements[index].unlocked) return;
+
+    Achievements[index].unlocked = true;
+    renderAchievements();
+
+    // play the audio of achievement unlock
+    audio.achievementComplete.play();
+}
+
 // function for detect collision
 function rectangularCollision({rectangle1, rectangle2}) {
     return (
@@ -841,8 +923,6 @@ function animate() {
         ...projectiles,
         ...coins
     ]; 
-
-    document.querySelector('#Achievements').style.display = "block";
 
     c.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -929,38 +1009,13 @@ function animate() {
     // draw foreground
     foregorond.draw();
 
-    // draw hearts
-    if (lives === 3) {
-        c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-        c.drawImage(heartImage, 50, 20, heartImage.width * 2, heartImage.height * 2);
-        c.drawImage(heartImage, 80, 20, heartImage.width * 2, heartImage.height * 2);
-    } 
-    else if (lives === 2) {
-        c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-        c.drawImage(heartImage, 50, 20, heartImage.width * 2, heartImage.height * 2);
+    // draw player hearts, coins...
+    drawPlayerState();
+
+    // achievements checks
+    if (numberOfCoins >= 5) {
+        unlockAchievement(1);
     }
-    else if (lives === 1) {
-        c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-    }
-
-    // draw number of ammo
-    c.beginPath() // start drawing
-    // draw a circle
-    c.arc(135, 31, 7, 0, Math.PI * 2);
-    c.fillStyle = "orange";
-    c.fill();
-    c.closePath();
-
-    c.font = "15px sans-serif";
-    c.fillStyle = "black";
-    c.fillText("X" + numberOfammo, 150, 37);
-
-    // draw number of coins
-    c.drawImage(coinImage, 185, 25, 14, 14);
-
-    c.font = "15px sans-serif";
-     c.fillStyle = "black";
-    c.fillText("X" + numberOfCoins, 210, 38);
 
     if (battle.initiated) return; // if we allready strated a battle we don't want the player to move
     // active a battle
@@ -992,13 +1047,6 @@ function animate() {
                 audio.battle.play();
 
                 battle.initiated = true;
-
-                if (numberAcievement === 3) {
-                    completeAchievement('#achievementGetIntoBattle'); // remove the achievement and add another achievement
-                }
-
-                // hide player achievements
-                document.querySelector('#Achievements').style.display = "none";
 
                 // fade
                 gsap.to('#blackDiv', {
@@ -1033,14 +1081,11 @@ function animate() {
         rectangle1: player, 
         rectangle2: player2
     })) {
+
         document.querySelector('#character2Dialogue').style.display = "block";
         document.querySelector('#character2Dialogue').style.left = player2.position.x + 50 + "px";
         document.querySelector('#character2Dialogue').style.top = player2.position.y - 50 + "px";
         document.querySelector('#enterHouse1').style.display = "block";
-
-        if (numberAcievement === 1) {
-            completeAchievement('#achievementMeetAdam'); // remove the achievement and add the next achievement
-        }
 
         collisionPlayer1Player2 = true;
     } else {
@@ -1078,14 +1123,6 @@ function animate() {
             } else {
                 document.querySelector('#character4Dialogue').style.top = player4.position.y - 145 + "px";
             }
-            
-            if (numberAcievement === 4) {
-                completeAchievement('#achievementMeetRob'); // remove the achievement and add the next achievement
-            }
-
-            if (numberAcievement === 7) {
-                completeAchievement('#achievementReturnToRob');
-            }
         }
 
     } else {
@@ -1103,12 +1140,6 @@ function animate() {
             document.querySelector('#character6Dialogue').style.left = player6.position.x + 50 + "px";
             document.querySelector('#character6Dialogue').style.top = player6.position.y - 70 + "px";
         }
-
-        // if the achievement of meeting the fisherman on screen - 
-        // remove the achievement and show the next achievement(if there is)
-        if (numberAcievement === 10) {
-            completeAchievement('#achievementMeetFisherman')
-        }
     } else {
         document.querySelector('#character6Dialogue').style.display = "none";
     }
@@ -1125,11 +1156,6 @@ function animate() {
         document.querySelector('#character7Dialogue').style.top = player7.position.y -50 + "px";
         // show how can player enter his bar
         document.querySelector('#enterbar').style.display = "block";
-
-        // if the achievement of meeting bar seller in the screen remove the achievement and show the next achievement
-        if (numberAcievement === 8) {
-            completeAchievement('#achievementMeetBarSeller');
-        }
     } else {
         document.querySelector('#character7Dialogue').style.display = "none";
         document.querySelector('#enterbar').style.display = "none";
@@ -1144,11 +1170,6 @@ function animate() {
         document.querySelector('#RobChickenText').style.display = "block";
         document.querySelector('#RobChickenText').style.left = RobChicken.position.x - 15 + "px";
         document.querySelector('#RobChickenText').style.top = RobChicken.position.y - 5 + "px";
-
-        // if the achievement of find Rob on the screen - remove it and add another achievement
-        if (numberAcievement === 5) {
-            completeAchievement('#achievementFindRobChicken'); // remove the achievement and add the next achievement
-        }
 
         if (numberAcievement === 6) {
             if (!achievementRetureRobChickenComplete) {
@@ -1184,6 +1205,9 @@ function animate() {
 
                 // delete the projectile
                 projectiles.splice(i, 1);
+
+                // if this is the first time player killed the enemy - this achievement complete
+                unlockAchievement(0);
 
                 // create a coin where we killed the enemy
                 coins.push(
@@ -1271,9 +1295,6 @@ function animate() {
         // stop map music
         audio.map.stop();
         audio.map.seek(0); // restart music
-
-        // hide player achievements
-        //document.querySelector('#Achievements').style.display = "none";
 
         // hide dialogue
         document.querySelector('#character6Dialogue').style.display = "none";
@@ -1446,16 +1467,8 @@ function animate() {
         // deactivate current animation loop
         window.cancelAnimationFrame(animationId);
 
-        // stop map music
-        // audio.map.stop();
-        // audio.map.seek(0); // restart music
-
-        if (numberAcievement === 2) {
-            completeAchievement('#achievementEnteringAdamHouse'); // remove the achievement and add the next achievement
-        }
-
-        // hide player achievements
-        document.querySelector('#Achievements').style.display = "none";
+        // if this is the first time player enter the house unlock the achievement of entering a house
+        unlockAchievement(2);
 
         // fade
         gsap.to('#blackDiv', {
@@ -1504,13 +1517,6 @@ function animate() {
         audio.map.stop();
         audio.map.seek(0); // restart music
 
-        if (numberAcievement === 9) {
-            completeAchievement('#achievementEnterBar'); // remove the achievement and add the next achievement
-        }
-
-        // hide player achievements
-        document.querySelector('#Achievements').style.display = "none";
-
         // fade
         gsap.to('#blackDiv', {
             opacity: 1, 
@@ -1556,7 +1562,6 @@ function animate() {
                 RobChicken.position.x = player4.position.x + player4.width + 5;
                 RobChicken.position.y = player4.position.y + player4.height - RobChicken.height;
 
-                completeAchievement('#achievementReturnRobChicken'); // remove the achievement and add another one
                 document.querySelector('#catchRobChicken').remove();
                 achievementRetureRobChickenComplete = true;
                 document.querySelector('#character4Text').innerHTML = "Oh thank God you found it. I thank you so much! Here's something for you:";
@@ -1789,7 +1794,7 @@ function completeAchievement(removeId) {
     // increase the varible that represents the number if achievement that the player see
     numberAcievement++
 
-    // play the audio of achievement complete
+    // play the audio of achievement unlock
     audio.achievementComplete.play();
 
     // remove the achievement from the game
@@ -1877,7 +1882,7 @@ function drawPlayerState() {
     c.drawImage(coinImage, 185, 25, 14, 14);
 
     c.font = "15px sans-serif";
-     c.fillStyle = "white";
+    c.fillStyle = "white";
     c.fillText("X" + numberOfCoins, 210, 38);
 }
 
@@ -1981,6 +1986,19 @@ document.querySelector('#startGameBtn').addEventListener('click', () => {
     });
 });
 
+// event listener for opening and closing the achievement menu
+let menuOpen = false; // A variable that represents whether the menu is open or closed
+document.querySelector('#achievementButton').addEventListener('click', () => {
+    if (!menuOpen) {
+        document.querySelector('#achievementMenu').style.display = "block";
+        menuOpen = true;
+    }
+    else if (menuOpen) {
+        document.querySelector('#achievementMenu').style.display = "none";
+        menuOpen = false
+    }
+})
+
 // event listener for the claim button
 document.querySelector('#hatClaimButton').addEventListener('click', () => {
     //hide dialogue with player 4
@@ -2020,9 +2038,6 @@ document.querySelector('#buttonGetIntoCave').addEventListener('click', () => {
     ) {
         // get into cave
         getIntoCave = true;
-        if (numberAcievement === 11) {
-            completeAchievement('#achievementEnterCave');
-        }
         document.querySelector('#character6Text').innerHTML = "Did you enjoy there?";
         document.querySelector('#buttonGetIntoCave').innerHTML = "Yes! I want to go again!";
         document.querySelector('#buttonNotGettingIntoCave').innerHTML = "No! I will never go there again";

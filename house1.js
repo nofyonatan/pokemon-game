@@ -96,6 +96,8 @@ function getIntoHouse() {
                 // resize canvas
                 canvas.width = 1024;
                 canvas.height = 576;
+
+                c.imageSmoothingEnabled = false;
                 // change player 1 and player 2 position
                 player.position.x = pastPlayerPosition.x;
                 player.position.y = pastPlayerPosition.y;
@@ -109,9 +111,6 @@ function getIntoHouse() {
                 // audio.map.stop();
                 // audio.map.play();
                 clicked = true;
-
-                // show player achievements
-                document.querySelector('#Achievements').style.display = "block";
 
                 // show the screen
                 gsap.to('#blackDiv', {
