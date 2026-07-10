@@ -881,11 +881,43 @@ function unlockAchievement(index) {
     if (Achievements[index].unlocked) return;
 
     Achievements[index].unlocked = true;
+
     renderAchievements();
+
+    showAchievementPopup(Achievements[index]);
 
     // play the audio of achievement unlock
     audio.achievementComplete.play();
 }
+
+// function for popup achievement when unlock it
+function showAchievementPopup(achievement) {
+    document.querySelector('#achievementPopup').style.display = "flex";
+
+    document.querySelector('#achievementPopupIcon').innerText = achievement.icon;
+    document.querySelector('#achievementPopupTitle').innerText = achievement.title;
+
+    gsap.fromTo(
+        "#achievementPopup",
+        {
+            right: -400
+        },
+        {
+            right: 20,
+            duration: .6
+        }
+    );
+    
+    setTimeout(() => {
+        gsap.to("#achievementPopup", {
+            right: -400,
+            duration: .6,
+            onComplete() {
+                document.querySelector('#achievementPopup').style.display = "none";
+            }
+        });
+    }, 3000);
+}   
 
 // function for detect collision
 function rectangularCollision({rectangle1, rectangle2}) {

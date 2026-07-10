@@ -77,168 +77,6 @@
 
             </div>
 
-            <!-- Achievements -->
-            <div 
-                id="Achievements"
-                style="
-                    display: none;
-                    position: absolute;
-                    width: 200px;
-                    height: 100px;
-                    top: 0px;
-                    right: 0px;
-                    background-color: rgb(255, 217, 172);
-                    border: 4px darkgoldenrod solid;
-                "
-            >
-                <h1 
-                    style="
-                        color: rgb(188, 148, 44); 
-                        font-size: 12px; padding-top: 5px; 
-                        text-align: center;
-                    "
-                >Achievements:</h1>
-
-                <!-- Meet Adam achievenent -->
-                <h2 
-                    id="achievementMeetAdam" 
-                    style="
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; padding-top: 5px; 
-                        padding-left: 22px;
-                    " 
-                >* Meet Adam</h2>
-
-                <!-- Enter Adam house Achievement -->
-                <h2 
-                    id="achievementEnteringAdamHouse"
-                    style="
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * Enter Adam house</h2>
-
-                <!-- get into a battle Achievement -->
-                <h2 
-                    id="achievementGetIntoBattle"
-                    style="
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * Enter into battle</h2>
-
-                <!-- Meet Rob Achievement -->
-                <h2 
-                    id="achievementMeetRob"
-                    style="
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * Meet Rob</h2>
-
-                <!-- Find Rob chicken Achievement -->
-                <h2 
-                    id="achievementFindRobChicken"
-                    style="
-                        display: none;
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * Find Rob's Chicken</h2>
-
-                <!-- return Rob's chicken Achievement -->
-                <h2 
-                    id="achievementReturnRobChicken"
-                    style="
-                        display: none;
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * return Rob's Chicken</h2>
-
-                <!-- return to Rob Achievement -->
-                <h2 
-                    id="achievementReturnToRob"
-                    style="
-                        display: none;
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * return to Rob</h2>
-
-                <!-- meet bar seller Achievement -->
-                <h2 
-                    id="achievementMeetBarSeller"
-                    style="
-                        display: none;
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * meet bar seller</h2>
-
-                <!-- enter the bar Achievement -->
-                <h2 
-                    id="achievementEnterBar"
-                    style="
-                        display: none;
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * enter the bar</h2>
-
-                <!-- meet the fisherman Achievement -->
-                <h2 
-                    id="achievementMeetFisherman"
-                    style="
-                        display: none;
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * meet the fisherman</h2>
-
-                <!-- Enter the cave Achievement -->
-                <h2 
-                    id="achievementEnterCave"
-                    style="
-                        display: none;
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * enter the cave</h2>
-
-                <!-- Enter to the cave battle Achievement -->
-                <h2 
-                    id="achievementEnterCaveBattle"
-                    style="
-                        display: none;
-                        color: rgb(188, 148, 44); 
-                        font-size: 8px; 
-                        padding-top: 5px; 
-                        padding-left: 22px;
-                    " >
-                * Enter a cave battle</h2>
-            </div>
-
             <!-- DIALOGUES -->
             <!-- dialogue with player 2 in the map -->
             <div 
@@ -688,6 +526,17 @@
                     </div>
                  </div>
             </div>
+
+            <!-- achievement pop up -->
+            <div id="achievementPopup">
+                <div id="achievementPopupIcon"></div>
+
+                <div id="achievementPopupInfo">
+                    <h3>Achievement Unlocked!</h3>
+                    <p id="achievementPopupTitle"></p>
+                </div>
+            </div>
+
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" 
                 integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA==" 

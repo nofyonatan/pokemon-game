@@ -567,3 +567,43 @@ button:hover {
 
     gap:8px;
 }
+
+#achievementPopup {
+    position: absolute;
+
+    top: 20px;
+    right: -400px;
+
+    width: 320px;
+
+    display: none;
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px;
+
+    background: linear-gradient(#ffe08a,#f6b84b);
+
+    border: 4px solid #5a381e;
+
+    border-radius: 16px;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,.45);
+
+    z-index: 9999;
+}
+
+#achievementPopupIcon {
+    font-size: 40px;
+}
+
+#achievementPopupInfo h3{
+    margin:0;
+    font-size:14px;
+}
+
+#achievementPopupInfo p{
+    margin-top:8px;
+    font-size:11px;
+}   
