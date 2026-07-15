@@ -95,25 +95,24 @@ let pastHatPosition = {
     y: null
 }
 
-// Achievements
-let achievements = [
-    '#achievementFindRobChicken', 
-    '#achievementReturnRobChicken', 
-    '#achievementReturnToRob', 
-    '#achievementMeetBarSeller',
-    '#achievementEnterBar',
-    '#achievementMeetFisherman',
-    '#achievementEnterCave',
-    '#achievementEnterCaveBattle'
-];
-let numberOfAchievementComplete = 0;
 let achievementRetureRobChickenComplete = false; // // A varible that represents if the achievement of of return Rob's chicken completed
 let playerClaimHat = false; // A varible that represents if player claim the hat
-let numberAcievement = 1; // A varible that represents the number of achievement that shows on the screen
 
 // achievements
 let firstEnemyKilled = false; // A varible that represent if the player killed his first enemy
 let numberPeoplePlayerMeet = 0; //  A variable that represent how many people player has met
+let playerMeetings = { // A variable that represent if player meet someone
+    player2: false,
+    player3: false,
+    player4: false,
+    player5: false,
+    player6: false,
+    player7: false,
+    player8: false,
+    player9: false,
+    player10: false,
+    player11: false
+}
 
 // A varible that represents how many times the first button of the dialoge with player 6 has clicked
 let button1DiloguePlayer6Clicks = 0;
@@ -124,14 +123,15 @@ let canDialogueWithPlayer6 = true;
 // A varible that represents if player needs to gets into the cave
 let getIntoCave = false;
 
-// the amount of lives player has
-let lives = 3
-// the amount of ammo player have
+// player state
+//  lives
+let lives = 3 // the amount of lives player has
+// ammo
 let InfiniteAmmo = false;
 let pastNumberOfammo;
-let numberOfammo = 5;
-// the number of coins player collect
-let numberOfCoins = 0;
+let numberOfammo = 5; // the amount of ammo player have
+// coins
+let numberOfCoins = 0; // the number of coins player collect
 
 //LOAD IMAGES
 // background image
@@ -835,7 +835,14 @@ const Achievements = [
     {
         icon: "👨",
         title: "New neighbor",
-        description: "Meet 5 people",
+        description: "Talk to 5 people",
+        unlocked: false
+    },
+
+    {
+        icon: "🍷",
+        title: "Drunk",
+        description: "Enter the bar",
         unlocked: false
     }
 ];
@@ -875,6 +882,8 @@ function renderAchievements() {
     });
 }
 renderAchievements();
+
+// function for new achievement
 
 // function for unlock achievement
 function unlockAchievement(index) {
@@ -1044,11 +1053,16 @@ function animate() {
     // draw player hearts, coins...
     drawPlayerState();
 
-    // achievements checks
+    // ACHIEVEMENTS CHECKS  
     if (numberOfCoins >= 5) {
         unlockAchievement(1);
     }
 
+    if (numberPeoplePlayerMeet >= 5) {
+        unlockAchievement(3);
+    }
+
+    // ACTIVE A BATTLE
     if (battle.initiated) return; // if we allready strated a battle we don't want the player to move
     // active a battle
     if (keys.w.pressed || keys.a.pressed || keys.s.pressed || keys.d.pressed) {
@@ -1113,12 +1127,19 @@ function animate() {
         rectangle1: player, 
         rectangle2: player2
     })) {
+        // If  player has not yet met this character then the number of people the player has met should increase.
+        if (!playerMeetings.player2) {
+            numberPeoplePlayerMeet++;
+            playerMeetings.player2 = true;
+        }
 
+        // show dialogue
         document.querySelector('#character2Dialogue').style.display = "block";
         document.querySelector('#character2Dialogue').style.left = player2.position.x + 50 + "px";
         document.querySelector('#character2Dialogue').style.top = player2.position.y - 50 + "px";
         document.querySelector('#enterHouse1').style.display = "block";
 
+        // there is collision with player 2
         collisionPlayer1Player2 = true;
     } else {
         document.querySelector('#character2Dialogue').style.display = "none";
@@ -1131,12 +1152,24 @@ function animate() {
         rectangle1: player, 
         rectangle2: player3
     })) {
+        // If  player has not yet met this character then the number of people the player has met should increase.
+        if (!playerMeetings.player3) {
+            numberPeoplePlayerMeet++;
+            playerMeetings.player3 = true;
+        }
+        
+        // player 3 needs to stop moving
         player3moving = false;
+
+        // show dialogue
         document.querySelector('#character3Dialogue').style.display = "block";
         document.querySelector('#character3Dialogue').style.left = player3.position.x + 50 + "px";
         document.querySelector('#character3Dialogue').style.top = player3.position.y - 50 + "px";
     } else {
+        // player 3 can continue moving
         player3moving = true;
+
+        // dont show dialogue
         document.querySelector('#character3Dialogue').style.display = "none";
     }
 
@@ -1147,6 +1180,12 @@ function animate() {
     })) {
         // if can be a dialogue with player 4 - show dialogue
         if (dialoguePlayer4) {
+            // If  player has not yet met this character then the number of people the player has met should increase.
+            if (!playerMeetings.player4) {
+                numberPeoplePlayerMeet++;
+                playerMeetings.player4 = true;
+            }
+
             // open dialogue with player 4
             document.querySelector('#character4Dialogue').style.display = "flex";
             document.querySelector('#character4Dialogue').style.left = player4.position.x + 50 + "px";
@@ -1158,6 +1197,7 @@ function animate() {
         }
 
     } else {
+        // hide dialogue with player 4
         document.querySelector('#character4Dialogue').style.display = "none";
     }
 
@@ -1167,12 +1207,19 @@ function animate() {
         rectangle2: player6
     })) {   
         if (canDialogueWithPlayer6) {
-        // open dialogue with player number 6
+            // If  player has not yet met this character then the number of people the player has met should increase.
+            if (!playerMeetings.player6) {
+                numberPeoplePlayerMeet++;
+                playerMeetings.player6 = true;
+            }
+
+            // open dialogue with player number 6
             document.querySelector('#character6Dialogue').style.display = "flex";
             document.querySelector('#character6Dialogue').style.left = player6.position.x + 50 + "px";
             document.querySelector('#character6Dialogue').style.top = player6.position.y - 70 + "px";
         }
     } else {
+        // hide dialogue
         document.querySelector('#character6Dialogue').style.display = "none";
     }
 
@@ -1181,6 +1228,13 @@ function animate() {
         rectangle1: player,
         rectangle2: player7
     })) {
+        // If  player has not yet met this character then the number of people the player has met should increase.
+        if (!playerMeetings.player7) {
+            numberPeoplePlayerMeet++;
+            playerMeetings.player7 = true;
+        }
+
+        // player colliding with player 7
         collisionPlayer1Player7 = true;
         // show dialogue
         document.querySelector('#character7Dialogue').style.display = "block";
@@ -1189,6 +1243,7 @@ function animate() {
         // show how can player enter his bar
         document.querySelector('#enterbar').style.display = "block";
     } else {
+        // hide dialogue
         document.querySelector('#character7Dialogue').style.display = "none";
         document.querySelector('#enterbar').style.display = "none";
     }
@@ -1541,6 +1596,9 @@ function animate() {
     else if (keys.b.pressed && collisionPlayer1Player7) {
         // deactivate current animation loop
         window.cancelAnimationFrame(animationId);
+
+        // if this is the first time player enter the bar unlock the achievement of entering the bar
+        unlockAchievement(4);
 
         // don't let the player start map music
         clicked = true;

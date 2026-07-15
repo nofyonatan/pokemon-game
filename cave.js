@@ -421,37 +421,12 @@ function cave() {
     })
 
     // draw hearts
-    if (lives === 3) {
-        c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-        c.drawImage(heartImage, 50, 20, heartImage.width * 2, heartImage.height * 2);
-        c.drawImage(heartImage, 80, 20, heartImage.width * 2, heartImage.height * 2);
-    } 
-    else if (lives === 2) {
-        c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-        c.drawImage(heartImage, 50, 20, heartImage.width * 2, heartImage.height * 2);
+    drawPlayerState();
+
+    // achievements checks
+    if (numberOfCoins >= 5) {
+        unlockAchievement(1);
     }
-    else if (lives === 1) {
-        c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-    }
-
-    // draw number of ammo
-    c.beginPath() // start drawing
-    // draw a circle
-    c.arc(135, 31, 7, 0, Math.PI * 2);
-    c.fillStyle = "orange";
-    c.fill();
-    c.closePath();
-
-    c.font = "15px sans-serif";
-    c.fillStyle = "white";
-    c.fillText("X" + numberOfammo, 150, 37);
-
-    // draw number of coins
-    c.drawImage(coinImage, 185, 25, 14, 14);
-
-    c.font = "15px sans-serif";
-     c.fillStyle = "white";
-    c.fillText("X" + numberOfCoins, 210, 38);
 
     // MOVEMENT
     let moving = true;// A varible to check whenever we should move or not
