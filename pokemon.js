@@ -815,35 +815,48 @@ const Achievements = [
         icon: "⚔",
         title: "First Blood",
         description: "Kill your first slime.",
-        unlocked: false
+        unlocked: false,
+        visible: true
     },
 
     {
         icon: "💰",
         title: "beggar",
         description: "Collect 5 coins.",
-        unlocked: false
+        unlocked: false,
+        visible: true
     },
 
     {
         icon: "🏠",
         title: "Explorer",
         description: "enter a house",
-        unlocked: false
+        unlocked: false,
+        visible: true
     },
 
     {
         icon: "👨",
         title: "New neighbor",
         description: "Talk to 5 people",
-        unlocked: false
+        unlocked: false,
+        visible: true
     },
 
     {
         icon: "🍷",
         title: "Drunk",
         description: "Enter the bar",
-        unlocked: false
+        unlocked: false,
+        visible: true
+    },
+
+    {
+        icon: "🔫",
+        title: "Ammunition collection",
+        description: "buy 20 bullets",
+        unlocked: false,
+        visible: false
     }
 ];
 
@@ -855,35 +868,35 @@ function renderAchievements() {
     achievementGrid.innerHTML = "";
 
     Achievements.forEach((achievement) => {
-        const card = document.createElement('div');
+        if (achievement.visible) {
+            const card = document.createElement('div');
 
-        card.classList.add('achievementCard');
+            card.classList.add('achievementCard');
 
-        if (achievement.unlocked) {
-            card.classList.add('completed');
+            if (achievement.unlocked) {
+                card.classList.add('completed');
+            }
+            else if (!achievement.unlocked) {
+                card.classList.add('locked');
+            }
+
+            card.innerHTML = `
+                <div class="achievementIcon">
+                    ${achievement.icon}
+                </div>
+
+                <div class="achievementInfo">
+                    <h3>${achievement.title}</h3>
+
+                    <p>${achievement.description}</p>
+                </div>
+            `;
+
+            achievementGrid.appendChild(card);
         }
-        else if (!achievement.unlocked) {
-            card.classList.add('locked');
-        }
-
-        card.innerHTML = `
-            <div class="achievementIcon">
-                ${achievement.icon}
-            </div>
-
-            <div class="achievementInfo">
-                <h3>${achievement.title}</h3>
-
-                <p>${achievement.description}</p>
-            </div>
-        `;
-
-        achievementGrid.appendChild(card);
     });
 }
 renderAchievements();
-
-// function for new achievement
 
 // function for unlock achievement
 function unlockAchievement(index) {
@@ -893,10 +906,64 @@ function unlockAchievement(index) {
 
     renderAchievements();
 
-    showAchievementPopup(Achievements[index]);
+    showPopup({
+        icon: Achievements[index].icon,
+        title: Achievements[index].title,
+        message: "Achievement Unlocked!"
+    })
 
     // play the audio of achievement unlock
     audio.achievementComplete.play();
+}
+
+// function for show new Achievement
+function newAchievement(index) {
+    if (Achievements[index].visible) return;
+
+    Achievements[index].visible = true;
+
+    renderAchievements();
+
+    showPopup({
+        icon: Achievements[index].icon,
+        title: Achievements[index].title,
+        message: "New Achievement!"
+    })
+
+    // play the audio of new achievementd
+    audio.achievementComplete.play();
+}
+
+// function for show when player unlock or get a new achievement
+function showPopup(data) {
+    document.querySelector("#achievementPopup").style.display = "flex";
+
+    document.querySelector("#achievementPopupIcon").innerText = data.icon;
+    document.querySelector("#achievementPopupTitle").innerText = data.title;
+    document.querySelector("#achievementPopupMessage").innerText = data.message;
+
+    gsap.fromTo(
+        "#achievementPopup",
+        {
+            right: -400
+        },
+        {
+            right: 20,
+            duration: .6
+        }
+    );
+
+    setTimeout(() => {
+
+        gsap.to("#achievementPopup", {
+            right: -400,
+            duration: .6,
+            onComplete() {
+                document.querySelector("#achievementPopup").style.display = "none";
+            }
+        });
+
+    }, 3000);
 }
 
 // function for popup achievement when unlock it
@@ -1053,14 +1120,8 @@ function animate() {
     // draw player hearts, coins...
     drawPlayerState();
 
-    // ACHIEVEMENTS CHECKS  
-    if (numberOfCoins >= 5) {
-        unlockAchievement(1);
-    }
-
-    if (numberPeoplePlayerMeet >= 5) {
-        unlockAchievement(3);
-    }
+    // ACHIEVEMENTS CHECK 
+    checkAchievements();
 
     // ACTIVE A BATTLE
     if (battle.initiated) return; // if we allready strated a battle we don't want the player to move
@@ -1600,6 +1661,11 @@ function animate() {
         // if this is the first time player enter the bar unlock the achievement of entering the bar
         unlockAchievement(4);
 
+        // if this is the first time player enter the bar show new achievement of but 20 bullets
+        setTimeout(() => {
+            newAchievement(5);
+        }, 4000)
+        
         // don't let the player start map music
         clicked = true;
 
@@ -1974,6 +2040,22 @@ function drawPlayerState() {
     c.font = "15px sans-serif";
     c.fillStyle = "white";
     c.fillText("X" + numberOfCoins, 210, 38);
+}
+
+function checkAchievements() {
+    if (numberOfCoins >= 5) {
+        unlockAchievement(1);
+    }
+
+    if (numberPeoplePlayerMeet >= 5) {
+        unlockAchievement(3);
+    }
+
+    if (numberBulletsBought >= 20) {
+        if (Achievements[5].visible) {
+            unlockAchievement(5);
+        }
+    }
 }
 
 // EVENT LISTENERS

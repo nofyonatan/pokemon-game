@@ -243,4 +243,7 @@ function getIntoHouse() {
             hat.position.x -= velocity;
         }
     }
+
+    // ACHIEVEMENTS CHECK
+    checkAchievements();
 }

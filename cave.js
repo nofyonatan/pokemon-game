@@ -423,11 +423,6 @@ function cave() {
     // draw hearts
     drawPlayerState();
 
-    // achievements checks
-    if (numberOfCoins >= 5) {
-        unlockAchievement(1);
-    }
-
     // MOVEMENT
     let moving = true;// A varible to check whenever we should move or not
     player.animate = false; // 'true' when the player is moving and need to change frame
@@ -712,6 +707,7 @@ function cave() {
         }
     }
 
+    console.log("Checking battle");
     // check collision between player to battle entery
     for (let i = 0; i < caveEnterBattle.length; i++) {
         const battleEntery = caveEnterBattle[i];
@@ -720,7 +716,9 @@ function cave() {
             rectangle1: player,
             rectangle2: battleEntery
         })) {
+            console.log("Collision");
             if (!enterBattle) {
+                console.log("Enter battle");
                 // So that the exit from the cave only happens once and not every frame until he exits.
                 enterBattle = true; 
 
@@ -846,4 +844,7 @@ function cave() {
             caveCoins.splice(i, 1);
         }
     }
+
+    // ACHIEVEMENTS CHECK
+    checkAchievements();
 }

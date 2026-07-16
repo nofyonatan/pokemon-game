@@ -23,7 +23,8 @@ const foregorondBar = new Sprite({
 })
 
 let playerCantMove = false;
-let inShop = false
+let inShop = false;
+let numberBulletsBought = 0;
 
 function getIntoBar() {
     const animationId = requestAnimationFrame(getIntoBar);
@@ -39,6 +40,7 @@ function getIntoBar() {
     canvas.width = barImage.width * 0.85;
     canvas.height = barImage.height * 0.85;
 
+    // DRAWING
     // draw bar
     barBackground.draw();
 
@@ -253,12 +255,16 @@ function getIntoBar() {
             hat.position.x -= velocity;
         }
     }
+
+    // ACHIEVEMENTS CHECK
+    checkAchievements();
 }
 
 // event listener for buying bullets
 document.querySelector('#buyBullets').addEventListener('click', () => {
     if (numberOfCoins >= 1) {
         numberOfammo += 5;
+        numberBulletsBought += 5;
         numberOfCoins -= 1;
     }
 })
