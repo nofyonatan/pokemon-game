@@ -113,6 +113,7 @@ let playerMeetings = { // A variable that represent if player meet someone
     player10: false,
     player11: false
 }
+let achievementsComplete = 0; // A variable that represent how many achievements player has completed
 
 // A varible that represents how many times the first button of the dialoge with player 6 has clicked
 let button1DiloguePlayer6Clicks = 0;
@@ -836,6 +837,14 @@ const Achievements = [
     },
 
     {
+        icon: "👦🏻",
+        title: "Explorer",
+        description: "talk to rob",
+        unlocked: false,
+        visible: false
+    },
+
+    {
         icon: "👨",
         title: "New neighbor",
         description: "Talk to 5 people",
@@ -895,6 +904,8 @@ function renderAchievements() {
             achievementGrid.appendChild(card);
         }
     });
+
+    document.querySelector('#achievementProgress').innerText = `${achievementsComplete} / ${Achievements.length} completed`;
 }
 renderAchievements();
 
@@ -903,6 +914,8 @@ function unlockAchievement(index) {
     if (Achievements[index].unlocked) return;
 
     Achievements[index].unlocked = true;
+
+    achievementsComplete++;
 
     renderAchievements();
 
@@ -914,6 +927,10 @@ function unlockAchievement(index) {
 
     // play the audio of achievement unlock
     audio.achievementComplete.play();
+
+    //achievementsComplete++;
+    // increase the achievements progress meter
+    //document.querySelector('#achievementProgress').innerText = `${achievementsComplete} / ${Achievements.length} completed`;
 }
 
 // function for show new Achievement
@@ -930,7 +947,7 @@ function newAchievement(index) {
         message: "New Achievement!"
     })
 
-    // play the audio of new achievementd
+    // play the audio of new achievement
     audio.achievementComplete.play();
 }
 
@@ -1245,6 +1262,11 @@ function animate() {
             if (!playerMeetings.player4) {
                 numberPeoplePlayerMeet++;
                 playerMeetings.player4 = true;
+            }
+
+            //
+            if (Achievements[3].visible) {
+                unlockAchievement(3);
             }
 
             // open dialogue with player 4
@@ -1615,8 +1637,13 @@ function animate() {
         // deactivate current animation loop
         window.cancelAnimationFrame(animationId);
 
-        // if this is the first time player enter the house unlock the achievement of entering a house
+        // if this is the first time player has entered the house unlock the achievement of entering a house
         unlockAchievement(2);
+
+        // If this is the first time the player has entered the house, he will unlock a new achievement of Speaking to the Rob
+        setTimeout(() => {
+            newAchievement(3);
+        }, 4000)
 
         // fade
         gsap.to('#blackDiv', {
@@ -1659,11 +1686,11 @@ function animate() {
         window.cancelAnimationFrame(animationId);
 
         // if this is the first time player enter the bar unlock the achievement of entering the bar
-        unlockAchievement(4);
+        unlockAchievement(5);
 
-        // if this is the first time player enter the bar show new achievement of but 20 bullets
+        // if this is the first time player enter the bar show new achievement of buy 20 bullets
         setTimeout(() => {
-            newAchievement(5);
+            newAchievement(6);
         }, 4000)
         
         // don't let the player start map music
@@ -2048,12 +2075,12 @@ function checkAchievements() {
     }
 
     if (numberPeoplePlayerMeet >= 5) {
-        unlockAchievement(3);
+        unlockAchievement(4);
     }
 
     if (numberBulletsBought >= 20) {
-        if (Achievements[5].visible) {
-            unlockAchievement(5);
+        if (Achievements[6].visible) {
+            unlockAchievement(6);
         }
     }
 }

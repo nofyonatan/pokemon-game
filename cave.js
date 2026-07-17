@@ -707,7 +707,6 @@ function cave() {
         }
     }
 
-    console.log("Checking battle");
     // check collision between player to battle entery
     for (let i = 0; i < caveEnterBattle.length; i++) {
         const battleEntery = caveEnterBattle[i];
@@ -716,9 +715,8 @@ function cave() {
             rectangle1: player,
             rectangle2: battleEntery
         })) {
-            console.log("Collision");
+            console.log('a')
             if (!enterBattle) {
-                console.log("Enter battle");
                 // So that the exit from the cave only happens once and not every frame until he exits.
                 enterBattle = true; 
 
