@@ -114,6 +114,7 @@ let playerMeetings = { // A variable that represent if player meet someone
     player11: false
 }
 let achievementsComplete = 0; // A variable that represent how many achievements player has completed
+let numberAchievementVisibleOnScreen = 0; // A variable that represent how many achievement visible on the screen
 
 // A varible that represents how many times the first button of the dialoge with player 6 has clicked
 let button1DiloguePlayer6Clicks = 0;
@@ -845,6 +846,14 @@ const Achievements = [
     },
 
     {
+        icon: "🐔",
+        title: "Pac Pac",
+        description: "find Rob's chicken",
+        unlocked: false,
+        visible: false
+    },
+
+    {
         icon: "👨",
         title: "New neighbor",
         description: "Talk to 5 people",
@@ -876,8 +885,12 @@ function renderAchievements() {
 
     achievementGrid.innerHTML = "";
 
+    numberAchievementVisibleOnScreen = 0;
+
     Achievements.forEach((achievement) => {
         if (achievement.visible) {
+            numberAchievementVisibleOnScreen++;
+
             const card = document.createElement('div');
 
             card.classList.add('achievementCard');
@@ -905,7 +918,7 @@ function renderAchievements() {
         }
     });
 
-    document.querySelector('#achievementProgress').innerText = `${achievementsComplete} / ${Achievements.length} completed`;
+    document.querySelector('#achievementProgress').innerText = `${achievementsComplete} / ${numberAchievementVisibleOnScreen} completed`;
 }
 renderAchievements();
 
@@ -1264,9 +1277,13 @@ function animate() {
                 playerMeetings.player4 = true;
             }
 
-            //
+            // unlock achievemnt number 3(talk to Rob)
             if (Achievements[3].visible) {
                 unlockAchievement(3);
+
+                setTimeout(() => {
+                    newAchievement(4);
+                }, 4000)
             }
 
             // open dialogue with player 4
@@ -1341,15 +1358,14 @@ function animate() {
         document.querySelector('#RobChickenText').style.left = RobChicken.position.x - 15 + "px";
         document.querySelector('#RobChickenText').style.top = RobChicken.position.y - 5 + "px";
 
-        if (numberAcievement === 6) {
-            if (!achievementRetureRobChickenComplete) {
-                document.querySelector('#catchRobChicken').style.display = "block";
-                document.querySelector('#catchRobChicken').style.left = player.position.x - 13 + "px";
-                document.querySelector('#catchRobChicken').style.top = player.position.y + 50 + "px";
+        if (!achievementRetureRobChickenComplete) {
+            document.querySelector('#catchRobChicken').style.display = "block";
+            document.querySelector('#catchRobChicken').style.left = player.position.x - 13 + "px";
+            document.querySelector('#catchRobChicken').style.top = player.position.y + 50 + "px";
 
-                collisionPlayerRobChicken = true;
-            }
+            collisionPlayerRobChicken = true;
         }
+
     } else {
         document.querySelector('#RobChickenText').style.display = "none";
         if (!achievementRetureRobChickenComplete) {
@@ -1686,11 +1702,11 @@ function animate() {
         window.cancelAnimationFrame(animationId);
 
         // if this is the first time player enter the bar unlock the achievement of entering the bar
-        unlockAchievement(5);
+        unlockAchievement(6);
 
         // if this is the first time player enter the bar show new achievement of buy 20 bullets
         setTimeout(() => {
-            newAchievement(6);
+            newAchievement(7);
         }, 4000)
         
         // don't let the player start map music
@@ -1739,6 +1755,9 @@ function animate() {
         });
     }
     else if (keys.r.pressed && collisionPlayerRobChicken && !achievementRetureRobChickenComplete) {
+        if (Achievements[4].visible) {
+            unlockAchievement(4);
+        }
         gsap.to(RobChicken, {
             opacity: 0,
             onComplete: () => {
@@ -2075,12 +2094,12 @@ function checkAchievements() {
     }
 
     if (numberPeoplePlayerMeet >= 5) {
-        unlockAchievement(4);
+        unlockAchievement(5);
     }
 
     if (numberBulletsBought >= 20) {
         if (Achievements[6].visible) {
-            unlockAchievement(6);
+            unlockAchievement(7);
         }
     }
 }

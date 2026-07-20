@@ -143,6 +143,7 @@ button:hover {
 .shopItem img {
     width: 80px;
     height: 80px;
+    image-rendering: pixelated;
 }
 
 .shopInfo {
@@ -338,6 +339,98 @@ button:hover {
     opacity: .45;
     filter: grayscale(100%);
 }
+
+/* dialogues */
+#dialogueBox {
+    display: flex;
+
+    gap: 30px;
+
+    align-items: flex-start;
+
+    position: absolute;
+
+    top: 80%;
+    left: 50%;
+
+    transform: translate(-50%,-50%);
+
+    width: 400px;
+    height: auto;
+
+    padding: 20px;
+
+    background: linear-gradient(#ffe9b5,#e9b96d);
+
+    color: #251103;
+
+    border: 6px solid #5d3516;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 0 0 5px #8c5b2f inset,
+        0 15px 40px rgba(0,0,0,.5);
+
+    z-index: 200;
+}
+
+#dialoguePortrait {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    width: 90px;
+}
+
+#dialogueName {
+    width: 100%;
+
+    text-align: center;
+
+    background: #f6d8a0;
+
+    border: 3px solid #5d3516;
+
+    border-radius: 8px;
+
+    padding: 5px;
+
+    margin-bottom :8px;
+}
+
+#dialogueCharacterImage {
+    width: 64px;
+
+    height: 64px;
+
+    image-rendering: pixelated;
+
+    border: 3px solid #5d3516;
+
+    border-radius: 8px;
+
+    padding: 5px;
+
+    background :#f4e0b4;
+}
+
+#dialogueContent {
+    flex: 1;
+
+    padding-left: 10px;
+
+    border: 3px solid #5d3516;
+}
+
+#dialogueText {
+    line-height:1.6;
+
+    font-size:14px;
+}
+
 
 /* CAVE BATTLE */
 #bossOverlay{
