@@ -344,7 +344,7 @@ button:hover {
 #dialogueBox {
     display: flex;
 
-    gap: 30px;
+    gap: 20px;
 
     align-items: flex-start;
 
@@ -355,10 +355,11 @@ button:hover {
 
     transform: translate(-50%,-50%);
 
-    width: 400px;
+    width: 450px;
     height: auto;
 
-    padding: 20px;
+    padding: 10px;
+    padding-left: 15px;
 
     background: linear-gradient(#ffe9b5,#e9b96d);
 
@@ -399,6 +400,9 @@ button:hover {
     padding: 5px;
 
     margin-bottom :8px;
+
+    box-shadow:
+        0 0 0 2px #895f3b inset;
 }
 
 #dialogueCharacterImage {
@@ -414,7 +418,10 @@ button:hover {
 
     padding: 5px;
 
-    background :#f4e0b4;
+    /* background :#f4e0b4; */
+
+    box-shadow:
+        0 0 0 2px #895f3b inset;
 }
 
 #dialogueContent {
@@ -431,6 +438,34 @@ button:hover {
     font-size:14px;
 }
 
+#closeDialogue {
+    background-image: url('images/X.png'); 
+    background-color: transparent;
+    background-size: cover;
+    background-position: center; 
+    background-repeat: no-repeat; 
+    
+    border: none;
+    width: 16px;
+    height: 16px;
+}
+
+#closeDialogue:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+#closeDialogue:active {
+  transform: scale(0.8); 
+}
+
+#closeDialogue:focus {
+    outline: none;
+}
+
+#closeDialogue:focus-visible {
+    outline: none;
+}
 
 /* CAVE BATTLE */
 #bossOverlay{
