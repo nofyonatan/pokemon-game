@@ -57,8 +57,10 @@ for (let i = 1; i < Allachievements.length; i++) {
 
 // A varible that represent if the game can start or not
 let gameStarted = false;
+
 // A varible that shows what is the velocity of the player
 let velocity = 3 
+
 // A variable that represents when player number 3(a bot) can move
 let player3moving = true;
 // A variable that represents when player number 5(a bot) can move
@@ -66,6 +68,10 @@ let player5moving = true;
 
 // A variable that represents if can be a dialogue with player 4
 let dialoguePlayer4 = true;
+// A varible that represents if can be dialogue with player 6
+let canDialogueWithPlayer6 = true;
+// A variable that represents whether a dialogue is opened
+let openDialogue = false;
 
 // A variable that represents when there is a collision between player 1 and player 2
 let collisionPlayer1Player2 = false;
@@ -73,6 +79,9 @@ let collisionPlayer1Player2 = false;
 let collisionPlayer1Player7 = false;
 // A variable that represents when there is a collision between player 1 and Rob's Chicken
 let collisionPlayerRobChicken = false;
+
+// A variable that represent if player needs to enter player 2 house
+let enterPlayer2House = false;
 
 // A varible that represents the player position before he gets into the something
 let pastPlayerPosition = {
@@ -95,7 +104,6 @@ let pastHatPosition = {
     y: null
 }
 
-let achievementRetureRobChickenComplete = false; // // A varible that represents if the achievement of of return Rob's chicken completed
 let playerClaimHat = false; // A varible that represents if player claim the hat
 
 // achievements
@@ -115,12 +123,10 @@ let playerMeetings = { // A variable that represent if player meet someone
 }
 let achievementsComplete = 0; // A variable that represent how many achievements player has completed
 let numberAchievementVisibleOnScreen = 0; // A variable that represent how many achievement visible on the screen
+let achievementRetureRobChickenComplete = false; // A varible that represents if the achievement of of return Rob's chicken completed
 
 // A varible that represents how many times the first button of the dialoge with player 6 has clicked
 let button1DiloguePlayer6Clicks = 0;
-
-// A varible that represents if can be dialogue with player 6
-let canDialogueWithPlayer6 = true;
 
 // A varible that represents if player needs to gets into the cave
 let getIntoCave = false;
@@ -1224,17 +1230,34 @@ function animate() {
             playerMeetings.player2 = true;
         }
 
-        // show dialogue
-        document.querySelector('#character2Dialogue').style.display = "block";
-        document.querySelector('#character2Dialogue').style.left = player2.position.x + 50 + "px";
-        document.querySelector('#character2Dialogue').style.top = player2.position.y - 50 + "px";
-        document.querySelector('#enterHouse1').style.display = "block";
+        // If the dialogue is not already open - open it
+        if (!openDialogue) {
+            // show dialogue
+            document.querySelector('#charactersDialogueBox').style.display = "flex";
+            // show house icon, beacuse player can enter player 2 house
+            document.querySelector('#houseDialogue').style.display = "block";
+            // type the dialogue text in slow motion
+            typeDialogue("Hello! My name is Adam. How can I help you?")
+            // the dialogue is open
+            openDialogue = true;
+        }
+
+        // document.querySelector('#character2Dialogue').style.display = "block";
+        // document.querySelector('#character2Dialogue').style.left = player2.position.x + 50 + "px";
+        // document.querySelector('#character2Dialogue').style.top = player2.position.y - 50 + "px";
+        // document.querySelector('#enterHouse1').style.display = "block";
 
         // there is collision with player 2
         collisionPlayer1Player2 = true;
     } else {
-        document.querySelector('#character2Dialogue').style.display = "none";
-        document.querySelector('#enterHouse1').style.display = "none";
+        document.querySelector('#charactersDialogueBox').style.display = "none";
+        document.querySelector('#dialogueText').innerText = "";
+
+        // Dialogue is close
+        openDialogue = false;
+
+        // document.querySelector('#character2Dialogue').style.display = "none";
+        // document.querySelector('#enterHouse1').style.display = "none";
         collisionPlayer1Player2 = false;
     }
 
@@ -1649,9 +1672,12 @@ function animate() {
             })
         }
     } 
-    else if (keys.h.pressed && collisionPlayer1Player2) {
+    else if ((keys.h.pressed || enterPlayer2House) && collisionPlayer1Player2) {
         // deactivate current animation loop
         window.cancelAnimationFrame(animationId);
+
+        // So the player will not enter the house again after returning back to the world
+        enterPlayer2House = false;
 
         // if this is the first time player has entered the house unlock the achievement of entering a house
         unlockAchievement(2);
@@ -2022,7 +2048,7 @@ function completeAchievement(removeId) {
     }
 }
 
-// function for writing 'Welcome Adventure in slow motion
+// function for writing 'Welcome Adventure' in slow motion
 function typeWelcomeText() {
     // our text that we want to write
     const text = "Welcome Adventurer!";
@@ -2102,6 +2128,39 @@ function checkAchievements() {
             unlockAchievement(7);
         }
     }
+}
+
+// function for typing text dialogue in slow motion
+let interval;
+function typeDialogue(message) {
+    // Canceling the previous timer (if any) to prevent duplication and concurrent writing
+    clearInterval(interval);
+
+    // our text that we want to write
+    const text = message;
+
+    // the element that we want the text to be write on
+    const element = document.querySelector('#dialogueText');    
+
+    // Reset existing text in an element before starting new printing
+    element.textContent = "";
+
+    // represent the letter in the word that we need to write
+    let index = 0;
+
+    // we want to write every letter in the word in a gap of 1/10 second
+    interval = setInterval(() => {
+        // add the letter to the element
+        element.textContent += text[index];
+
+        // move to the next letter in the word
+        index++;
+
+        // if we finished write the word stop writing
+        if (index >= text.length) {
+            clearInterval(interval);
+        }
+    }, 100);
 }
 
 // EVENT LISTENERS
@@ -2203,6 +2262,23 @@ document.querySelector('#startGameBtn').addEventListener('click', () => {
         }
     });
 });
+
+// event listener for closing dialogue
+document.querySelector('#closeDialogue').addEventListener('click', () => {
+    document.querySelector('#charactersDialogueBox').style.display = "none";
+    document.querySelector('#dialogueText').innerText = "";
+})
+
+// event listener for entering a house
+document.querySelector('#houseDialogue').addEventListener('click', () => {
+    // if there is collision between player and player 2
+    if (collisionPlayer1Player2) {
+        // entering player 2 house
+        enterPlayer2House = true;
+        // hide dialogue box
+        document.querySelector('#charactersDialogueBox').style.display = "none";
+    }
+})
 
 // event listener for opening and closing the achievement menu
 let menuOpen = false; // A variable that represents whether the menu is open or closed

@@ -341,8 +341,8 @@ button:hover {
 }
 
 /* dialogues */
-#dialogueBox {
-    display: flex;
+#charactersDialogueBox {
+    display: none;
 
     gap: 20px;
 
@@ -429,13 +429,23 @@ button:hover {
 
     padding-left: 10px;
 
-    border: 3px solid #5d3516;
+    /* border: 3px solid #5d3516; */
 }
 
 #dialogueText {
     line-height:1.6;
 
     font-size:14px;
+}
+
+#dialogueButtons {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 5px;
 }
 
 #closeDialogue {
@@ -464,6 +474,37 @@ button:hover {
 }
 
 #closeDialogue:focus-visible {
+    outline: none;
+}
+
+#houseDialogue {
+    background-image: url('images/houseIcon.png'); 
+    background-color: transparent;
+    background-size: cover;
+    background-position: center; 
+    background-repeat: no-repeat; 
+
+    display: none;
+    
+    border: none;
+    width: 16px;
+    height: 16px;
+}
+
+#houseDialogue:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+#houseDialogue:active {
+  transform: scale(0.8); 
+}
+
+#houseDialogue:focus {
+    outline: none;
+}
+
+#houseDialogue:focus-visible {
     outline: none;
 }
 
