@@ -429,6 +429,10 @@ button:hover {
 
     padding-left: 10px;
 
+    display: flex;
+
+    flex-direction: column;
+
     /* border: 3px solid #5d3516; */
 }
 
@@ -436,6 +440,35 @@ button:hover {
     line-height:1.6;
 
     font-size:14px;
+}
+
+#arrowButton {
+    background-image: url('images/arrowIcon.png'); 
+    background-color: transparent;
+    background-size: cover;
+    background-position: center; 
+    background-repeat: no-repeat; 
+    
+    border: none;
+    width: 16px;
+    height: 16px;
+}
+
+#arrowButton:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+#arrowButton:active {
+  transform: scale(0.8); 
+}
+
+#arrowButton:focus {
+    outline: none;
+}
+
+#arrowButton:focus-visible {
+    outline: none;
 }
 
 #dialogueButtons {
