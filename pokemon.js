@@ -69,6 +69,7 @@ let player5moving = true; // A variable that represents when player number 5(a b
  
 // dialogue variables
 let dialoguePlayer4 = true; // A variable that represents if can be a dialogue with player 4
+let playerTalkingWithPlayer4 = false; // A variable that represents whether the player is currently talking to player 4.
 let canDialogueWithPlayer6 = true; // A varible that represents if can be dialogue with player 6
 let dialogueWritten = false; // A variable that represents whether the dialogue is still in the middle of being written
 let instantWriting = false; // A variable that represents whether the player pressed space before the writing was finished -
@@ -1271,17 +1272,6 @@ function animate() {
         player3moving = true;
     }
 
-    if (!talkingToSomeone) {
-        // hide dialogue
-        document.querySelector('#charactersDialogueBox').style.display = "none";
-        // hide house icon
-        document.querySelector('#houseDialogue').style.display = "none";
-        // delete the text in the dialogue
-        document.querySelector('#dialogueText').innerText = "";
-        // dialogue is not already open
-        openDialogue = false;
-    }
-
     // check collision between player and player 4
     if (rectangularCollision({
         rectangle1: player,
@@ -1295,6 +1285,9 @@ function animate() {
                 playerMeetings.player4 = true;
             }
 
+            // player is talking to someone
+            talkingToSomeone = true;
+
             // unlock achievemnt number 3(talk to Rob)
             if (Achievements[3].visible) {
                 unlockAchievement(3);
@@ -1305,18 +1298,44 @@ function animate() {
             }
 
             // open dialogue with player 4
-            document.querySelector('#character4Dialogue').style.display = "flex";
-            document.querySelector('#character4Dialogue').style.left = player4.position.x + 50 + "px";
-            if (!achievementRetureRobChickenComplete){
-                document.querySelector('#character4Dialogue').style.top = player4.position.y - 50 + "px";
-            } else {
-                document.querySelector('#character4Dialogue').style.top = player4.position.y - 145 + "px";
+
+             // If the dialogue is not already open - open it
+            if (!openDialogue) {
+                playerTalkingWithPlayer4 = true // player is currently talking with player 4
+
+                if (!achievementRetureRobChickenComplete) {
+                    openCharacterDialogue(
+                        "Rob",
+                        [
+                            "Hey, how are you?",
+                            "My name is Rob, I need your help.",
+                            "I lost a chicken... I have to find it!"
+                        ]
+                    );
+                } else {
+                    openCharacterDialogue(
+                        "Rob",
+                        [
+                            "Oh thank God you found it.",
+                            "I thank you so much! Here's something for you..."
+                        ]
+                    );
+                }
             }
+
         }
 
-    } else {
-        // hide dialogue with player 4
-        document.querySelector('#character4Dialogue').style.display = "none";
+    } 
+
+    if (!talkingToSomeone) {
+        // hide dialogue
+        document.querySelector('#charactersDialogueBox').style.display = "none";
+        // hide house icon
+        document.querySelector('#houseDialogue').style.display = "none";
+        // delete the text in the dialogue
+        document.querySelector('#dialogueText').innerText = "";
+        // dialogue is not already open
+        openDialogue = false;
     }
 
     // check collision between player to player 6
@@ -1376,7 +1395,7 @@ function animate() {
         document.querySelector('#RobChickenText').style.left = RobChicken.position.x - 15 + "px";
         document.querySelector('#RobChickenText').style.top = RobChicken.position.y - 5 + "px";
 
-        if (!achievementRetureRobChickenComplete) {
+        if (!achievementRetureRobChickenComplete && Achievements[4].visible) {
             document.querySelector('#catchRobChicken').style.display = "block";
             document.querySelector('#catchRobChicken').style.left = player.position.x - 13 + "px";
             document.querySelector('#catchRobChicken').style.top = player.position.y + 50 + "px";
@@ -1786,11 +1805,8 @@ function animate() {
                 RobChicken.position.y = player4.position.y + player4.height - RobChicken.height;
 
                 document.querySelector('#catchRobChicken').remove();
+
                 achievementRetureRobChickenComplete = true;
-                document.querySelector('#character4Text').innerHTML = "Oh thank God you found it. I thank you so much! Here's something for you:";
-                //document.querySelector('#character4Dialogue').style.height = 80 + "px";
-                document.querySelector('#hatImage').style.display = "block";
-                document.querySelector('#hatClaimButton').style.display = "block";
 
                 gsap.to(RobChicken, {
                     opacity: 1
@@ -2008,41 +2024,6 @@ function respawnEnemy(enemy) {
     enemy.about.alive = true;
 }
 
-// function completeAchievement(removeId) {
-//     const achievement = document.querySelector(removeId);
-
-//     // if already complete return
-//     if (!achievement) return;
-
-//     // increase the varible that represents the number if achievement that the player see
-//     numberAcievement++
-
-//     // play the audio of achievement unlock
-//     audio.achievementComplete.play();
-
-//     // remove the achievement from the game
-//     achievement.remove();
-
-//     // remove the achievement from the arrey that storage all the achievements (for blur)
-//     Allachievements.shift();
-
-//     if (Allachievements.length > 0) {
-//         // remove the blur from the new first achievement
-//         Allachievements[0].classList.remove('blur');
-//     }
-    
-//     // increase the varible of achievements complete
-//     numberOfAchievementComplete++;
-
-//     // show the next achievement that now has a place on the screen
-//     const nextAchievement =
-//         achievements[numberOfAchievementComplete - 1];
-
-//     if (nextAchievement) {
-//         document.querySelector(nextAchievement).style.display = "block";
-//     }
-// }
-
 // A function for open dialogue
 function openCharacterDialogue(name, dialogue, showHouse = false) {
 
@@ -2070,7 +2051,7 @@ function closeDialogue() {
 
     document.querySelector("#dialogueText").innerText = "";
 
-    openDialogue = false;
+    //openDialogue = false;
 
     dialogueIndex = 0;
 
@@ -2087,6 +2068,18 @@ function nextDialogue() {
     dialogueIndex++;
 
     if (dialogueIndex >= currentDialogue.length) {
+
+        // if player is talking with player 4, after he gave him back the chicken - he should get a hat
+        if (playerTalkingWithPlayer4 && achievementRetureRobChickenComplete) {
+            // the dialogue with player 4 right now finish
+            dialoguePlayer4 = false;
+
+            // show the hat on the player
+            playerClaimHat = true;
+
+            // increase player speed
+            velocity = 5;
+        }
 
         closeDialogue();
 
@@ -2374,8 +2367,6 @@ document.querySelector('#achievementButton').addEventListener('click', () => {
 
 // event listener for the claim button
 document.querySelector('#hatClaimButton').addEventListener('click', () => {
-    //hide dialogue with player 4
-    document.querySelector('#character4Dialogue').style.display = "none";
 
     // the dialogue with player 4 right now finish
     dialoguePlayer4 = false;
