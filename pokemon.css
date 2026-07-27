@@ -192,11 +192,107 @@ button:hover {
     box-shadow: 0 2px 0 #9c6644;
 }
 
+/* PLAYER STATE */
+#playerState {
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    display: flex;
+
+    gap: 15px;
+}
+
+#playerImageFrame {
+    background-image: url('images/playerImageFrame.png'); 
+    background-color: transparent;
+    background-size: 100% 100%;
+    background-position: center; 
+    background-repeat: no-repeat; 
+
+    image-rendering: pixelated;
+
+    width: 90px;   
+    height: 90px;
+
+    text-align: center;
+}
+
+#playerUpperBodyImage {
+    margin-top: 25px;
+
+    width: 43px;
+    height: 47px;
+}
+
+#heartsMoneyBase {
+    background-image: url('images/heartsMoneyBase.png'); 
+    background-color: transparent;
+    background-size: 100% 100%;
+    background-position: center; 
+    background-repeat: no-repeat; 
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    /* align-items: center; */
+    gap: 45px;
+
+    width: 105px;
+    height: 123px;
+}
+
+#hearts {
+    margin-top: 10px;
+    margin-left: 6px;
+
+    display: flex;
+    gap: 5px;
+}
+
+.heart {
+    image-rendering: pixelated;
+
+    width: 27.5px;
+    height: 30px;
+}
+
+#coins {
+    margin-left: 6px;
+
+    display: flex;
+    gap: 10px;
+    align-items: center;    
+}
+
+.coin {
+    image-rendering: pixelated;
+
+    width: 18px;
+    height: 24px;
+}
+
+#numberOfCoins {
+    margin-top: 2px;
+
+    text-align: center;
+
+    color: whitesmoke;
+}
+
 /* ACHIEVEMENTS */
 #achievementButton {
-    background: none;
+    background-image: url('images/achievementButton.png'); 
+    background-color: transparent;
+    background-size: cover;
+    background-position: center; 
+    background-repeat: no-repeat; 
+    
     border: none;
     outline: none;
+
+    image-rendering: pixelated;
 
     width: 50px;
     height: 50px;
@@ -206,6 +302,10 @@ button:hover {
     right: 30px;
 
     font-size: 40px;
+}
+
+#achievementButton:active {
+    background-image: url('images/achievementButtonActive.png'); 
 }
 
 #achievementButton:focus {

@@ -60,8 +60,28 @@
             <!-- where we draw all the things on our game -->
             <canvas></canvas>
 
+            <!-- player state -->
+            <div id="playerState">
+                <div id="playerImageFrame">
+                    <img src="images/playerUpperBodyImage.png" id="playerUpperBodyImage">
+                </div>
+
+                <div id="heartsMoneyBase">
+                    <div id="hearts">
+                        <img src="images/fullHeart.png" class="heart">
+                        <img src="images/fullHeart.png" class="heart">
+                        <img src="images/fullHeart.png" class="heart">
+                    </div>
+
+                    <div id="coins">
+                        <img src="images/coin2.png" class="coin">
+                        <span id="numberOfCoins">5</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Achievements -->
-            <button id="achievementButton">🏆</button>
+            <button id="achievementButton"></button>
 
             <div id="achievementMenu">
 
