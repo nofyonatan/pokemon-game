@@ -2155,6 +2155,19 @@ function drawPlayerState() {
     c.fillText("X" + numberOfCoins, 210, 38);
 }
 
+// function for update player health
+function updatePlayerHealthBar() {
+    const healthSegments = document.querySelectorAll(".healthSegment");
+
+    healthSegments.forEach((segment, index) => {
+        if (index < lives) {
+            segment.classList.remove("lost");
+        } else {
+            segment.classList.add("lost");
+        }
+    });
+}
+
 function checkAchievements() {
     if (numberOfCoins >= 5) {
         unlockAchievement(1);

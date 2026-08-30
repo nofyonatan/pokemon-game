@@ -58,24 +58,28 @@
             </div>
 
             <!-- where we draw all the things on our game -->
-            <canvas></canvas>
+            <canvas></canvas>   
 
             <!-- player state -->
-            <div id="playerState">
-                <div id="playerImageFrame">
-                    <img src="images/playerUpperBodyImage.png" id="playerUpperBodyImage">
-                </div>
+            <div class="playerState">
+                <div class="mapDivState">
+                    <img src="images/playerHead.png">
 
-                <div id="heartsMoneyBase">
-                    <div id="hearts">
-                        <img src="images/fullHeart.png" class="heart">
-                        <img src="images/fullHeart.png" class="heart">
-                        <img src="images/fullHeart.png" class="heart">
-                    </div>
+                    <div class="mapHealthBarInfo">
+                        <span class="playerNameInfo">
+                            Adventurer
+                        </span>
 
-                    <div id="coins">
-                        <img src="images/coin2.png" class="coin">
-                        <span id="numberOfCoins">5</span>
+                        <div class="healthBarBackgroundMap">
+                            <div class="healthSegment"></div>
+                            <div class="healthSegment"></div>
+                            <div class="healthSegment"></div>
+                        </div>
+
+                        <div class="playerCoinsInfo">
+                            <img src="images/coin.png" id="coinImage">
+                            <span id="playerCoins">5</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -560,7 +564,7 @@
                         </span>
 
                         <div class="healthBarBackground">
-                            <div id="caveBattlePlayerHealthBar"></div>
+                            <div id="PlayerHealthBar"></div>
                         </div>
                     </div>
                 </div>
