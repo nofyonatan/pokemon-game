@@ -25,6 +25,8 @@ const foregorondBar = new Sprite({
 let playerCantMove = false;
 let inShop = false;
 let numberBulletsBought = 0;
+let goldenBerryPrice = 15;
+document.querySelector('#goldenBerryPrice').innerText = goldenBerryPrice;
 
 function getIntoBar() {
     const animationId = requestAnimationFrame(getIntoBar);
@@ -266,16 +268,32 @@ document.querySelector('#buyBullets').addEventListener('click', () => {
         numberOfammo += 5;
         numberBulletsBought += 5;
         numberOfCoins -= 1;
+        updatePlayerCoins();
     }
 })
 
 // event listener for buying wine
 document.querySelector('#buyWine').addEventListener('click', () => {
     if (numberOfCoins >= 5) {
-        if (lives < 3) {
-            lives += 1;
+        if (lives < maxLives) {
+            lives++;
+            updatePlayerHealthBar();
             numberOfCoins -= 5;
+            updatePlayerCoins();
         }
+    }
+})
+
+// event listener for buying golden berry
+document.querySelector('#buyGoldenBerry').addEventListener('click', () => {
+    if (numberOfCoins >= goldenBerryPrice) {
+        maxLives++;
+        createHealthBar();
+        updatePlayerHealthBar();
+        numberOfCoins -= goldenBerryPrice;
+        updatePlayerCoins();
+        goldenBerryPrice += 5;
+        document.querySelector('#goldenBerryPrice').innerText = goldenBerryPrice;
     }
 })
 

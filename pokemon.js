@@ -121,11 +121,15 @@ let numberAchievementVisibleOnScreen = 0; // A variable that represent how many 
 let achievementRetureRobChickenComplete = false; // A varible that represents if the achievement of of return Rob's chicken completed
 
 // player variables
-let lives = 3 // the amount of lives player has
+let lives = 3; // the amount of lives player has
+let maxLives = 3; // the max amount of lives player can have.
+createHealthBar();
+updatePlayerHealthBar();
 let InfiniteAmmo = false; // A variable that represent whether player has infinite ammo or not
 let pastNumberOfammo; // A variable that represent how much ammo player had in the past
 let numberOfammo = 5; // the amount of ammo player have
-let numberOfCoins = 0; // the number of coins player collect
+let numberOfCoins = 100; // the number of coins player collect
+updatePlayerCoins();
 
 //LOAD IMAGES
 // background image
@@ -1485,6 +1489,7 @@ function animate() {
             enemy.about.alive = false;
             if (lives > 0) {
                 lives -= 1;
+                updatePlayerHealthBar();
             }
             setTimeout(() => {
                 respawnEnemy(enemy);
@@ -1502,6 +1507,7 @@ function animate() {
         })) {
             coins.splice(i, 1);
             numberOfCoins += 1;
+            updatePlayerCoins();
         }
     }
 
@@ -2155,6 +2161,21 @@ function drawPlayerState() {
     c.fillText("X" + numberOfCoins, 210, 38);
 }
 
+function createHealthBar() {
+    const healthBar = document.querySelector(".healthBarBackgroundMap");
+
+    healthBar.innerHTML = "";
+
+    for (let i = 0; i < maxLives; i++) {
+
+        const segment = document.createElement("div");
+
+        segment.classList.add("healthSegment");
+
+        healthBar.appendChild(segment);
+    }
+}
+
 // function for update player health
 function updatePlayerHealthBar() {
     const healthSegments = document.querySelectorAll(".healthSegment");
@@ -2166,6 +2187,13 @@ function updatePlayerHealthBar() {
             segment.classList.add("lost");
         }
     });
+}
+
+// funcntion for update player number of coins
+function updatePlayerCoins() {
+    const playerCoins = document.querySelector('#playerCoins');
+
+    playerCoins.innerText = numberOfCoins;
 }
 
 function checkAchievements() {

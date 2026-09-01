@@ -147,6 +147,8 @@ function startCaveBattle() {
     // So that the canvas doesn't blur the figures
     c.imageSmoothingEnabled = false;
 
+    document.querySelector('.playerState').style.display = "none";
+
     // show instructions
     document.querySelector('#bossOverlay').style.display = "block";
     document.querySelector('#caveBattleInstructions').style.display = "block";
@@ -717,9 +719,11 @@ document.querySelector('#continueButton').addEventListener('click', () => {
     // add coins to the player if he won, or take all the player coins if he lost
     if (playerWon) {
         numberOfCoins += 50;
+        updatePlayerCoins();
     }
     else if (!playerWon) {
         numberOfCoins = 0;
+        updatePlayerCoins();
     }
 
     // we dont want the player to have infinite ammon anymore

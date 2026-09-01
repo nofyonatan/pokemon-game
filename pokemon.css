@@ -202,36 +202,6 @@ button:hover {
         1px 1px 0 #e6d3a3;
 }
 
-/* ACHIEVEMENT CLIAM HAT(REMOVE)*/
-#hatClaimButton {
-    /* position: absolute; */
-    display: none;
-    width: 140px;
-    padding: 10px;
-    bottom: 10px;
-    /* border: 3px solid #3b2a1a; */
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(to bottom, #ffd166, #f4a261);
-    color: white;
-    padding-top: 10px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 0 #9c6644;
-    transition: 0.15s;
-}
-
-#hatClaimButton:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.05);
-}
-
-#hatClaimButton:active {
-    transform: translateY(3px);
-    box-shadow: 0 2px 0 #9c6644;
-}
-
 /* CLASSES TO USE IN THE GAME */
 .blur {
     filter: blur(2.5px);
@@ -262,6 +232,29 @@ button:hover {
 .button:active {
     transform: translateY(3px);
     box-shadow: 0 2px 0 #9c6644;
+}
+
+/* bandwidth */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+/* The track (background) */
+::-webkit-scrollbar-track {
+    background: #5a381e;
+    border-radius: 10px;
+}
+
+/* the button */
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(#ffd166, #f4a261);
+    border-radius: 10px;
+    border: 2px solid #5a381e;
+}
+
+/* Mouseover effect */
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(#ffe28a, #f7b76a);
 }
 
 /* GAME SHOP */

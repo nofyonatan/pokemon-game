@@ -837,6 +837,7 @@ function cave() {
         })) {
             // increase number of coins
             numberOfCoins++
+            updatePlayerCoins();
 
             // delete coin
             caveCoins.splice(i, 1);

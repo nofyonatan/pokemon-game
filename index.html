@@ -71,14 +71,12 @@
                         </span>
 
                         <div class="healthBarBackgroundMap">
-                            <div class="healthSegment"></div>
-                            <div class="healthSegment"></div>
-                            <div class="healthSegment"></div>
+
                         </div>
 
                         <div class="playerCoinsInfo">
                             <img src="images/coin.png" id="coinImage">
-                            <span id="playerCoins">5</span>
+                            <span id="playerCoins"></span>
                         </div>
                     </div>
                 </div>
@@ -309,11 +307,25 @@
 
                     <div class="shopInfo">
                         <h2>Wine</h2>
-                        <p>Restore 1 HP (player max health 3)</p>
+                        <p>Restore 1 HP</p>
                         <p>Price: 5 Coins</p>
                     </div>
 
                     <button id="buyWine" class="button">
+                        Buy
+                    </button>
+                </div>
+
+                <div class="shopItem">
+                    <img src="images/goldenBerry.png">
+
+                    <div class="shopInfo">
+                        <h2>Golden berry</h2>
+                        <p>increase max HP(by 1)</p>
+                        <p>Price: <span id="goldenBerryPrice"></span> Coins</p>
+                    </div>
+
+                    <button id="buyGoldenBerry" class="button">
                         Buy
                     </button>
                 </div>
@@ -564,7 +576,7 @@
                         </span>
 
                         <div class="healthBarBackground">
-                            <div id="PlayerHealthBar"></div>
+                            <div id="caveBattlePlayerHealthBar"></div>
                         </div>
                     </div>
                 </div>
