@@ -591,9 +591,12 @@ function caveBattle() {
                 // So that the canvas doesn't blur the figures
                 c.imageSmoothingEnabled = false;
 
-                // start cave battle music
+                // start cave music
                 audio.cave.stop();
                 audio.cave.play();
+
+                // show player state
+                document.querySelector('.playerState').style.display = "block";
 
                 // show the screen
                 gsap.to('#blackDiv', {

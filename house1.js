@@ -41,6 +41,7 @@ function getIntoHouse() {
     canvas.width = house1Image.width;
     canvas.height = house1Image.height;
 
+    // DRAWING
     // draw house
     houseBackground.draw();
 
@@ -71,7 +72,44 @@ function getIntoHouse() {
         hat.draw();
     }
 
-    //
+    // draw projectiles and remove them if that went off the screen
+    for (let i = projectiles.length - 1; i >= 0; i--) { 
+        const projectile = projectiles[i];
+
+        // draw projectile
+        projectile.update(); 
+
+        // Check if the projectiles went off the screen
+        if ( 
+            projectile.position.x < 0 || 
+            projectile.position.x > canvas.width || 
+            projectile.position.y < 0 || 
+            projectile.position.y > canvas.height 
+        ) { 
+            projectiles.splice(i, 1); 
+        }   
+    }
+
+    // COLLISION
+    // check collision between projectiles to boundaries
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        for (let j = 0; j < houseBoundaries.length; j++) {
+            const projectile = projectiles[i];
+            const boundary = houseBoundaries[j];
+
+            if (!projectile) continue;
+
+            if (rectangularCollision({
+                rectangle1: projectile,
+                rectangle2: boundary
+            })) {
+                // delete projectile
+                projectiles.splice(i, 1);
+            }
+        }
+    }
+
+    // what player 2 needs to say
     if (player.position.y <= 150) {
         document.querySelector('#character2DialogueHouse').innerHTML = "I think I saw Rob's chicken around this area.";
         document.querySelector('#character2DialogueHouse').style.height = "30px";
@@ -105,6 +143,11 @@ function getIntoHouse() {
                 player2.position.y = pastPlayer2Position.y;
                 hat.position.x = pastHatPosition.x;
                 hat.position.y = pastHatPosition.y;
+
+                // hide small button and show big health bar instand
+                showPlayerState();
+                hideHealthButton();
+
                 // start main animation loop
                 animate();
                 // start map music
@@ -121,6 +164,7 @@ function getIntoHouse() {
         });
     }
 
+    // MOVEMENT
     // MOVE PLAYER
     player.animate = false;
     let moving = true;

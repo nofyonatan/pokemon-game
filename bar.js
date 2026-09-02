@@ -74,10 +74,26 @@ function getIntoBar() {
         hat.draw();
     }
 
+    // draw projectiles and remove them if that went off the screen
+    for (let i = projectiles.length - 1; i >= 0; i--) { 
+        const projectile = projectiles[i];
+
+        // draw projectile
+        projectile.update(); 
+
+        // Check if the projectiles went off the screen
+        if ( 
+            projectile.position.x < 0 || 
+            projectile.position.x > canvas.width || 
+            projectile.position.y < 0 || 
+            projectile.position.y > canvas.height 
+        ) { 
+            projectiles.splice(i, 1); 
+        }   
+    }
+
     // draw foreground objects
     foregorondBar.draw();
-
-    drawPlayerState();
 
     // COLLISOIN
     // collisoin between player and player 7
@@ -92,6 +108,24 @@ function getIntoBar() {
         }
     } else {
         document.querySelector('#character7DialogueBar').style.display = "none";
+    }
+
+    // check collision between projectiles to boundaries
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        for (let j = 0; j < barBoundaries.length; j++) {
+            const projectile = projectiles[i];
+            const boundary = barBoundaries[j];
+
+            if (!projectile) continue;
+
+            if (rectangularCollision({
+                rectangle1: projectile,
+                rectangle2: boundary
+            })) {
+                // delete projectile
+                projectiles.splice(i, 1);
+            }
+        }
     }
 
     // check if player exit the house
@@ -266,6 +300,7 @@ function getIntoBar() {
 document.querySelector('#buyBullets').addEventListener('click', () => {
     if (numberOfCoins >= 1) {
         numberOfammo += 5;
+        updatePlayerAmmo();
         numberBulletsBought += 5;
         numberOfCoins -= 1;
         updatePlayerCoins();

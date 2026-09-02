@@ -130,19 +130,6 @@ button:hover {
     gap: 15px;
 }
 
-/* #PlayerHealthBar {
-    height: 100%;
-    width: 100%;
-
-    background: linear-gradient(
-        to bottom,
-        #42ff42,
-        #00b300
-    );
-
-    transition: width .2s;
-} */
-
 .healthBarBackgroundMap {
     display: flex;
     gap: 3px;
@@ -178,12 +165,16 @@ button:hover {
     background: #742323;
 }
 
+.playerCoinsAndAmmo {
+    display: flex;
+    flex-direction: row;
+    gap: 70px;
+}
+
 .playerCoinsInfo {
     display: flex;
     align-items: center;
     gap: 7px;
-
-    color: #5a381e;
 
     font-size: 11px;
 }
@@ -200,6 +191,67 @@ button:hover {
 
     text-shadow:
         1px 1px 0 #e6d3a3;
+}
+
+.playerAmmoInfo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    font-size: 11px;
+}
+
+#bulletImage {
+    width: 18px;
+    height: 18px;
+
+    image-rendering: pixelated;
+}
+
+#playerNumberOfAmmo {
+    color: #5a381e;
+
+    text-shadow:
+        1px 1px 0 #e6d3a3;
+}
+
+#healthButton {
+    display: none;
+
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    width: 50px;
+    height: 50px;
+
+    border: 4px solid #5a381e;
+    border-radius: 12px;
+
+    background: linear-gradient(
+        to bottom,
+        #ffd166,
+        #f4a261
+    );
+
+    font-size: 25px;
+
+    cursor: pointer;
+
+    box-shadow: 0 4px 0 #9c6644;
+
+    box-sizing: border-box;
+
+    z-index: 300;
+}
+
+#healthButton:focus {
+    outline: none;
+}
+
+#healthButton:focus-visible {
+    outline: none;
 }
 
 /* CLASSES TO USE IN THE GAME */

@@ -128,7 +128,8 @@ updatePlayerHealthBar();
 let InfiniteAmmo = false; // A variable that represent whether player has infinite ammo or not
 let pastNumberOfammo; // A variable that represent how much ammo player had in the past
 let numberOfammo = 5; // the amount of ammo player have
-let numberOfCoins = 100; // the number of coins player collect
+updatePlayerAmmo();
+let numberOfCoins = 0; // the number of coins player collect
 updatePlayerCoins();
 
 //LOAD IMAGES
@@ -1331,17 +1332,6 @@ function animate() {
 
     } 
 
-    if (!talkingToSomeone) {
-        // hide dialogue
-        document.querySelector('#charactersDialogueBox').style.display = "none";
-        // hide house icon
-        document.querySelector('#houseDialogue').style.display = "none";
-        // delete the text in the dialogue
-        document.querySelector('#dialogueText').innerText = "";
-        // dialogue is not already open
-        openDialogue = false;
-    }
-
     // check collision between player to player 6
     if (rectangularCollision({
         rectangle1: player,
@@ -1362,6 +1352,17 @@ function animate() {
     } else {
         // hide dialogue
         document.querySelector('#character6Dialogue').style.display = "none";
+    }
+
+    if (!talkingToSomeone) {
+        // hide dialogue
+        document.querySelector('#charactersDialogueBox').style.display = "none";
+        // hide house icon
+        document.querySelector('#houseDialogue').style.display = "none";
+        // delete the text in the dialogue
+        document.querySelector('#dialogueText').innerText = "";
+        // dialogue is not already open
+        openDialogue = false;
     }
 
     // check collison between player and player 7
@@ -1733,6 +1734,11 @@ function animate() {
                         player2.position.y = 324;
                         hat.position.x = player.position.x - 5;
                         hat.position.y = player.position.y - 12;
+
+                        // hide big player health bar and show a small button instand
+                        hidePlayerState();
+                        showHealthButton();
+
                         getIntoHouse();
                         gsap.to('#blackDiv', {
                             opacity: 0,
@@ -2212,6 +2218,13 @@ function checkAchievements() {
     }
 }
 
+// function for update player number of ammo
+function updatePlayerAmmo() {
+    const playerAmmo = document.querySelector('#playerNumberOfAmmo');
+
+    playerAmmo.innerText = numberOfammo;
+}
+
 // function for typing text dialogue in slow motion
 let interval;
 function typeDialogue(message) {
@@ -2262,6 +2275,27 @@ function typeDialogue(message) {
             }
         }
     }, 100);
+}
+
+// function for showing player state
+function showPlayerState() {
+    document.querySelector(".playerState").style.left = 5 + "px";
+    document.querySelector(".playerState").style.display = "block";
+}
+
+// function for hiding player state
+function hidePlayerState() {
+    document.querySelector(".playerState").style.display = "none";
+}
+
+// function for showing health button
+function showHealthButton() {
+    document.querySelector("#healthButton").style.display = "block";
+}
+
+// function for hiding player state
+function hideHealthButton() {
+    document.querySelector("#healthButton").style.display = "none";
 }
 
 // EVENT LISTENERS
@@ -2362,6 +2396,48 @@ document.querySelector('#startGameBtn').addEventListener('click', () => {
             animate();
         }
     });
+});
+
+// event listener for open and close health bar when the small health button display
+document.querySelector("#healthButton").addEventListener("click", () => {
+    const playerState = document.querySelector(".playerState");
+
+    if (playerState.style.display === "none") {
+
+        playerState.style.left = 55 + "px";
+        playerState.style.display = "block";
+
+        gsap.fromTo(
+            playerState,
+            {
+                scale: 0.8,
+                opacity: 0
+            },
+            {
+                scale: 1,
+                opacity: 1,
+                duration: 0.2
+            }
+        );
+
+    } else {
+
+        gsap.to(playerState, {
+            scale: 0.8,
+            opacity: 0,
+            duration: 0.2,
+            onComplete: () => {
+                playerState.style.display = "none";
+                playerState.style.left = 5 + "px";
+                gsap.to(playerState, {
+                    scale: 1,
+                    opacity: 1
+                })
+            }
+        });
+
+    }
+
 });
 
 document.addEventListener("keyup", (e) => {
@@ -2506,6 +2582,7 @@ canvas.addEventListener('click', (event) => {
     // dicrease the variable that shows how many bullets have left
     if (!InfiniteAmmo) {
         numberOfammo -= 1;
+        updatePlayerAmmo();
     }
 
     // create bullet
