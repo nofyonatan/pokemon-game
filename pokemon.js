@@ -60,7 +60,8 @@ let gameStarted = false; // A varible that represent if the game can start or no
 let velocity = 3  // A varible that shows what is the velocity of the player
 let enterPlayer2House = false; // A variable that represent if player needs to enter player 2 house
 let playerClaimHat = false; // A varible that represents if player claim the hat
-let button1DiloguePlayer6Clicks = 0; // A varible that represents how many times the first button of the dialoge with player 6 has clicked
+let playerEnterTheCave = false; // A variable that represent whether the player entered the cave or not
+let playerRefusedToEnterTheCave = false; // A variable that represent whether the player refused to enter the cave or not
 let getIntoCave = false; // A varible that represents if player needs to gets into the cave
 
 // moving varaibles
@@ -69,7 +70,8 @@ let player5moving = true; // A variable that represents when player number 5(a b
  
 // dialogue variables
 let dialoguePlayer4 = true; // A variable that represents if can be a dialogue with player 4
-let playerTalkingWithPlayer4 = false; // A variable that represents whether the player is currently talking to player 4.
+let playerTalkingWithPlayer4 = false; // A variable that represents whether the player is currently talking to player 4
+let playerIsTalkingWithPlayer6 = false; // A variable that represents whether the player is currently talking to player 6
 let canDialogueWithPlayer6 = true; // A varible that represents if can be dialogue with player 6
 let dialogueWritten = false; // A variable that represents whether the dialogue is still in the middle of being written
 let instantWriting = false; // A variable that represents whether the player pressed space before the writing was finished -
@@ -77,6 +79,204 @@ let instantWriting = false; // A variable that represents whether the player pre
 let currentDialogue = [];
 let dialogueIndex = 0;
 let openDialogue = false; // A variable that represents whether a dialogue is opened
+
+const player6Dialogue = [
+
+    // 0
+    {
+        type: "text",
+        text: "You won't believe what I found!"
+    },
+
+    // 1
+    {
+        type: "text",
+        text: "I found an abandoned cave in the middle of the sea."
+    },
+
+    // 2
+    {
+        type: "text",
+        text: "there are rumors that there are a lot of treasures there!"
+    },
+
+    // 3
+    {
+        type: "text",
+        text: "But monsters are protecting them!"
+    },
+
+    // 4
+    {
+        type: "choices",
+        choices: [
+            {
+                text: "Take me there!",
+                next: 5
+            },
+            {
+                text: "I'm not going anywhere near there!",
+                next: 7
+            }
+        ]
+    },
+
+    // 5
+    {
+        type: "text",
+        text: "Are you sure about that?"
+    },
+
+    // 6
+    {
+        type: "choices",
+        choices: [
+            {
+                text: "Yes",
+                next: 7,
+                action: () => {
+                    getIntoCave = true;
+                    playerEnterTheCave = true;
+                    closeDialogue();
+                }
+            },
+            {
+                text: "No",
+                next: 7
+            }
+        ]
+    },
+
+    // 7
+    {
+        type: "text",
+        text: "Tell me if you change your mind."
+    },
+
+    // 8
+
+    {
+        type: "choices",
+        choices: [
+            {
+                text: "Actually, I do want to go.",
+                next: 9,
+                action: () => {
+                    getIntoCave = true;
+                    playerEnterTheCave = true;
+                    closeDialogue();
+                }
+            },
+            {
+                text: "No, I don't think so.",
+                next: 9
+            }
+        ]
+    },
+
+    // 9
+    {
+        type: "text",
+        text: "Bye, have a nice day!"
+    }
+];
+
+const player6DialogueAfterRefuseEnterCave = [
+
+    // 0
+    {
+        type: "text",
+        text: "So you did decide to change your mind?"
+    },
+
+    // 1
+    {
+        type: "choices",
+        choices: [
+            {
+                text: "Yes",
+                next: 2
+            },
+            {
+                text: "No, I just came to say hello",
+                next: 5
+            }
+        ]
+    },
+
+    // 2
+    {
+        type: "text",
+        text: "Are you ready to go?"
+    },
+
+    // 3
+    {
+        type: "choices",
+        choices: [
+            {
+                text: "Yes, I'm ready!",
+                next: 4,
+                action: () => {
+                    getIntoCave = true;
+                    playerEnterTheCave = true;
+                    closeDialogue();
+                }
+            },
+            {
+                text: "Um, on second thought, maybe I'll give up on that.",
+                next: 4
+            }
+        ]
+    },
+
+    // 4
+    {
+        type: "text",
+        text: "Remember, if you change your mind, I'm here!"
+    },
+
+    // 5
+    {
+        type: "text",
+        text: "Have a wonderful day!"
+    }
+]
+
+const player6DialogueAfterCave = [
+
+    // 0
+    {
+        type: "text",
+        text: "Did you enjoy there?"
+    },
+
+    // 1
+    {
+        type: "choices",
+        choices: [
+            {
+                text: "Yes! I want to go again!",
+                next: 2,
+                action: () => {
+                    getIntoCave = true;
+                    playerEnterTheCave = true;
+                    closeDialogue();
+                }
+            },
+            {
+                text: "No! I will never go there again",
+                next: 2
+            }
+        ]
+    },
+
+    // 2
+    {
+        type: "text",
+        text: "Goodbye, it was an amazing adventure."
+    }
+]
 
 // collision vaiables
 let collisionPlayer1Player2 = false; // A variable that represents when there is a collision between player 1 and player 2
@@ -1230,9 +1430,18 @@ function animate() {
             openCharacterDialogue(
                 "Adam",
                 [
-                    "Hello! My name is Adam.",
-                    "How can I help you?",
-                    "Feel free to enter my house!"
+                    {
+                        type: "text",
+                        text: "Hello! My name is Adam."
+                    },
+                    {
+                        type: "text",
+                        text: "How can I help you?"
+                    },
+                    {
+                        type: "text",
+                        text: "Feel free to enter my house!"
+                    }
                 ],
                 true
             );
@@ -1266,9 +1475,18 @@ function animate() {
             openCharacterDialogue(
                 "Bob",
                 [
-                    "Hi!",
-                    "Would you like to join me for a walk?",
-                    "It's a perfect day!"
+                    {
+                        type: "text",
+                        text: "Hi!"
+                    },
+                    {
+                        type: "text",
+                        text: "Would you like to join me for a walk?"
+                    },
+                    {
+                        type: "text",
+                        text: "It's a perfect day!"
+                    }
                 ]
             );
         }
@@ -1312,17 +1530,40 @@ function animate() {
                     openCharacterDialogue(
                         "Rob",
                         [
-                            "Hey, how are you?",
-                            "My name is Rob, I need your help.",
-                            "I lost a chicken... I have to find it!"
+                            // 0
+                            {
+                                type: "text",
+                                text: "Hey, how are you?"
+                            },
+
+                            // 1
+                            {
+                                type: "text",
+                                text: "My name is Rob, I need your help."
+                            },
+
+                            // 2
+                            {
+                                type: "text",
+                                text: "I lost a chicken... I have to find it!"
+                            }
                         ]
                     );
                 } else {
                     openCharacterDialogue(
                         "Rob",
                         [
-                            "Oh thank God you found it.",
-                            "I thank you so much! Here's something for you..."
+                            // 0
+                            {
+                                type: "text",
+                                text: "Oh thank God you found it."
+                            },
+
+                            // 1
+                            {
+                                type: "text",
+                                text: "I thank you so much! Here's something for you..."
+                            }
                         ]
                     );
                 }
@@ -1344,15 +1585,35 @@ function animate() {
                 playerMeetings.player6 = true;
             }
 
-            // open dialogue with player number 6
-            document.querySelector('#character6Dialogue').style.display = "flex";
-            document.querySelector('#character6Dialogue').style.left = player6.position.x + 50 + "px";
-            document.querySelector('#character6Dialogue').style.top = player6.position.y - 70 + "px";
+            // player is talking with player 6 at the moment
+            playerIsTalkingWithPlayer6 = true;
+
+            // player is talking to someone
+            talkingToSomeone = true;
+            
+            // Open the dialogue only if it is not already open
+            if (!openDialogue) {
+                if (!playerEnterTheCave && !playerRefusedToEnterTheCave) {
+                    openCharacterDialogue(
+                        "Fisherman",
+                        player6Dialogue
+                    );
+                }
+                else if (playerEnterTheCave) {
+                    openCharacterDialogue(
+                        "Fisherman",
+                        player6DialogueAfterCave
+                    );
+                }
+                else if (playerRefusedToEnterTheCave) {
+                    openCharacterDialogue(
+                        "Fisherman",
+                        player6DialogueAfterRefuseEnterCave
+                    );
+                }
+            }
         }
-    } else {
-        // hide dialogue
-        document.querySelector('#character6Dialogue').style.display = "none";
-    }
+    } 
 
     if (!talkingToSomeone) {
         // hide dialogue
@@ -2051,7 +2312,69 @@ function openCharacterDialogue(name, dialogue, showHouse = false) {
     document.querySelector("#houseDialogue").style.display =
         showHouse ? "block" : "none";
 
-    typeDialogue(currentDialogue[dialogueIndex]);
+    playerEnterTheCave = false;
+    playerRefusedToEnterTheCave = false;
+
+    showCurrentDialogue();
+
+}
+
+function showCurrentDialogue() {
+
+    const dialogue = currentDialogue[dialogueIndex];
+
+    const dialogueChoices = document.querySelector("#dialogueChoices");
+
+    // First we clean up the previous choices
+    dialogueChoices.innerHTML = "";
+
+    if (dialogue.type === "text") {
+
+        dialogueChoices.style.display = "none";
+
+        typeDialogue(dialogue.text);
+
+    }
+
+    else if (dialogue.type === "choices") {
+
+        // No text is currently being typed
+        dialogueChoices.style.display = "flex";
+
+        showDialogueChoices(dialogue.choices);
+    }
+}
+
+function showDialogueChoices(choices) {
+
+    const dialogueChoices =
+        document.querySelector("#dialogueChoices");
+
+    dialogueChoices.innerHTML = "";
+
+    choices.forEach(choice => {
+
+        const button = document.createElement("button");
+
+        button.classList.add("dialogueChoiceButton");
+
+        button.innerText = choice.text;
+
+        button.addEventListener("click", () => {
+
+            // If there is an action that needs to be taken
+            if (choice.action) {
+                choice.action();
+            }
+
+            // Moving on to the next dialogue
+            dialogueIndex = choice.next;
+
+            showCurrentDialogue();
+        });
+
+        dialogueChoices.appendChild(button);
+    });
 }
 
 // A function for close dialogue
@@ -2077,6 +2400,14 @@ function nextDialogue() {
         return;
     }
 
+    const dialogue = currentDialogue[dialogueIndex];
+
+    // If we are on a selection screen,
+    // You must select a button
+    if (dialogue.type === "choices") {
+        return;
+    }
+
     dialogueIndex++;
 
     if (dialogueIndex >= currentDialogue.length) {
@@ -2093,12 +2424,69 @@ function nextDialogue() {
             velocity = 5;
         }
 
+        // if the player is talking with player 4, and reach to this point - it means that he doesnt entered the cave
+        if (playerIsTalkingWithPlayer6) {
+            playerRefusedToEnterTheCave = true;
+        }
+
         closeDialogue();
 
         return;
     }
 
-    typeDialogue(currentDialogue[dialogueIndex]);
+    showCurrentDialogue();
+}
+
+// function for typing text dialogue in slow motion
+let interval;
+function typeDialogue(message) {
+    // Canceling the previous timer (if any) to prevent duplication and concurrent writing
+    clearInterval(interval);
+
+    // our text that we want to write
+    const text = message;
+
+    // the element that we want the text to be write on
+    const element = document.querySelector('#dialogueText');    
+
+    // Reset existing text in an element before starting new printing
+    element.textContent = "";
+
+    // represent the letter in the word that we need to write
+    let index = 0;
+
+    // we want to write every letter in the word in a gap of 1/10 second
+    interval = setInterval(() => {
+        if (instantWriting) {
+            element.textContent = "";
+            element.textContent = text;
+
+            // stop interval
+            clearInterval(interval);
+            // The dialogue is no longer written
+            dialogueWritten = false;
+            // the text not need to insant writing anymore
+            instantWriting = false;
+        } else {
+
+            // the dialogue is still written
+            dialogueWritten = true;
+
+            // add the letter to the element
+            element.textContent += text[index];
+
+            // move to the next letter in the word
+            index++;
+
+            // if we finished write the word stop writing
+            if (index >= text.length) {
+                // stop interval
+                clearInterval(interval);
+                // The dialogue is no longer written
+                dialogueWritten = false;
+            }
+        }
+    }, 100);
 }
 
 // function for writing 'Welcome Adventure' in slow motion
@@ -2223,58 +2611,6 @@ function updatePlayerAmmo() {
     const playerAmmo = document.querySelector('#playerNumberOfAmmo');
 
     playerAmmo.innerText = numberOfammo;
-}
-
-// function for typing text dialogue in slow motion
-let interval;
-function typeDialogue(message) {
-    // Canceling the previous timer (if any) to prevent duplication and concurrent writing
-    clearInterval(interval);
-
-    // our text that we want to write
-    const text = message;
-
-    // the element that we want the text to be write on
-    const element = document.querySelector('#dialogueText');    
-
-    // Reset existing text in an element before starting new printing
-    element.textContent = "";
-
-    // represent the letter in the word that we need to write
-    let index = 0;
-
-    // we want to write every letter in the word in a gap of 1/10 second
-    interval = setInterval(() => {
-        if (instantWriting) {
-            element.textContent = "";
-            element.textContent = text;
-
-            // stop interval
-            clearInterval(interval);
-            // The dialogue is no longer written
-            dialogueWritten = false;
-            // the text not need to insant writing anymore
-            instantWriting = false;
-        } else {
-
-            // the dialogue is still written
-            dialogueWritten = true;
-
-            // add the letter to the element
-            element.textContent += text[index];
-
-            // move to the next letter in the word
-            index++;
-
-            // if we finished write the word stop writing
-            if (index >= text.length) {
-                // stop interval
-                clearInterval(interval);
-                // The dialogue is no longer written
-                dialogueWritten = false;
-            }
-        }
-    }, 100);
 }
 
 // function for showing player state

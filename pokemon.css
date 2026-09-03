@@ -662,6 +662,50 @@ button:hover {
     outline: none;
 }
 
+#dialogueChoices {
+    display: none;
+
+    flex-direction: column;
+    gap: 10px;
+
+    width: 100%;
+    margin-top: 15px;
+}
+
+.dialogueChoiceButton {
+    width: 100%;
+    padding: 12px;
+
+    background: linear-gradient(
+        to bottom,
+        #ffd166,
+        #f4a261
+    );
+
+    border: 3px solid #5a381e;
+    border-radius: 10px;
+
+    color: white;
+
+    font-family: "Press Start 2P", cursive;
+    font-size: 10px;
+
+    line-height: 1.6;
+
+    cursor: pointer;
+
+    box-shadow: 0 3px 0 #5a381e;
+}
+
+.dialogueChoiceButton:hover {
+    filter: brightness(1.08);
+}
+
+.dialogueChoiceButton:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #5a381e;
+}
+
 #dialogueButtons {
     display: flex;
 
