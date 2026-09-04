@@ -63,6 +63,7 @@ let playerClaimHat = false; // A varible that represents if player claim the hat
 let playerEnterTheCave = false; // A variable that represent whether the player entered the cave or not
 let playerRefusedToEnterTheCave = false; // A variable that represent whether the player refused to enter the cave or not
 let getIntoCave = false; // A varible that represents if player needs to gets into the cave
+let playerWantToEnterBar = false; // A variable that represent whether player needs to get into the bar or not
 
 // moving varaibles
 let player3moving = true; // A variable that represents when player number 3(a bot) can move
@@ -72,7 +73,12 @@ let player5moving = true; // A variable that represents when player number 5(a b
 let dialoguePlayer4 = true; // A variable that represents if can be a dialogue with player 4
 let playerTalkingWithPlayer4 = false; // A variable that represents whether the player is currently talking to player 4
 let playerIsTalkingWithPlayer6 = false; // A variable that represents whether the player is currently talking to player 6
+let dialogueWithPlayer6AfterEnterCaveOpen = false; // A variable that represents whether the after-cave dialogue
+                                                   // with player 6 is open or not.
+let dialogueWithPlayer6AfterRefuseEnterCaveOpened = false; // A variable that represents whether the dialogue after player
+                                                           // 6's refusal to enter the cave is open or not
 let canDialogueWithPlayer6 = true; // A varible that represents if can be dialogue with player 6
+let playerEnteredBar = false; // A variable that represent whether the player entered the bar or not
 let dialogueWritten = false; // A variable that represents whether the dialogue is still in the middle of being written
 let instantWriting = false; // A variable that represents whether the player pressed space before the writing was finished -
                             // in which case you will immediately write the sentence
@@ -80,7 +86,7 @@ let currentDialogue = [];
 let dialogueIndex = 0;
 let openDialogue = false; // A variable that represents whether a dialogue is opened
 
-const player6Dialogue = [
+const player6Dialogue = [ // player 6 dialogues
 
     // 0
     {
@@ -180,7 +186,6 @@ const player6Dialogue = [
         text: "Bye, have a nice day!"
     }
 ];
-
 const player6DialogueAfterRefuseEnterCave = [
 
     // 0
@@ -242,7 +247,6 @@ const player6DialogueAfterRefuseEnterCave = [
         text: "Have a wonderful day!"
     }
 ]
-
 const player6DialogueAfterCave = [
 
     // 0
@@ -265,8 +269,13 @@ const player6DialogueAfterCave = [
                 }
             },
             {
-                text: "No! I will never go there again",
-                next: 2
+                text: "No! I will never go there again!",
+                next: 2,
+                action: () => {
+                    setTimeout(() => {
+                        canDialogueWithPlayer6 = false;
+                    }, 4000);
+                }
             }
         ]
     },
@@ -275,6 +284,54 @@ const player6DialogueAfterCave = [
     {
         type: "text",
         text: "Goodbye, it was an amazing adventure."
+    }
+]
+
+const player7Dialogue = [
+    // 0
+    {
+        type: "text",
+        text: "Hello! How are you?"
+    },
+
+    // 1 
+    {
+        type: "text",
+        text: "Would you like to visit my bar?"
+    },
+
+    // 2
+    {
+        type: "choices",
+        choices: [
+            {
+                text: "Yes",
+                next: 3,
+                action: () => {
+                    playerWantToEnterBar = true;
+                    playerEnteredBar = true;
+                    closeDialogue();
+                }
+            },
+            {
+                text: "Maybe another time",
+                next: 3
+            }
+        ]
+    },
+
+    // 3
+    {
+        type: "text",
+        text: "have a great day!"
+    }
+]
+
+const player7Dialogue2 = [
+    // 0
+    {
+        type: "text",
+        text: "Hello to my best customer!"
     }
 ]
 
@@ -1600,12 +1657,16 @@ function animate() {
                     );
                 }
                 else if (playerEnterTheCave) {
+                    playerEnterTheCave = false;
+                    dialogueWithPlayer6AfterEnterCaveOpen = true;
                     openCharacterDialogue(
                         "Fisherman",
                         player6DialogueAfterCave
                     );
                 }
                 else if (playerRefusedToEnterTheCave) {
+                    playerRefusedToEnterTheCave = false;
+                    dialogueWithPlayer6AfterRefuseEnterCaveOpened = true;
                     openCharacterDialogue(
                         "Fisherman",
                         player6DialogueAfterRefuseEnterCave
@@ -1614,17 +1675,6 @@ function animate() {
             }
         }
     } 
-
-    if (!talkingToSomeone) {
-        // hide dialogue
-        document.querySelector('#charactersDialogueBox').style.display = "none";
-        // hide house icon
-        document.querySelector('#houseDialogue').style.display = "none";
-        // delete the text in the dialogue
-        document.querySelector('#dialogueText').innerText = "";
-        // dialogue is not already open
-        openDialogue = false;
-    }
 
     // check collison between player and player 7
     if (rectangularCollision({
@@ -1637,19 +1687,47 @@ function animate() {
             playerMeetings.player7 = true;
         }
 
-        // player colliding with player 7
-        collisionPlayer1Player7 = true;
-        // show dialogue
-        document.querySelector('#character7Dialogue').style.display = "block";
-        document.querySelector('#character7Dialogue').style.left = player7.position.x + 50 + "px";
-        document.querySelector('#character7Dialogue').style.top = player7.position.y -50 + "px";
-        // show how can player enter his bar
-        document.querySelector('#enterbar').style.display = "block";
-    } else {
-        // hide dialogue
-        document.querySelector('#character7Dialogue').style.display = "none";
-        document.querySelector('#enterbar').style.display = "none";
+        // player is talking to someone
+        talkingToSomeone = true;
+
+        if (!openDialogue) {
+            if (!playerEnteredBar) {
+                openCharacterDialogue(
+                    "Barman",
+                    player7Dialogue
+                );
+            } else {
+                openCharacterDialogue(
+                    "Barman",
+                    player7Dialogue2,
+                    false,
+                    true
+                );
+            }
+        }
+    } 
+
+    if (!talkingToSomeone) {
+        // // hide dialogue
+        // document.querySelector('#charactersDialogueBox').style.display = "none";
+        // // hide house icon
+        // document.querySelector('#houseDialogue').style.display = "none";
+        // // delete the text in the dialogue
+        // document.querySelector('#dialogueText').innerText = "";
+        // // dialogue is not already open
+        openDialogue = false;
+        closeDialogue();
+
+        if (dialogueWithPlayer6AfterEnterCaveOpen) {
+            dialogueWithPlayer6AfterEnterCaveOpen = false;
+            playerEnterTheCave = true;
+        }
+        else if (dialogueWithPlayer6AfterRefuseEnterCaveOpened) {
+            dialogueWithPlayer6AfterRefuseEnterCaveOpened = false;
+            playerRefusedToEnterTheCave = true;
+        }
     }
+
 
     // check collision between player and Rob chicken
     if (rectangularCollision({
@@ -2000,6 +2078,10 @@ function animate() {
                         hidePlayerState();
                         showHealthButton();
 
+                        // Move the achievements button so it doesn't cover the health bar
+                        document.querySelector('#achievementButton').style.left = 5 + "px";
+                        document.querySelector('#achievementButton').style.top = 55 + "px";
+
                         getIntoHouse();
                         gsap.to('#blackDiv', {
                             opacity: 0,
@@ -2010,9 +2092,11 @@ function animate() {
             }
         });
     }
-    else if (keys.b.pressed && collisionPlayer1Player7) {
+    else if (playerWantToEnterBar) {
         // deactivate current animation loop
         window.cancelAnimationFrame(animationId);
+
+        playerWantToEnterBar = false; // So the player will not enter the bar instanly when coming back
 
         // if this is the first time player enter the bar unlock the achievement of entering the bar
         unlockAchievement(6);
@@ -2298,7 +2382,7 @@ function respawnEnemy(enemy) {
 }
 
 // A function for open dialogue
-function openCharacterDialogue(name, dialogue, showHouse = false) {
+function openCharacterDialogue(name, dialogue, showHouse = false, showBar = false) {
 
     openDialogue = true;
 
@@ -2312,8 +2396,8 @@ function openCharacterDialogue(name, dialogue, showHouse = false) {
     document.querySelector("#houseDialogue").style.display =
         showHouse ? "block" : "none";
 
-    playerEnterTheCave = false;
-    playerRefusedToEnterTheCave = false;
+    document.querySelector("#barDialogue").style.display =
+        showBar ? "block" : "none";
 
     showCurrentDialogue();
 
@@ -2386,7 +2470,7 @@ function closeDialogue() {
 
     document.querySelector("#dialogueText").innerText = "";
 
-    //openDialogue = false;
+    // openDialogue = false;
 
     dialogueIndex = 0;
 
@@ -2790,19 +2874,23 @@ document.querySelector("#arrowButton").addEventListener("click", () => {
 
 // event listener for closing dialogue
 document.querySelector('#closeDialogue').addEventListener('click', () => {
-    document.querySelector('#charactersDialogueBox').style.display = "none";
-    document.querySelector('#dialogueText').innerText = "";
+    closeDialogue();
 })
 
-// event listener for entering a house
+// event listener for entering the house
 document.querySelector('#houseDialogue').addEventListener('click', () => {
     // if there is collision between player and player 2
     if (collisionPlayer1Player2) {
         // entering player 2 house
         enterPlayer2House = true;
-        // hide dialogue box
-        document.querySelector('#charactersDialogueBox').style.display = "none";
+        closeDialogue();
     }
+})
+
+// event listener for entering the bar
+document.querySelector('#barDialogue').addEventListener('click', () => {
+    playerWantToEnterBar = true
+    closeDialogue();
 })
 
 // event listener for opening and closing the achievement menu

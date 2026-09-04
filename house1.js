@@ -148,6 +148,10 @@ function getIntoHouse() {
                 showPlayerState();
                 hideHealthButton();
 
+                // Move the achievements button to be near the health bar
+                document.querySelector('#achievementButton').style.left = 260 + "px";
+                document.querySelector('#achievementButton').style.top = 7 + "px";
+
                 // start main animation loop
                 animate();
                 // start map music
