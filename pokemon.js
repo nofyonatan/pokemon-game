@@ -1180,6 +1180,14 @@ renderAchievements();
 function unlockAchievement(index) {
     if (Achievements[index].unlocked) return;
 
+    if (!Achievements[index].visible) {
+        newAchievement(index);
+        setTimeout(() => {
+            unlockAchievement(index);
+        }, 4000)
+        return;
+    }
+
     Achievements[index].unlocked = true;
 
     achievementsComplete++;
@@ -1569,13 +1577,11 @@ function animate() {
             talkingToSomeone = true;
 
             // unlock achievemnt number 3(talk to Rob)
-            if (Achievements[3].visible) {
-                unlockAchievement(3);
+            unlockAchievement(3);
 
-                setTimeout(() => {
-                    newAchievement(4);
-                }, 4000)
-            }
+            setTimeout(() => {
+                newAchievement(4);
+            }, 4000)
 
             // open dialogue with player 4
 
@@ -2032,12 +2038,9 @@ function animate() {
             })
         }
     } 
-    else if ((keys.h.pressed || enterPlayer2House) && collisionPlayer1Player2) {
+    else if (enterPlayer2House) {
         // deactivate current animation loop
         window.cancelAnimationFrame(animationId);
-
-        // So the player will not enter the house again after returning back to the world
-        enterPlayer2House = false;
 
         // if this is the first time player has entered the house unlock the achievement of entering a house
         unlockAchievement(2);
@@ -2496,6 +2499,12 @@ function nextDialogue() {
 
     if (dialogueIndex >= currentDialogue.length) {
 
+        // if player is talking with player 2 in the house and reach this point it means he finished dialogue number 1
+        // in the house, and needs to continue to dialogue number 2
+        if (enterPlayer2House && collisionPlayer1Player2) {
+            playerFinishDialogueNumber1WithPlayer2InHouse = true;
+        }
+
         // if player is talking with player 4, after he gave him back the chicken - he should get a hat
         if (playerTalkingWithPlayer4 && achievementRetureRobChickenComplete) {
             // the dialogue with player 4 right now finish
@@ -2508,7 +2517,7 @@ function nextDialogue() {
             velocity = 5;
         }
 
-        // if the player is talking with player 4, and reach to this point - it means that he doesnt entered the cave
+        // if the player is talking with player 6, and reach to this point - it means that he doesnt entered the cave
         if (playerIsTalkingWithPlayer6) {
             playerRefusedToEnterTheCave = true;
         }

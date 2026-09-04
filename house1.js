@@ -1,3 +1,69 @@
+const player2DialogueInHouse = [
+    // 0
+    {
+        type: "text",
+        text: "Great house, isn't it?"
+    },
+
+    // 1
+    {
+        type: "choices",
+        choices: [
+            {
+                text: "What is that map?",
+                next: 2
+            },
+            {
+                text: "Yes, very beautiful",
+                next: 5
+            }
+        ]
+    },
+
+    // 2
+    {
+        type: "text",
+        text: "The map? It's a map of the village."
+    },
+
+    // 3
+    {
+        type: "choices",
+        choices: [
+            {
+                text: "what is that circle on the map?",
+                next: 4
+            },
+            {
+                text: "oh nice",
+                next: 5
+            }
+        ]
+    },
+
+    // 4
+    {
+        type: "text",
+        text: "Oh the circle? I found Rob's chicken there. Now that I think about it, I actually forgot to tell him that..."
+    },
+
+    // 5
+    {
+        type: "text",
+        text: "Feel comfortable here, stay here as long as you want!"
+    }
+]
+
+const player2DialogueInHouse2 = [
+    // 0
+    {
+        type: "text",
+        text: "Need something?"
+    }
+]
+
+let playerFinishDialogueNumber1WithPlayer2InHouse = false;
+
 // house background image
 const house1Image = new Image();
 house1Image.src = 'images/house1.png';
@@ -28,12 +94,6 @@ const map = new Sprite({
 function getIntoHouse() {
     const animationId = requestAnimationFrame(getIntoHouse);
 
-    // hide dialogue with player 2
-    document.querySelector('#character2Dialogue').style.display = "none";
-    // hide option to enter to the house
-    document.querySelector('#enterHouse1').style.display = "none";
-    // show another dialogue with the house
-    document.querySelector('#character2DialogueHouse').style.display = "block";
     // player 1 and player 2 is not collising anymore
     collisionPlayer1Player2 = false;
 
@@ -92,6 +152,31 @@ function getIntoHouse() {
 
     // COLLISION
     // check collision between projectiles to boundaries
+    if (rectangularCollision({
+        rectangle1: player,
+        rectangle2: player2
+    })) {
+        collisionPlayer1Player2 = true;
+
+        if (!openDialogue) {
+            if (!playerFinishDialogueNumber1WithPlayer2InHouse) {
+                openCharacterDialogue(
+                    "Adam",
+                    player2DialogueInHouse
+                )
+            } else {
+                openCharacterDialogue(
+                    "Adam",
+                    player2DialogueInHouse2
+                )
+            }
+        }
+    } else {
+        openDialogue = false;
+        closeDialogue();
+        collisionPlayer1Player2 = false;
+    }
+
     for (let i = projectiles.length - 1; i >= 0; i--) {
         for (let j = 0; j < houseBoundaries.length; j++) {
             const projectile = projectiles[i];
@@ -109,14 +194,6 @@ function getIntoHouse() {
         }
     }
 
-    // what player 2 needs to say
-    if (player.position.y <= 150) {
-        document.querySelector('#character2DialogueHouse').innerHTML = "I think I saw Rob's chicken around this area.";
-        document.querySelector('#character2DialogueHouse').style.height = "30px";
-    } else {
-        document.querySelector('#character2DialogueHouse').innerHTML = "Great house, isn't it?";
-        document.querySelector('#character2DialogueHouse').style.height = "28px";
-    }
 
     // check if player exit the house
     if (player.position.y > canvas.height) {
@@ -158,6 +235,9 @@ function getIntoHouse() {
                 // audio.map.stop();
                 // audio.map.play();
                 clicked = true;
+
+                // So the player will not enter the house again after returning back to the world
+                enterPlayer2House = false;
 
                 // show the screen
                 gsap.to('#blackDiv', {
