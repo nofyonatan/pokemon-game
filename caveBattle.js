@@ -213,8 +213,8 @@ function caveBattle() {
 
     // draw player
     if (caveBattlePLayerLives > 0) {
-        // if player bought invincible postion draw aura around him
-        drawInvincibilityAura();
+        // If the player bought any potions - do any effect on the player
+        drawPowerUpEffect()
 
         player.draw();
 

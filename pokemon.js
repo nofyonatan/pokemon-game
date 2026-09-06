@@ -390,6 +390,7 @@ let numberOfammo = 5; // the amount of ammo player have
 updatePlayerAmmo();
 let numberOfCoins = 100; // the number of coins player collect
 updatePlayerCoins();
+let playerSpeedBoost = false // A variable that represent whether player has speed boost or not
 let playerInvincible = false // A variable that represent whether player is invincible or not
 let playerDoubleCoins = false; // A variable that represent whether player should get double coins or not
 
@@ -1391,8 +1392,8 @@ function animate() {
     // draw rob chicken
     RobChicken.draw();
 
-    // if player bought invincible postion draw aura around him
-    drawInvincibilityAura();
+    // If the player bought any potions - do any effect on the player
+    drawPowerUpEffect()
 
     // draw player
     player.draw();
@@ -1885,7 +1886,7 @@ function animate() {
             rectangle2: coin
         })) {
             coins.splice(i, 1);
-            
+
             if (playerDoubleCoins) {
                 numberOfCoins += 2;
             } else {
@@ -2649,46 +2650,6 @@ function typeWelcomeText() {
     }, 100);
 }
 
-// function drawPlayerState() {
-//     // draw hearts
-//     if (lives === 3) {
-//         c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-//         c.drawImage(heartImage, 50, 20, heartImage.width * 2, heartImage.height * 2);
-//         c.drawImage(heartImage, 80, 20, heartImage.width * 2, heartImage.height * 2);
-//     } 
-//     else if (lives === 2) {
-//         c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-//         c.drawImage(heartImage, 50, 20, heartImage.width * 2, heartImage.height * 2);
-//     }
-//     else if (lives === 1) {
-//         c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-//     }
-
-//     // draw number of ammo
-//     c.beginPath() // start drawing
-//     // draw a circle
-//     c.arc(135, 31, 7, 0, Math.PI * 2);
-//     c.fillStyle = "orange";
-//     c.fill();
-//     c.closePath();
-
-//     c.font = "15px sans-serif";
-//     c.fillStyle = "white";
-//     if (!InfiniteAmmo) {
-//         c.fillText("X" + numberOfammo, 150, 37);
-//     }
-//     else if (InfiniteAmmo) {
-//         c.fillText("∞", 150, 37);
-//     }
-
-//     // draw number of coins
-//     c.drawImage(coinImage, 185, 25, 14, 14);
-
-//     c.font = "15px sans-serif";
-//     c.fillStyle = "white";
-//     c.fillText("X" + numberOfCoins, 210, 38);
-// }
-
 function createHealthBar() {
     const healthBar = document.querySelector(".healthBarBackgroundMap");
 
@@ -2773,6 +2734,20 @@ function hideHealthButton() {
     document.querySelector("#healthButton").style.display = "none";
 }
 
+function drawPowerUpEffect() {
+    if (playerInvincible) {
+        drawInvincibilityAura();
+    }
+
+    if (playerSpeedBoost) {
+        drawSpeedEffect();
+    }
+
+    if (playerDoubleCoins) {
+        drawDoubleMoneyEffect();
+    }
+}
+
 function drawInvincibilityAura() {
     if (!playerInvincible) return;
 
@@ -2793,6 +2768,125 @@ function drawInvincibilityAura() {
     c.shadowBlur = 15;
 
     c.stroke();
+
+    c.restore();
+}
+
+// function drawSpeedEffect() {
+//     if (!playerSpeedBoost) return;
+
+//     const x = player.position.x;
+//     const y = player.position.y;
+
+//     c.save();
+
+//     c.fillStyle = "rgba(80, 200, 255, 0.8)";
+
+//     if (lastKey === "d") {
+//         // Player is facing right
+//         // Speed lines go behind him -> left
+
+//         c.fillRect(x - 15, y + 15, 10, 2);
+//         c.fillRect(x - 25, y + 25, 15, 2);
+//         c.fillRect(x - 12, y + 35, 7, 2);
+//     }
+
+//     else if (lastKey === "a") {
+//         // Player is facing left
+//         // Speed lines go behind him -> right
+
+//         c.fillRect(x + player.width + 5, y + 15, 10, 2);
+//         c.fillRect(x + player.width + 10, y + 25, 15, 2);
+//         c.fillRect(x + player.width + 5, y + 35, 7, 2);
+//     }
+
+//     else if (lastKey === "w") {
+//         // Player is facing up
+//         // Speed lines go behind him -> down
+
+//         c.fillRect(x + 8, y + player.height + 5, 2, 10);
+//         c.fillRect(x + 18, y + player.height + 10, 2, 15);
+//         c.fillRect(x + 28, y + player.height + 5, 2, 7);
+//     }
+
+//     else if (lastKey === "s") {
+//         // Player is facing down
+//         // Speed lines go behind him -> up
+
+//         c.fillRect(x + 8, y - 15, 2, 10);
+//         c.fillRect(x + 18, y - 25, 2, 15);
+//         c.fillRect(x + 28, y - 12, 2, 7);
+//     }
+
+//     c.restore();
+// }
+
+function drawSpeedEffect() { 
+    if (!playerSpeedBoost) return; 
+    
+    const x = player.position.x; 
+    const y = player.position.y; 
+    
+    c.save(); 
+    // Slight change: Transparency varies randomly between 0.5 and 0.9 for the flicker effect
+    c.fillStyle = `rgba(80, 200, 255, ${0.7 + Math.random() * 0.2})`; 
+    
+    // Generate random length for lines in each frame
+    const randomLength1 = 8 + Math.random() * 10; // Between 8 and 18 pixels
+    const randomLength2 = 12 + Math.random() * 12; // Between 12 and 24 pixels
+    const randomLength3 = 6 + Math.random() * 8;   // Between 6 and 14 pixels
+    
+    // Creating a fixed or random offset
+    const offset = Math.random() * 5;
+
+    if (lastKey === "d") { 
+        // Right -> The lines on the left vibrate
+        c.fillRect(x - 5 - offset - randomLength1, y + 15, randomLength1, 2); 
+        c.fillRect(x - 5 - offset - randomLength2, y + 25, randomLength2, 2); 
+        c.fillRect(x - 5 - offset - randomLength3, y + 35, randomLength3, 2); 
+    } else if (lastKey === "a") { 
+        // Left -> The lines on the right vibrate
+        c.fillRect(x + player.width + 5 + offset, y + 15, randomLength1, 2); 
+        c.fillRect(x + player.width + 5 + offset, y + 25, randomLength2, 2); 
+        c.fillRect(x + player.width + 5 + offset, y + 35, randomLength3, 2); 
+    } else if (lastKey === "w") { 
+        // Up -> The lines from the bottom vibrate
+        c.fillRect(x + 13, y + player.height + 5 + offset, 2, randomLength1); 
+        c.fillRect(x + 23, y + player.height + 5 + offset, 2, randomLength2); 
+        c.fillRect(x + 33, y + player.height + 5 + offset, 2, randomLength3); 
+    } else if (lastKey === "s") { 
+        // Down -> The lines from above vibrate
+        c.fillRect(x + 13, y - 5 - offset - randomLength1, 2, randomLength1); 
+        c.fillRect(x + 23, y - 5 - offset - randomLength2, 2, randomLength2); 
+        c.fillRect(x + 33, y - 5 - offset - randomLength3, 2, randomLength3); 
+    } 
+    
+    c.restore(); 
+}
+
+function drawDoubleMoneyEffect() {
+    if (!playerDoubleCoins) return;
+
+    const centerX = player.position.x + player.width / 2;
+    const centerY = player.position.y + player.height / 2;
+
+    const time = Date.now();
+
+    c.save();
+
+    for (let i = 0; i < 4; i++) {
+        const angle = time / 700 + i * (Math.PI * 2 / 4);
+
+        const x = centerX + Math.cos(angle) * 28;
+        const y = centerY + Math.sin(angle) * 20;
+
+        // Pixel-art sparkle
+        c.fillStyle = "gold";
+
+        c.fillRect(x - 2, y - 2, 4, 4);
+        c.fillRect(x - 1, y - 4, 2, 8);
+        c.fillRect(x - 4, y - 1, 8, 2);
+    }
 
     c.restore();
 }

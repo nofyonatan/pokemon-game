@@ -66,8 +66,8 @@ function getIntoBar() {
     // draw player 11
     player11.draw();
 
-    // if player bought invincible postion draw aura around him
-    drawInvincibilityAura();
+    // If the player bought any potions - do any effect on the player
+    drawPowerUpEffect()
 
     // draw player
     player.draw();
@@ -340,6 +340,7 @@ document.querySelector("#buySpeedPotion").addEventListener('click', () => {
     if (numberOfCoins >= 30) {
         numberOfCoins -= 30;
         updatePlayerCoins();
+        playerSpeedBoost = true;
         velocity *= 2;
         setTimeout(() => {
             velocity = velocity / 2;
