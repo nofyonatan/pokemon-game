@@ -375,6 +375,9 @@ function cave() {
         waterfallDown.draw();
     })
 
+    // if player bought invincible postion draw aura around him
+    drawInvincibilityAura();
+
     // draw player
     player.draw();
 
@@ -419,9 +422,6 @@ function cave() {
     caveCoins.forEach(coin => {
         coin.draw();
     })
-
-    // draw hearts
-    drawPlayerState();
 
     // MOVEMENT
     let moving = true;// A varible to check whenever we should move or not
@@ -774,8 +774,9 @@ function cave() {
             rectangle2: player
         })) {
             monster.alive = false;
-            if (lives > 0) {
+            if (lives > 0 && !playerInvincible) {
                 lives--;
+                updatePlayerHealthBar();
             }
         }
     }
@@ -836,7 +837,11 @@ function cave() {
             rectangle2: player
         })) {
             // increase number of coins
-            numberOfCoins++
+            if (playerDoubleCoins) {
+                numberOfCoins += 2;
+            } else {
+                numberOfCoins++
+            }
             updatePlayerCoins();
 
             // delete coin

@@ -359,7 +359,7 @@ let pastHatPosition = { // A varible that represents the hat position before it 
 }
 
 // achievement variables
-let firstEnemyKilled = false; // A varible that represent if the player killed his first enemy
+let numberOfSlimesPlayerKilled = 0 // A variable that represent how many slimes player has kill
 let numberPeoplePlayerMeet = 0; //  A variable that represent how many people player has met
 let playerMeetings = { // A variable that represent if player meet someone
     player2: false,
@@ -376,6 +376,8 @@ let playerMeetings = { // A variable that represent if player meet someone
 let achievementsComplete = 0; // A variable that represent how many achievements player has completed
 let numberAchievementVisibleOnScreen = 0; // A variable that represent how many achievement visible on the screen
 let achievementRetureRobChickenComplete = false; // A varible that represents if the achievement of of return Rob's chicken completed
+let alreadyCalldUnlockAchievement = false; // A variable that represent whether the function "UnlockAchievement"
+                                           //  is already called ot not
 
 // player variables
 let lives = 3; // the amount of lives player has
@@ -386,8 +388,10 @@ let InfiniteAmmo = false; // A variable that represent whether player has infini
 let pastNumberOfammo; // A variable that represent how much ammo player had in the past
 let numberOfammo = 5; // the amount of ammo player have
 updatePlayerAmmo();
-let numberOfCoins = 0; // the number of coins player collect
+let numberOfCoins = 100; // the number of coins player collect
 updatePlayerCoins();
+let playerInvincible = false // A variable that represent whether player is invincible or not
+let playerDoubleCoins = false; // A variable that represent whether player should get double coins or not
 
 //LOAD IMAGES
 // background image
@@ -1067,6 +1071,7 @@ const battle = {
 
 // ACHIEVEMENTS
 const Achievements = [
+    // 0
     {
         icon: "⚔",
         title: "First Blood",
@@ -1075,6 +1080,7 @@ const Achievements = [
         visible: true
     },
 
+    // 1
     {
         icon: "💰",
         title: "beggar",
@@ -1083,30 +1089,34 @@ const Achievements = [
         visible: true
     },
 
+    // 2
     {
         icon: "🏠",
         title: "Explorer",
-        description: "enter a house",
+        description: "Enter a house",
         unlocked: false,
         visible: true
     },
 
+    // 3
     {
         icon: "👦🏻",
         title: "Explorer",
-        description: "talk to rob",
+        description: "Talk to rob",
         unlocked: false,
         visible: false
     },
 
+    // 4
     {
         icon: "🐔",
         title: "Pac Pac",
-        description: "find Rob's chicken",
+        description: "Find Rob's chicken",
         unlocked: false,
         visible: false
     },
 
+    // 5
     {
         icon: "👨",
         title: "New neighbor",
@@ -1115,6 +1125,7 @@ const Achievements = [
         visible: true
     },
 
+    // 6
     {
         icon: "🍷",
         title: "Drunk",
@@ -1123,10 +1134,20 @@ const Achievements = [
         visible: true
     },
 
+    // 7
     {
         icon: "🔫",
         title: "Ammunition collection",
-        description: "buy 20 bullets",
+        description: "Buy 20 bullets",
+        unlocked: false,
+        visible: false
+    },
+
+    // 8
+    {
+        icon: "⚔",
+        title: "Warm-Up",
+        description: "Kill 10 slimes",
         unlocked: false,
         visible: false
     }
@@ -1182,6 +1203,7 @@ function unlockAchievement(index) {
 
     if (!Achievements[index].visible) {
         newAchievement(index);
+
         setTimeout(() => {
             unlockAchievement(index);
         }, 4000)
@@ -1252,6 +1274,7 @@ function showPopup(data) {
             duration: .6,
             onComplete() {
                 document.querySelector("#achievementPopup").style.display = "none";
+                alreadyCalldUnlockAchievement = false;
             }
         });
 
@@ -1368,6 +1391,9 @@ function animate() {
     // draw rob chicken
     RobChicken.draw();
 
+    // if player bought invincible postion draw aura around him
+    drawInvincibilityAura();
+
     // draw player
     player.draw();
 
@@ -1409,9 +1435,6 @@ function animate() {
     // draw foreground
     foregorond.draw();
 
-    // draw player hearts, coins...
-    drawPlayerState();
-
     // ACHIEVEMENTS CHECK 
     checkAchievements();
 
@@ -1438,6 +1461,9 @@ function animate() {
 
                 // deactivate current animation loop
                 window.cancelAnimationFrame(animationId);
+
+                document.querySelector(".playerState").style.display = "none";
+                document.querySelector("#achievementButton").style.display = "none";
 
                 // stop map music, and start battle music
                 audio.map.stop();
@@ -1577,11 +1603,11 @@ function animate() {
             talkingToSomeone = true;
 
             // unlock achievemnt number 3(talk to Rob)
-            unlockAchievement(3);
-
-            setTimeout(() => {
-                newAchievement(4);
-            }, 4000)
+            if (!alreadyCalldUnlockAchievement) {
+                unlockAchievement(3);    
+                alreadyCalldUnlockAchievement = true;
+            }
+            
 
             // open dialogue with player 4
 
@@ -1781,6 +1807,13 @@ function animate() {
 
                 // if this is the first time player killed the enemy - this achievement complete
                 unlockAchievement(0);
+                // show the next achievement of killing slimes
+                setTimeout(() => {
+                    newAchievement(8);
+                }, 4000)
+                
+
+                numberOfSlimesPlayerKilled++
 
                 // create a coin where we killed the enemy
                 coins.push(
@@ -1833,7 +1866,7 @@ function animate() {
             rectangle2: player
         })) {
             enemy.about.alive = false;
-            if (lives > 0) {
+            if (lives > 0 && !playerInvincible) {
                 lives -= 1;
                 updatePlayerHealthBar();
             }
@@ -1852,7 +1885,13 @@ function animate() {
             rectangle2: coin
         })) {
             coins.splice(i, 1);
-            numberOfCoins += 1;
+            
+            if (playerDoubleCoins) {
+                numberOfCoins += 2;
+            } else {
+                numberOfCoins += 1;
+            }
+            
             updatePlayerCoins();
         }
     }
@@ -2155,9 +2194,11 @@ function animate() {
         });
     }
     else if (keys.r.pressed && collisionPlayerRobChicken && !achievementRetureRobChickenComplete) {
-        if (Achievements[4].visible) {
-            unlockAchievement(4);
+        if (!alreadyCalldUnlockAchievement) {
+            unlockAchievement(4);    
+            alreadyCalldUnlockAchievement = true;
         }
+        
         gsap.to(RobChicken, {
             opacity: 0,
             onComplete: () => {
@@ -2608,45 +2649,45 @@ function typeWelcomeText() {
     }, 100);
 }
 
-function drawPlayerState() {
-    // draw hearts
-    if (lives === 3) {
-        c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-        c.drawImage(heartImage, 50, 20, heartImage.width * 2, heartImage.height * 2);
-        c.drawImage(heartImage, 80, 20, heartImage.width * 2, heartImage.height * 2);
-    } 
-    else if (lives === 2) {
-        c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-        c.drawImage(heartImage, 50, 20, heartImage.width * 2, heartImage.height * 2);
-    }
-    else if (lives === 1) {
-        c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
-    }
+// function drawPlayerState() {
+//     // draw hearts
+//     if (lives === 3) {
+//         c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
+//         c.drawImage(heartImage, 50, 20, heartImage.width * 2, heartImage.height * 2);
+//         c.drawImage(heartImage, 80, 20, heartImage.width * 2, heartImage.height * 2);
+//     } 
+//     else if (lives === 2) {
+//         c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
+//         c.drawImage(heartImage, 50, 20, heartImage.width * 2, heartImage.height * 2);
+//     }
+//     else if (lives === 1) {
+//         c.drawImage(heartImage, 20, 20, heartImage.width * 2, heartImage.height * 2);
+//     }
 
-    // draw number of ammo
-    c.beginPath() // start drawing
-    // draw a circle
-    c.arc(135, 31, 7, 0, Math.PI * 2);
-    c.fillStyle = "orange";
-    c.fill();
-    c.closePath();
+//     // draw number of ammo
+//     c.beginPath() // start drawing
+//     // draw a circle
+//     c.arc(135, 31, 7, 0, Math.PI * 2);
+//     c.fillStyle = "orange";
+//     c.fill();
+//     c.closePath();
 
-    c.font = "15px sans-serif";
-    c.fillStyle = "white";
-    if (!InfiniteAmmo) {
-        c.fillText("X" + numberOfammo, 150, 37);
-    }
-    else if (InfiniteAmmo) {
-        c.fillText("∞", 150, 37);
-    }
+//     c.font = "15px sans-serif";
+//     c.fillStyle = "white";
+//     if (!InfiniteAmmo) {
+//         c.fillText("X" + numberOfammo, 150, 37);
+//     }
+//     else if (InfiniteAmmo) {
+//         c.fillText("∞", 150, 37);
+//     }
 
-    // draw number of coins
-    c.drawImage(coinImage, 185, 25, 14, 14);
+//     // draw number of coins
+//     c.drawImage(coinImage, 185, 25, 14, 14);
 
-    c.font = "15px sans-serif";
-    c.fillStyle = "white";
-    c.fillText("X" + numberOfCoins, 210, 38);
-}
+//     c.font = "15px sans-serif";
+//     c.fillStyle = "white";
+//     c.fillText("X" + numberOfCoins, 210, 38);
+// }
 
 function createHealthBar() {
     const healthBar = document.querySelector(".healthBarBackgroundMap");
@@ -2684,6 +2725,10 @@ function updatePlayerCoins() {
 }
 
 function checkAchievements() {
+    if (numberOfSlimesPlayerKilled === 10) {
+        unlockAchievement(8);
+    }
+
     if (numberOfCoins >= 5) {
         unlockAchievement(1);
     }
@@ -2693,8 +2738,9 @@ function checkAchievements() {
     }
 
     if (numberBulletsBought >= 20) {
-        if (Achievements[6].visible) {
-            unlockAchievement(7);
+        if (!alreadyCalldUnlockAchievement) {
+            unlockAchievement(7);    
+            alreadyCalldUnlockAchievement = true;
         }
     }
 }
@@ -2725,6 +2771,30 @@ function showHealthButton() {
 // function for hiding player state
 function hideHealthButton() {
     document.querySelector("#healthButton").style.display = "none";
+}
+
+function drawInvincibilityAura() {
+    if (!playerInvincible) return;
+
+    const centerX = player.position.x + player.width / 2;
+    const centerY = player.position.y + player.height / 2;
+
+    const radius = 34 + Math.sin(Date.now() / 150) * 3;
+
+    c.save();
+
+    c.beginPath();
+    c.arc(centerX, centerY, radius, 0, Math.PI * 2);
+
+    c.strokeStyle = "rgba(255, 255, 255, 0.8)";
+    c.lineWidth = 4;
+
+    c.shadowColor = "white";
+    c.shadowBlur = 15;
+
+    c.stroke();
+
+    c.restore();
 }
 
 // EVENT LISTENERS

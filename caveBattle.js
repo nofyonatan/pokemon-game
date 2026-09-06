@@ -213,6 +213,9 @@ function caveBattle() {
 
     // draw player
     if (caveBattlePLayerLives > 0) {
+        // if player bought invincible postion draw aura around him
+        drawInvincibilityAura();
+
         player.draw();
 
         // draw hat(if player climed him)
@@ -239,9 +242,6 @@ function caveBattle() {
                 projectiles.splice(i, 1); 
             }   
         }
-
-        // draw player lives, coins and ammo
-        //drawPlayerState();
 
         // MOVEMENT
         let moving = true;// A varible to check whenever we should move or not
@@ -543,7 +543,7 @@ function caveBattle() {
                 rectangle2: player
             })) {
                 monster.alive = false;
-                if (caveBattlePLayerLives > 0) {
+                if (caveBattlePLayerLives > 0 && !playerInvincible) {
                     caveBattlePLayerLives--;
                     if (caveBattlePLayerLives <= 0) {
                         endBattle = true;
@@ -721,7 +721,11 @@ document.querySelector('#continueButton').addEventListener('click', () => {
 
     // add coins to the player if he won, or take all the player coins if he lost
     if (playerWon) {
-        numberOfCoins += 50;
+        if (playerDoubleCoins) {
+            numberOfCoins += 100;
+        } else {
+            numberOfCoins += 50;
+        }
         updatePlayerCoins();
     }
     else if (!playerWon) {

@@ -66,6 +66,9 @@ function getIntoBar() {
     // draw player 11
     player11.draw();
 
+    // if player bought invincible postion draw aura around him
+    drawInvincibilityAura();
+
     // draw player
     player.draw();
 
@@ -305,7 +308,7 @@ document.querySelector('#buyBullets').addEventListener('click', () => {
         numberOfCoins -= 1;
         updatePlayerCoins();
     }
-})
+});
 
 // event listener for buying wine
 document.querySelector('#buyWine').addEventListener('click', () => {
@@ -317,7 +320,7 @@ document.querySelector('#buyWine').addEventListener('click', () => {
             updatePlayerCoins();
         }
     }
-})
+});
 
 // event listener for buying golden berry
 document.querySelector('#buyGoldenBerry').addEventListener('click', () => {
@@ -330,6 +333,42 @@ document.querySelector('#buyGoldenBerry').addEventListener('click', () => {
         goldenBerryPrice += 5;
         document.querySelector('#goldenBerryPrice').innerText = goldenBerryPrice;
     }
+});
+
+// event listener for buying speed potion
+document.querySelector("#buySpeedPotion").addEventListener('click', () => {
+    if (numberOfCoins >= 30) {
+        numberOfCoins -= 30;
+        updatePlayerCoins();
+        velocity *= 2;
+        setTimeout(() => {
+            velocity = velocity / 2;
+        }, 60000)
+    }
+});
+
+// event listener for buying invincible potion
+document.querySelector('#buyinvinciblePotion').addEventListener('click', () => {
+    if (numberOfCoins >= 50) {
+        numberOfCoins -= 50;
+        updatePlayerCoins();
+        playerInvincible = true;
+        setTimeout(() => {
+            playerInvincible = false;
+        }, 30000)
+    }
+});
+
+// event listener for buying greed potion
+document.querySelector('#buyGreedPotion').addEventListener('click', () => {
+    if (numberOfCoins >= 30) {
+        numberOfCoins -= 30;
+        updatePlayerCoins();
+        playerDoubleCoins = true;
+        setTimeout(() => {
+            playerDoubleCoins = false;
+        }, 45000)
+    }
 })
 
 // event listener for exit from the shop
@@ -339,6 +378,6 @@ document.querySelector('#closeShop').addEventListener('click', () => {
         playerCantMove = false;
         setTimeout(() => {
             inShop = false;
-        }, 5000)
+        }, 1000)
     }
 })

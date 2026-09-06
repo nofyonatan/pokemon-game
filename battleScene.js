@@ -84,6 +84,9 @@ function initBattle() {
 
                             battle.initiated = false;
 
+                            document.querySelector(".playerState").style.display = "block";
+                            document.querySelector("#achievementButton").style.display = "block";
+
                             // restart map music
                             audio.map.stop();
                             audio.map.play();
@@ -133,6 +136,9 @@ function initBattle() {
                                 })
 
                                 battle.initiated = false;
+
+                                document.querySelector(".playerState").style.display = "block";
+                                document.querySelector("#achievementButton").style.display = "block";
 
                                 // restart map music
                                 audio.map.stop();

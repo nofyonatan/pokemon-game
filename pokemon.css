@@ -168,7 +168,7 @@ button:hover {
 .playerCoinsAndAmmo {
     display: flex;
     flex-direction: row;
-    gap: 70px;
+    gap: 50px;
 }
 
 .playerCoinsInfo {

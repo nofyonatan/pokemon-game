@@ -124,6 +124,9 @@ function getIntoHouse() {
     // draw player 2
     player2.draw();
 
+    // if player bought invincible postion draw aura around him
+    drawInvincibilityAura();
+
     // draw player
     player.draw();
 
