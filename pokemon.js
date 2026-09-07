@@ -392,7 +392,7 @@ let numberOfCoins = 100; // the number of coins player collect
 updatePlayerCoins();
 let playerSpeedBoost = false // A variable that represent whether player has speed boost or not
 let playerInvincible = false // A variable that represent whether player is invincible or not
-let playerDoubleCoins = false; // A variable that represent whether player should get double coins or not
+let playerDoubleCoins = true; // A variable that represent whether player should get double coins or not
 
 //LOAD IMAGES
 // background image
@@ -415,6 +415,18 @@ playerLeftImage.src = "images/playerLeft.png";
 
 const playerRightImage = new Image();
 playerRightImage.src = "images/playerRight.png";
+
+const playerRightSpeedBoostImage = new Image();
+playerRightSpeedBoostImage.src = "images/playerRightSpeedBoost.png";
+
+const playerLeftSpeedBoostImage = new Image();
+playerLeftSpeedBoostImage.src = "images/playerLeftSpeedBoost.png";
+
+const playerDownSpeedBoostImage = new Image();
+playerDownSpeedBoostImage.src = "images/playerDownSpeedBoost.png";
+
+const playerUpSpeedBoostImage = new Image();
+playerUpSpeedBoostImage.src = "images/playerUpSpeedBoost.png";
 
 // CHARCTERS IMAGES
 const player2DownImage = new Image();
@@ -600,7 +612,13 @@ const player = new Sprite({
         up: playerUpImage,
         left: playerLeftImage,
         right: playerRightImage,
-        down: playerDownImage 
+        down: playerDownImage ,
+        speedBoost: {
+            right: playerRightSpeedBoostImage,
+            left: playerLeftSpeedBoostImage,
+            down: playerDownSpeedBoostImage,
+            up: playerUpSpeedBoostImage
+        }
     }
 });
 
@@ -1071,88 +1089,99 @@ const battle = {
 };
 
 // ACHIEVEMENTS
-const Achievements = [
-    // 0
-    {
-        icon: "⚔",
-        title: "First Blood",
-        description: "Kill your first slime.",
-        unlocked: false,
-        visible: true
-    },
+const Achievements = {
+    explorer: [
 
-    // 1
-    {
-        icon: "💰",
-        title: "beggar",
-        description: "Collect 5 coins.",
-        unlocked: false,
-        visible: true
-    },
+        {
+            id: "enterHouse",
+            icon: "🏠",
+            title: "Home Sweet Home",
+            description: "Enter a house",
+            unlocked: false,
+            visible: true
+        },
 
-    // 2
-    {
-        icon: "🏠",
-        title: "Explorer",
-        description: "Enter a house",
-        unlocked: false,
-        visible: true
-    },
+        {
+            id: "talkToRob",
+            icon: "👦🏻",
+            title: "Nice To Meet You",
+            description: "Talk to rob",
+            unlocked: false,
+            visible: false
+        },
 
-    // 3
-    {
-        icon: "👦🏻",
-        title: "Explorer",
-        description: "Talk to rob",
-        unlocked: false,
-        visible: false
-    },
+        {
+            id: "findRobChicken",
+            icon: "🐔",
+            title: "Pac Pac",
+            description: "Find Rob's chicken",
+            unlocked: false,
+            visible: false
+        },
 
-    // 4
-    {
-        icon: "🐔",
-        title: "Pac Pac",
-        description: "Find Rob's chicken",
-        unlocked: false,
-        visible: false
-    },
+        {
+            id: "enterBar",
+            icon: "🍷",
+            title: "Drunk",
+            description: "Enter the bar",
+            unlocked: false,
+            visible: true
+        }
+    ],
 
-    // 5
-    {
-        icon: "👨",
-        title: "New neighbor",
-        description: "Talk to 5 people",
-        unlocked: false,
-        visible: true
-    },
+    combat: [
+        {
+            id: "killFirstSlime",
+            icon: "⚔",
+            title: "First Blood",
+            description: "Kill your first slime.",
+            unlocked: false,
+            visible: true
+        },
 
-    // 6
-    {
-        icon: "🍷",
-        title: "Drunk",
-        description: "Enter the bar",
-        unlocked: false,
-        visible: true
-    },
+        {
+            id: "kill10Slimes",
+            icon: "⚔",
+            title: "Warm-Up",
+            description: "Kill 10 slimes",
+            unlocked: false,
+            visible: false
+        }
+    ],
 
-    // 7
-    {
-        icon: "🔫",
-        title: "Ammunition collection",
-        description: "Buy 20 bullets",
-        unlocked: false,
-        visible: false
-    },
+    money: [
+        {
+            id: "collect5Coins",
+            icon: "💰",
+            title: "beggar",
+            description: "Collect 5 coins.",
+            unlocked: false,
+            visible: true
+        }
+    ],
 
-    // 8
-    {
-        icon: "⚔",
-        title: "Warm-Up",
-        description: "Kill 10 slimes",
-        unlocked: false,
-        visible: false
-    }
-];
+    social: [
+        {
+            id: "talk5People",
+            icon: "👨",
+            title: "New neighbor",
+            description: "Talk to 5 people",
+            unlocked: false,
+            visible: true
+        }
+    ],
+
+    shop: [
+        {
+            id: "buy20Bullets",
+            icon: "🔫",
+            title: "Ammunition collection",
+            description: "Buy 20 bullets",
+            unlocked: false,
+            visible: false
+        }
+    ]
+};
 
 // FUNCTIONS
 // function for creating the achievemnts
@@ -1163,35 +1192,37 @@ function renderAchievements() {
 
     numberAchievementVisibleOnScreen = 0;
 
-    Achievements.forEach((achievement) => {
-        if (achievement.visible) {
-            numberAchievementVisibleOnScreen++;
+    Object.values(Achievements).forEach((category) => {
+        category.forEach((achievement) => {
+            if (achievement.visible) {
+                numberAchievementVisibleOnScreen++;
 
-            const card = document.createElement('div');
+                const card = document.createElement('div');
 
-            card.classList.add('achievementCard');
+                card.classList.add('achievementCard');
 
-            if (achievement.unlocked) {
-                card.classList.add('completed');
+                if (achievement.unlocked) {
+                    card.classList.add('completed');
+                }
+                else if (!achievement.unlocked) {
+                    card.classList.add('locked');
+                }
+
+                card.innerHTML = `
+                    <div class="achievementIcon">
+                        ${achievement.icon}
+                    </div>
+
+                    <div class="achievementInfo">
+                        <h3>${achievement.title}</h3>
+
+                        <p>${achievement.description}</p>
+                    </div>
+                `;
+
+                achievementGrid.appendChild(card);
             }
-            else if (!achievement.unlocked) {
-                card.classList.add('locked');
-            }
-
-            card.innerHTML = `
-                <div class="achievementIcon">
-                    ${achievement.icon}
-                </div>
-
-                <div class="achievementInfo">
-                    <h3>${achievement.title}</h3>
-
-                    <p>${achievement.description}</p>
-                </div>
-            `;
-
-            achievementGrid.appendChild(card);
-        }
+        })
     });
 
     document.querySelector('#achievementProgress').innerText = `${achievementsComplete} / ${numberAchievementVisibleOnScreen} completed`;
@@ -1199,54 +1230,70 @@ function renderAchievements() {
 renderAchievements();
 
 // function for unlock achievement
-function unlockAchievement(index) {
-    if (Achievements[index].unlocked) return;
+function unlockAchievement(id) {
+    const achievement = findAchievement(id);
 
-    if (!Achievements[index].visible) {
-        newAchievement(index);
+    if (!achievement) return;
+
+    if (achievement.unlocked) return;
+
+    if (!achievement.visible) {
+        newAchievement(id);
 
         setTimeout(() => {
-            unlockAchievement(index);
+            unlockAchievement(id);
         }, 4000)
         return;
     }
 
-    Achievements[index].unlocked = true;
+    achievement.unlocked = true;
 
     achievementsComplete++;
 
     renderAchievements();
 
     showPopup({
-        icon: Achievements[index].icon,
-        title: Achievements[index].title,
+        icon: achievement.icon,
+        title: achievement.title,
         message: "Achievement Unlocked!"
     })
 
     // play the audio of achievement unlock
     audio.achievementComplete.play();
-
-    //achievementsComplete++;
-    // increase the achievements progress meter
-    //document.querySelector('#achievementProgress').innerText = `${achievementsComplete} / ${Achievements.length} completed`;
 }
 
 // function for show new Achievement
-function newAchievement(index) {
-    if (Achievements[index].visible) return;
+function newAchievement(id) {
+    const achievement = findAchievement(id);
 
-    Achievements[index].visible = true;
+    if (!achievement) return;
+
+    if (achievement.visible) return;
+
+    achievement.visible = true;
 
     renderAchievements();
 
     showPopup({
-        icon: Achievements[index].icon,
-        title: Achievements[index].title,
+        icon: achievement.icon,
+        title: achievement.title,
         message: "New Achievement!"
     })
 
     // play the audio of new achievement
     audio.achievementComplete.play();
+}
+
+function findAchievement(id) {
+    for (const category of Object.values(Achievements)) {
+        for (const achievement of category) {
+            if (achievement.id === id) {
+                return achievement;
+            }
+        }
+    }
+
+    return null;
 }
 
 // function for show when player unlock or get a new achievement
@@ -1604,10 +1651,10 @@ function animate() {
             talkingToSomeone = true;
 
             // unlock achievemnt number 3(talk to Rob)
-            if (!alreadyCalldUnlockAchievement) {
-                unlockAchievement(3);    
-                alreadyCalldUnlockAchievement = true;
-            }
+            //if (!alreadyCalldUnlockAchievement) {
+            unlockAchievement("talkToRob");    
+                //alreadyCalldUnlockAchievement = true;
+            //}
             
 
             // open dialogue with player 4
@@ -1772,7 +1819,7 @@ function animate() {
         document.querySelector('#RobChickenText').style.left = RobChicken.position.x - 15 + "px";
         document.querySelector('#RobChickenText').style.top = RobChicken.position.y - 5 + "px";
 
-        if (!achievementRetureRobChickenComplete && Achievements[4].visible) {
+        if (!achievementRetureRobChickenComplete && findAchievement("findRobChicken").visible) {
             document.querySelector('#catchRobChicken').style.display = "block";
             document.querySelector('#catchRobChicken').style.left = player.position.x - 13 + "px";
             document.querySelector('#catchRobChicken').style.top = player.position.y + 50 + "px";
@@ -1807,10 +1854,10 @@ function animate() {
                 projectiles.splice(i, 1);
 
                 // if this is the first time player killed the enemy - this achievement complete
-                unlockAchievement(0);
+                unlockAchievement("killFirstSlime");
                 // show the next achievement of killing slimes
                 setTimeout(() => {
-                    newAchievement(8);
+                    newAchievement("kill10Slimes");
                 }, 4000)
                 
 
@@ -1956,6 +2003,11 @@ function animate() {
         player.animate  = true;
         player.image = player.sprites.up;
 
+        // if player bought the speed boost potion he should have blue outline around him
+        if (playerSpeedBoost) {
+            player.image = player.sprites.speedBoost.up;
+        }
+
         // check collision with things on the map(except battle zones)
         for (let i = 0; i < boundaries.length; i++) {
             const Boundary = boundaries[i];
@@ -1984,6 +2036,11 @@ function animate() {
     else if (keys.a.pressed && lastKey === 'a') {
         player.animate  = true;
         player.image = player.sprites.left;
+
+        // if player bought the speed boost potion he should have blue outline around him
+        if (playerSpeedBoost) {
+            player.image = player.sprites.speedBoost.left;
+        }
 
         // if player claimed the hat, also change the sprite of the hat to adjust the direction player is walking
         if (playerClaimHat) {
@@ -2019,6 +2076,11 @@ function animate() {
         player.animate  = true;
         player.image = player.sprites.down;
 
+        // if player bought the speed boost potion he should have blue outline around him
+        if (playerSpeedBoost) {
+            player.image = player.sprites.speedBoost.down;
+        }
+
         // check collision with things on the map(except battle zones)
         for (let i = 0; i < boundaries.length; i++) {
             const Boundary = boundaries[i];
@@ -2047,6 +2109,11 @@ function animate() {
     else if (keys.d.pressed && lastKey === 'd') {
         player.animate  = true;
         player.image = player.sprites.right;
+
+        // if player bought the speed boost potion he should have blue outline around him
+        if (playerSpeedBoost) {
+            player.image = player.sprites.speedBoost.right;
+        } 
 
         // if player claimed the hat, also change the sprite of the hat to adjust the direction player is walking
         if (playerClaimHat) {
@@ -2083,11 +2150,11 @@ function animate() {
         window.cancelAnimationFrame(animationId);
 
         // if this is the first time player has entered the house unlock the achievement of entering a house
-        unlockAchievement(2);
+        unlockAchievement("enterHouse");
 
         // If this is the first time the player has entered the house, he will unlock a new achievement of Speaking to the Rob
         setTimeout(() => {
-            newAchievement(3);
+            newAchievement("talkToRob");
         }, 4000)
 
         // fade
@@ -2142,11 +2209,11 @@ function animate() {
         playerWantToEnterBar = false; // So the player will not enter the bar instanly when coming back
 
         // if this is the first time player enter the bar unlock the achievement of entering the bar
-        unlockAchievement(6);
+        unlockAchievement("enterBar");
 
         // if this is the first time player enter the bar show new achievement of buy 20 bullets
         setTimeout(() => {
-            newAchievement(7);
+            newAchievement("buy20Bullets");
         }, 4000)
         
         // don't let the player start map music
@@ -2195,10 +2262,10 @@ function animate() {
         });
     }
     else if (keys.r.pressed && collisionPlayerRobChicken && !achievementRetureRobChickenComplete) {
-        if (!alreadyCalldUnlockAchievement) {
-            unlockAchievement(4);    
-            alreadyCalldUnlockAchievement = true;
-        }
+        //if (!alreadyCalldUnlockAchievement) {
+        unlockAchievement("findRobChicken");    
+            //alreadyCalldUnlockAchievement = true;
+        //}
         
         gsap.to(RobChicken, {
             opacity: 0,
@@ -2687,22 +2754,22 @@ function updatePlayerCoins() {
 
 function checkAchievements() {
     if (numberOfSlimesPlayerKilled === 10) {
-        unlockAchievement(8);
+        unlockAchievement("kill10Slimes");
     }
 
     if (numberOfCoins >= 5) {
-        unlockAchievement(1);
+        unlockAchievement("collect5Coins");
     }
 
     if (numberPeoplePlayerMeet >= 5) {
-        unlockAchievement(5);
+        unlockAchievement("talk5People");
     }
 
     if (numberBulletsBought >= 20) {
-        if (!alreadyCalldUnlockAchievement) {
-            unlockAchievement(7);    
-            alreadyCalldUnlockAchievement = true;
-        }
+        //if (!alreadyCalldUnlockAchievement) {
+        unlockAchievement("buy20Bullets");    
+            //alreadyCalldUnlockAchievement = true;
+        //}
     }
 }
 
@@ -2772,122 +2839,199 @@ function drawInvincibilityAura() {
     c.restore();
 }
 
-// function drawSpeedEffect() {
-//     if (!playerSpeedBoost) return;
+function drawSpeedEffect() {
+    if (!playerSpeedBoost) return;
 
-//     const x = player.position.x;
-//     const y = player.position.y;
+    const x = player.position.x;
+    const y = player.position.y;
 
-//     c.save();
+    const time = performance.now();
 
-//     c.fillStyle = "rgba(80, 200, 255, 0.8)";
+    // How far the lines travel
+    const distance = 18;
 
-//     if (lastKey === "d") {
-//         // Player is facing right
-//         // Speed lines go behind him -> left
+    // Movement speed of the lines
+    const speed = 0.1;
 
-//         c.fillRect(x - 15, y + 15, 10, 2);
-//         c.fillRect(x - 25, y + 25, 15, 2);
-//         c.fillRect(x - 12, y + 35, 7, 2);
-//     }
+    // Each line starts at a different point in its animation
+    const offset1 = (time * speed) % distance;
+    const offset2 = (time * speed + 6) % distance;
+    const offset3 = (time * speed + 12) % distance;
 
-//     else if (lastKey === "a") {
-//         // Player is facing left
-//         // Speed lines go behind him -> right
-
-//         c.fillRect(x + player.width + 5, y + 15, 10, 2);
-//         c.fillRect(x + player.width + 10, y + 25, 15, 2);
-//         c.fillRect(x + player.width + 5, y + 35, 7, 2);
-//     }
-
-//     else if (lastKey === "w") {
-//         // Player is facing up
-//         // Speed lines go behind him -> down
-
-//         c.fillRect(x + 8, y + player.height + 5, 2, 10);
-//         c.fillRect(x + 18, y + player.height + 10, 2, 15);
-//         c.fillRect(x + 28, y + player.height + 5, 2, 7);
-//     }
-
-//     else if (lastKey === "s") {
-//         // Player is facing down
-//         // Speed lines go behind him -> up
-
-//         c.fillRect(x + 8, y - 15, 2, 10);
-//         c.fillRect(x + 18, y - 25, 2, 15);
-//         c.fillRect(x + 28, y - 12, 2, 7);
-//     }
-
-//     c.restore();
-// }
-
-function drawSpeedEffect() { 
-    if (!playerSpeedBoost) return; 
-    
-    const x = player.position.x; 
-    const y = player.position.y; 
-    
-    c.save(); 
-    // Slight change: Transparency varies randomly between 0.5 and 0.9 for the flicker effect
-    c.fillStyle = `rgba(80, 200, 255, ${0.7 + Math.random() * 0.2})`; 
-    
-    // Generate random length for lines in each frame
-    const randomLength1 = 8 + Math.random() * 10; // Between 8 and 18 pixels
-    const randomLength2 = 12 + Math.random() * 12; // Between 12 and 24 pixels
-    const randomLength3 = 6 + Math.random() * 8;   // Between 6 and 14 pixels
-    
-    // Creating a fixed or random offset
-    const offset = Math.random() * 5;
-
-    if (lastKey === "d") { 
-        // Right -> The lines on the left vibrate
-        c.fillRect(x - 5 - offset - randomLength1, y + 15, randomLength1, 2); 
-        c.fillRect(x - 5 - offset - randomLength2, y + 25, randomLength2, 2); 
-        c.fillRect(x - 5 - offset - randomLength3, y + 35, randomLength3, 2); 
-    } else if (lastKey === "a") { 
-        // Left -> The lines on the right vibrate
-        c.fillRect(x + player.width + 5 + offset, y + 15, randomLength1, 2); 
-        c.fillRect(x + player.width + 5 + offset, y + 25, randomLength2, 2); 
-        c.fillRect(x + player.width + 5 + offset, y + 35, randomLength3, 2); 
-    } else if (lastKey === "w") { 
-        // Up -> The lines from the bottom vibrate
-        c.fillRect(x + 13, y + player.height + 5 + offset, 2, randomLength1); 
-        c.fillRect(x + 23, y + player.height + 5 + offset, 2, randomLength2); 
-        c.fillRect(x + 33, y + player.height + 5 + offset, 2, randomLength3); 
-    } else if (lastKey === "s") { 
-        // Down -> The lines from above vibrate
-        c.fillRect(x + 13, y - 5 - offset - randomLength1, 2, randomLength1); 
-        c.fillRect(x + 23, y - 5 - offset - randomLength2, 2, randomLength2); 
-        c.fillRect(x + 33, y - 5 - offset - randomLength3, 2, randomLength3); 
-    } 
-    
-    c.restore(); 
-}
-
-function drawDoubleMoneyEffect() {
-    if (!playerDoubleCoins) return;
-
-    const centerX = player.position.x + player.width / 2;
-    const centerY = player.position.y + player.height / 2;
-
-    const time = Date.now();
+    // Fixed lengths
+    const length1 = 12;
+    const length2 = 20;
+    const length3 = 8;
 
     c.save();
 
+    // Function for drawing one horizontal line
+    function drawHorizontalLine(lineX, lineY, length, offset) {
+
+        // Fade the line as it moves away
+        const alpha = 0.8 - (offset / distance) * 0.5;
+
+        c.fillStyle = `rgba(80, 200, 255, ${alpha})`;
+
+        c.fillRect(
+            Math.floor(lineX),
+            Math.floor(lineY),
+            length,
+            2
+        );
+    }
+
+    // Function for drawing one vertical line
+    function drawVerticalLine(lineX, lineY, length, offset) {
+
+        const alpha = 0.8 - (offset / distance) * 0.5;
+
+        c.fillStyle = `rgba(80, 200, 255, ${alpha})`;
+
+        c.fillRect(
+            Math.floor(lineX),
+            Math.floor(lineY),
+            2,
+            length
+        );
+    }
+
+    if (lastKey === "d") {
+
+        // Player moving right -> lines behind the player
+        drawHorizontalLine(
+            x - 5 - offset1 - length1,
+            y + 15,
+            length1,
+            offset1
+        );
+
+        drawHorizontalLine(
+            x - 5 - offset2 - length2,
+            y + 25,
+            length2,
+            offset2
+        );
+
+        drawHorizontalLine(
+            x - 5 - offset3 - length3,
+            y + 35,
+            length3,
+            offset3
+        );
+
+    } else if (lastKey === "a") {
+
+        // Player moving left -> lines behind the player
+        drawHorizontalLine(
+            x + player.width + 5 + offset1,
+            y + 15,
+            length1,
+            offset1
+        );
+
+        drawHorizontalLine(
+            x + player.width + 5 + offset2,
+            y + 25,
+            length2,
+            offset2
+        );
+
+        drawHorizontalLine(
+            x + player.width + 5 + offset3,
+            y + 35,
+            length3,
+            offset3
+        );
+
+    } else if (lastKey === "w") {
+
+        // Player moving up -> lines behind the player
+        drawVerticalLine(
+            x + 13,
+            y + player.height + 5 + offset1,
+            length1,
+            offset1
+        );
+
+        drawVerticalLine(
+            x + 23,
+            y + player.height + 5 + offset2,
+            length2,
+            offset2
+        );
+
+        drawVerticalLine(
+            x + 33,
+            y + player.height + 5 + offset3,
+            length3,
+            offset3
+        );
+
+    } else if (lastKey === "s") {
+
+        // Player moving down -> lines behind the player
+        drawVerticalLine(
+            x + 13,
+            y - 5 - offset1 - length1,
+            length1,
+            offset1
+        );
+
+        drawVerticalLine(
+            x + 23,
+            y - 5 - offset2 - length2,
+            length2,
+            offset2
+        );
+
+        drawVerticalLine(
+            x + 33,
+            y - 5 - offset3 - length3,
+            length3,
+            offset3
+        );
+    }
+
+    c.restore();
+}
+
+function drawDoubleMoneyEffect() {
+    // 1. Exit the function immediately if the double coins power-up is not active
+    if (!playerDoubleCoins) return;
+
+    // 2. GEOMETRY: Find the exact center point of the player
+    const centerX = player.position.x + player.width / 2;
+    const centerY = player.position.y + player.height / 2;
+
+    // 3. Get the current time in milliseconds to drive the continuous rotation animation
+    const time = Date.now();
+
+    // 4. Save the current canvas drawing state (colors, transforms, etc.)
+    c.save();   
+
+    // 5. Loop 4 times to calculate and draw 4 separate sparkles
     for (let i = 0; i < 4; i++) {
+        // 6. GEOMETRY: Calculate the angle for the current sparkle.
+        // 'time / 700' creates the rotation over time (higher number = slower spin).
+        // 'i * (Math.PI * 2 / 4)' divides a full circle (2*PI) into 4 equal 90-degree steps.
         const angle = time / 700 + i * (Math.PI * 2 / 4);
 
+        // 7. GEOMETRY: Convert the polar angle into X and Y screen coordinates.
+        // Cosine handles horizontal movement, Sine handles vertical movement.
+        // Multiplying X by 28 and Y by 20 stretches the circle into a wide ellipse.
         const x = centerX + Math.cos(angle) * 28;
         const y = centerY + Math.sin(angle) * 20;
 
-        // Pixel-art sparkle
+        // 8. Set the drawing color to gold for the pixel-art sparkle
         c.fillStyle = "gold";
 
-        c.fillRect(x - 2, y - 2, 4, 4);
-        c.fillRect(x - 1, y - 4, 2, 8);
-        c.fillRect(x - 4, y - 1, 8, 2);
+        // 9. DRAWING: Render 3 overlapping rectangles to form a classic retro '+' sparkle shape
+        c.fillRect(x - 2, y - 2, 4, 4); // Center core square (4x4 pixels)
+        c.fillRect(x - 1, y - 4, 2, 8); // Vertical thin line (2x8 pixels)
+        c.fillRect(x - 4, y - 1, 8, 2); // Horizontal thin line (8x2 pixels)
     }
-
+    // 10. Restore the canvas state so these style changes don't affect other game drawings
     c.restore();
 }
 

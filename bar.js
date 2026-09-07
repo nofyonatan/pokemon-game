@@ -337,20 +337,21 @@ document.querySelector('#buyGoldenBerry').addEventListener('click', () => {
 
 // event listener for buying speed potion
 document.querySelector("#buySpeedPotion").addEventListener('click', () => {
-    if (numberOfCoins >= 30) {
+    if (numberOfCoins >= 30 && !playerSpeedBoost) {
         numberOfCoins -= 30;
         updatePlayerCoins();
         playerSpeedBoost = true;
         velocity *= 2;
         setTimeout(() => {
             velocity = velocity / 2;
+            playerSpeedBoost = false;
         }, 60000)
     }
 });
 
 // event listener for buying invincible potion
 document.querySelector('#buyinvinciblePotion').addEventListener('click', () => {
-    if (numberOfCoins >= 50) {
+    if (numberOfCoins >= 50 && !playerInvincible) {
         numberOfCoins -= 50;
         updatePlayerCoins();
         playerInvincible = true;
@@ -362,7 +363,7 @@ document.querySelector('#buyinvinciblePotion').addEventListener('click', () => {
 
 // event listener for buying greed potion
 document.querySelector('#buyGreedPotion').addEventListener('click', () => {
-    if (numberOfCoins >= 30) {
+    if (numberOfCoins >= 30 && !playerDoubleCoins) {
         numberOfCoins -= 30;
         updatePlayerCoins();
         playerDoubleCoins = true;
