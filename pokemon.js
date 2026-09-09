@@ -378,6 +378,15 @@ let numberAchievementVisibleOnScreen = 0; // A variable that represent how many 
 let achievementRetureRobChickenComplete = false; // A varible that represents if the achievement of of return Rob's chicken completed
 let alreadyCalldUnlockAchievement = false; // A variable that represent whether the function "UnlockAchievement"
                                            //  is already called ot not
+let currentAchievementCategory = "explorer";
+let categoriesNumberOfAchievementsComplete =
+    {
+        "explorer": 0,
+        "combat": 0,
+        "money": 0,
+        "social": 0,
+        "shop": 0
+    };
 
 // player variables
 let lives = 3; // the amount of lives player has
@@ -388,11 +397,11 @@ let InfiniteAmmo = false; // A variable that represent whether player has infini
 let pastNumberOfammo; // A variable that represent how much ammo player had in the past
 let numberOfammo = 5; // the amount of ammo player have
 updatePlayerAmmo();
-let numberOfCoins = 100; // the number of coins player collect
+let numberOfCoins = 0; // the number of coins player collect
 updatePlayerCoins();
 let playerSpeedBoost = false // A variable that represent whether player has speed boost or not
 let playerInvincible = false // A variable that represent whether player is invincible or not
-let playerDoubleCoins = true; // A variable that represent whether player should get double coins or not
+let playerDoubleCoins = false; // A variable that represent whether player should get double coins or not
 
 //LOAD IMAGES
 // background image
@@ -1184,48 +1193,83 @@ const Achievements = {
 };
 
 // FUNCTIONS
-// function for creating the achievemnts
+function renderAchievementCategories() {
+    const categoriesContainer = document.querySelector("#achievementCategories");
+
+    categoriesContainer.innerHTML = "";
+
+    Object.keys(Achievements).forEach((category) => {
+
+        const button = document.createElement("button");
+
+        button.classList.add("achievementCategoryButton");
+
+        button.innerText = category;
+
+        if (category === currentAchievementCategory) {
+            button.classList.add("active");
+        }
+
+        button.addEventListener("click", () => {
+
+            currentAchievementCategory = category;
+
+            renderAchievements();
+
+        });
+
+        categoriesContainer.appendChild(button);
+    });
+}
+
+// A function used to create achievements in the category the player is in
 function renderAchievements() {
+
     const achievementGrid = document.querySelector("#achievementGrid");
 
     achievementGrid.innerHTML = "";
 
     numberAchievementVisibleOnScreen = 0;
 
-    Object.values(Achievements).forEach((category) => {
-        category.forEach((achievement) => {
-            if (achievement.visible) {
-                numberAchievementVisibleOnScreen++;
+    const category = Achievements[currentAchievementCategory];
 
-                const card = document.createElement('div');
+    category.forEach((achievement) => {
 
-                card.classList.add('achievementCard');
+        if (achievement.visible) {
 
-                if (achievement.unlocked) {
-                    card.classList.add('completed');
-                }
-                else if (!achievement.unlocked) {
-                    card.classList.add('locked');
-                }
+            numberAchievementVisibleOnScreen++;
 
-                card.innerHTML = `
-                    <div class="achievementIcon">
-                        ${achievement.icon}
-                    </div>
+            const card = document.createElement("div");
 
-                    <div class="achievementInfo">
-                        <h3>${achievement.title}</h3>
+            card.classList.add("achievementCard");
 
-                        <p>${achievement.description}</p>
-                    </div>
-                `;
-
-                achievementGrid.appendChild(card);
+            if (achievement.unlocked) {
+                card.classList.add("completed");
             }
-        })
+            else {
+                card.classList.add("locked");
+            }
+
+            card.innerHTML = `
+                <div class="achievementIcon">
+                    ${achievement.icon}
+                </div>
+
+                <div class="achievementInfo">
+                    <h3>${achievement.title}</h3>
+
+                    <p>${achievement.description}</p>
+                </div>
+            `;
+
+            achievementGrid.appendChild(card);
+        }
     });
 
-    document.querySelector('#achievementProgress').innerText = `${achievementsComplete} / ${numberAchievementVisibleOnScreen} completed`;
+    document.querySelector("#achievementProgress").innerText =
+        `${categoriesNumberOfAchievementsComplete[currentAchievementCategory]} / ${numberAchievementVisibleOnScreen} completed`;
+
+    renderAchievementCategories();
 }
 renderAchievements();
 
@@ -1249,6 +1293,14 @@ function unlockAchievement(id) {
     achievement.unlocked = true;
 
     achievementsComplete++;
+
+    achievementCategory = findCategoryName(id);
+
+    if (!achievementCategory) return;
+
+    console.log(achievementCategory);
+
+    categoriesNumberOfAchievementsComplete[achievementCategory] += 1;
 
     renderAchievements();
 
@@ -1294,6 +1346,17 @@ function findAchievement(id) {
     }
 
     return null;
+}
+
+function findCategoryName(id) {
+    for (const [categoryName, categoryArray] of Object.entries(Achievements)) {
+        for (const achievement of categoryArray) {
+            if (achievement.id === id) {
+                return categoryName; 
+            }
+        }
+    }
+    return null; 
 }
 
 // function for show when player unlock or get a new achievement
@@ -1650,11 +1713,12 @@ function animate() {
             // player is talking to someone
             talkingToSomeone = true;
 
-            // unlock achievemnt number 3(talk to Rob)
-            //if (!alreadyCalldUnlockAchievement) {
+            // unlock achievemnt number 3
             unlockAchievement("talkToRob");    
-                //alreadyCalldUnlockAchievement = true;
-            //}
+
+            setTimeout(() => {
+                newAchievement("findRobChicken");
+            }, 4000)
             
 
             // open dialogue with player 4

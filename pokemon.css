@@ -6,9 +6,11 @@
 
 body {
     background-color: black;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     min-height: 100vh;
 }
 
@@ -25,6 +27,10 @@ button {
 button:hover {
     background-color: #ddd;
     cursor: pointer;
+}
+
+canvas {
+    cursor: url("images/target_mouse2.png"), auto;
 }
 
 /* TUTORIAL */
@@ -476,6 +482,58 @@ button:hover {
     font-size: 12px;
 }
 
+#achievementCategories {
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 20px;
+
+    overflow-x: auto;
+
+    padding: 5px;
+}
+
+.achievementCategoryButton {
+    flex: 1;
+
+    min-width: 90px;
+
+    padding: 10px 8px;
+
+    border: 3px solid #5a381e;
+
+    border-radius: 8px;
+
+    background: #f6d8a0;
+
+    color: #5a381e;
+
+    font-family: "Press Start 2P", cursive;
+
+    font-size: 8px;
+
+    cursor: pointer;
+
+    box-shadow: 0 3px 0 #8c5b2f;
+}
+
+.achievementCategoryButton:hover {
+    filter: brightness(1.08);
+}
+
+.achievementCategoryButton.active {
+    background: linear-gradient(
+        to bottom,
+        #ffd166,
+        #f4a261
+    );
+
+    transform: translateY(2px);
+
+    box-shadow: 0 1px 0 #8c5b2f;
+}
+
 #achievementGrid{
     margin-top: 25px;
 
@@ -513,6 +571,8 @@ button:hover {
     margin: 0;
 
     font-size: 13px;
+
+    line-height: 1.2;
 }
 
 .achievementInfo p{
