@@ -1,6 +1,7 @@
 * {
   font-family: "Press Start 2P", cursive;
   user-select: none;
+  cursor: url("images/cursor.png") 2 2, auto !important;
 }
 
 
@@ -27,10 +28,6 @@ button {
 button:hover {
     background-color: #ddd;
     cursor: pointer;
-}
-
-canvas {
-    cursor: url("images/target_mouse2.png"), auto;
 }
 
 /* TUTORIAL */
