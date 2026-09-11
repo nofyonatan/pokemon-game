@@ -322,7 +322,7 @@ const caveBackground = new Sprite({
 function initcave() {
     setTimeout(() => {
         CanGetOutCave = true;
-    }, 5000)
+    }, 1000)
 
     c.imageSmoothingEnabled = false;
 }
@@ -422,6 +422,9 @@ function cave() {
     caveCoins.forEach(coin => {
         coin.draw();
     })
+
+    // ACHIEVEMENTS CHECK 
+    checkAchievements();
 
     // MOVEMENT
     let moving = true;// A varible to check whenever we should move or not
@@ -715,7 +718,6 @@ function cave() {
             rectangle1: player,
             rectangle2: battleEntery
         })) {
-            console.log('a')
             if (!enterBattle) {
                 // So that the exit from the cave only happens once and not every frame until he exits.
                 enterBattle = true; 
@@ -743,6 +745,9 @@ function cave() {
                         pastHatPosition.y = hat.position.y;
                         hat.position.x = player.position.x - 5;
                         hat.position.y = player.position.y - 12;
+
+                        // hide achievement button
+                        document.querySelector("#achievementButton").style.display = "none";
 
                         // active a new animation loop:            
                         // start main animation loop
@@ -800,6 +805,9 @@ function cave() {
                 if (monster.lives <= 0) {
                     // enemy not alive (you can't see him)
                     monster.alive = false
+
+                    // increase the varible that represent how many slimes player has killed
+                    numberOfSlimesPlayerKilled++
                 }
 
                 // delete projectile

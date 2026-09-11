@@ -1107,7 +1107,12 @@ const Achievements = {
             title: "Home Sweet Home",
             description: "Enter a house",
             unlocked: false,
-            visible: true
+            visible: true,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("talkToRob");    
+                }, 4000)   
+            }
         },
 
         {
@@ -1116,7 +1121,12 @@ const Achievements = {
             title: "Nice To Meet You",
             description: "Talk to rob",
             unlocked: false,
-            visible: false
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("findRobChicken");
+                }, 4000)
+            }
         },
 
         {
@@ -1134,7 +1144,18 @@ const Achievements = {
             title: "Drunk",
             description: "Enter the bar",
             unlocked: false,
-            visible: true
+            visible: true,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("buy20Bullets");
+                }, 4000)
+            }
+        },
+
+        {
+            id: "enterCave",
+            icon: "🗻" ,
+            title: "Is Anyone There... Ere... Re"
         }
     ],
 
@@ -1145,7 +1166,12 @@ const Achievements = {
             title: "First Blood",
             description: "Kill your first slime.",
             unlocked: false,
-            visible: true
+            visible: true,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("kill10Slimes");
+                }, 4000)
+            }
         },
 
         {
@@ -1153,6 +1179,62 @@ const Achievements = {
             icon: "⚔",
             title: "Warm-Up",
             description: "Kill 10 slimes",
+            unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("Kill30Slimes");
+                }, 4000)
+            }
+        },
+
+        {
+            id: "Kill30Slimes",
+            icon: "⚔",
+            title: "Natural Born Killer",
+            description: "Kill 30 slimes",
+            unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("Kill50Slimes");
+                }, 4000)
+            }
+        },
+
+        {
+            id: "Kill50Slimes",
+            icon: "⚔",
+            title: "Monster's Nightmare",
+            description: "Kill 50 slimes",
+            unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("Kill100Slimes");
+                }, 4000)
+            }
+        },
+
+        {
+            id: "Kill100Slimes",
+            icon: "⚔",
+            title: "Serial Grinder",
+            description: "Kill 100 slimes",
+            unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("Kill500Slimes");
+                }, 4000)
+            }
+        },
+
+        {
+            id: "Kill500Slimes",
+            icon: "⚔",
+            title: "Population Control",
+            description: "Kill 500 slimes",
             unlocked: false,
             visible: false
         }
@@ -1165,7 +1247,77 @@ const Achievements = {
             title: "beggar",
             description: "Collect 5 coins.",
             unlocked: false,
-            visible: true
+            visible: true,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("collect20Coins")
+                }, 4000)
+            }
+        },
+
+        {
+            id: "collect20Coins",
+            icon: "💰",
+            title: "Pocket Change",
+            description: "Collect 20 coins.",
+            unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("collect50Coins")
+                }, 4000)
+            }
+        },
+
+        {
+            id: "collect50Coins",
+            icon: "💰",
+            title: "Middle Class",
+            description: "Collect 50 coins.",
+            unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("collect100Coins")
+                }, 4000)
+            }
+        },
+
+        {
+            id: "collect100Coins",
+            icon: "💰",
+            title: "Making it Rain",
+            description: "Collect 100 coins.",
+            unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("collect300Coins")
+                }, 4000)
+            }
+        },
+
+        {
+            id: "collect300Coins",
+            icon: "💰",
+            title: "Filthy Rich",
+            description: "Collect 300 coins.",
+            unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("collect500Coins")
+                }, 4000)
+            }
+        },
+
+        {
+            id: "collect500Coins",
+            icon: "💰",
+            title: "Broke the Economy",
+            description: "Collect 500 coins.",
+            unlocked: false,
+            visible: false
         }
     ],
 
@@ -1288,6 +1440,10 @@ function unlockAchievement(id) {
             unlockAchievement(id);
         }, 4000)
         return;
+    }
+
+    if (achievement.action) {
+        achievement.action();
     }
 
     achievement.unlocked = true;
@@ -1716,14 +1872,8 @@ function animate() {
             // unlock achievemnt number 3
             unlockAchievement("talkToRob");    
 
-            setTimeout(() => {
-                newAchievement("findRobChicken");
-            }, 4000)
-            
-
             // open dialogue with player 4
-
-             // If the dialogue is not already open - open it
+            // If the dialogue is not already open - open it
             if (!openDialogue) {
                 playerTalkingWithPlayer4 = true // player is currently talking with player 4
 
@@ -1915,16 +2065,9 @@ function animate() {
                 enemy.about.alive = false
 
                 // delete the projectile
-                projectiles.splice(i, 1);
+                projectiles.splice(i, 1);    
 
-                // if this is the first time player killed the enemy - this achievement complete
-                unlockAchievement("killFirstSlime");
-                // show the next achievement of killing slimes
-                setTimeout(() => {
-                    newAchievement("kill10Slimes");
-                }, 4000)
-                
-
+                // increase the varible that represent how many slimes player has killed
                 numberOfSlimesPlayerKilled++
 
                 // create a coin where we killed the enemy
@@ -2216,11 +2359,6 @@ function animate() {
         // if this is the first time player has entered the house unlock the achievement of entering a house
         unlockAchievement("enterHouse");
 
-        // If this is the first time the player has entered the house, he will unlock a new achievement of Speaking to the Rob
-        setTimeout(() => {
-            newAchievement("talkToRob");
-        }, 4000)
-
         // fade
         gsap.to('#blackDiv', {
             opacity: 1, 
@@ -2274,11 +2412,6 @@ function animate() {
 
         // if this is the first time player enter the bar unlock the achievement of entering the bar
         unlockAchievement("enterBar");
-
-        // if this is the first time player enter the bar show new achievement of buy 20 bullets
-        setTimeout(() => {
-            newAchievement("buy20Bullets");
-        }, 4000)
         
         // don't let the player start map music
         clicked = true;
@@ -2817,18 +2950,61 @@ function updatePlayerCoins() {
 }
 
 function checkAchievements() {
+    // combat
+    if (numberOfSlimesPlayerKilled === 1) {
+        unlockAchievement("killFirstSlime"); 
+    }
     if (numberOfSlimesPlayerKilled === 10) {
         unlockAchievement("kill10Slimes");
     }
 
+    if (numberOfSlimesPlayerKilled === 30) {
+        unlockAchievement("Kill30Slimes");
+    }
+    
+    if (numberOfSlimesPlayerKilled === 50) {
+        unlockAchievement("Kill50Slimes");
+    }
+
+    if (numberOfSlimesPlayerKilled === 100) {
+        unlockAchievement("Kill100Slimes");
+    }
+
+    if (numberOfSlimesPlayerKilled === 500) {
+        unlockAchievement("Kill500Slimes");
+    }
+
+    // money
     if (numberOfCoins >= 5) {
         unlockAchievement("collect5Coins");
     }
 
-    if (numberPeoplePlayerMeet >= 5) {
-        unlockAchievement("talk5People");
+    if (numberOfCoins >= 20) {
+        unlockAchievement("collect20Coins");
     }
 
+    if (numberOfCoins >= 50) {
+        unlockAchievement("collect50Coins");
+    }
+
+    if (numberOfCoins >= 100) {
+        unlockAchievement("collect100Coins");
+    }
+
+    if (numberOfCoins >= 300) {
+        unlockAchievement("collect300Coins");
+    }
+
+    if (numberOfCoins >= 500) {
+        unlockAchievement("collect500Coins");
+    }
+
+    // social
+    if (numberPeoplePlayerMeet >= 5) {
+        unlockAchievement("talk5People");
+    }   
+
+    // shop
     if (numberBulletsBought >= 20) {
         //if (!alreadyCalldUnlockAchievement) {
         unlockAchievement("buy20Bullets");    

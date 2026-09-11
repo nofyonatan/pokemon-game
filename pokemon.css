@@ -4,6 +4,9 @@
   cursor: url("images/cursor.png") 2 2, auto !important;
 }
 
+body.battle-mode * {
+    cursor: url("images/target.png") 8 8, auto !important;
+}
 
 body {
     background-color: black;
@@ -27,7 +30,7 @@ button {
 
 button:hover {
     background-color: #ddd;
-    cursor: pointer;
+    cursor: url("images/pointer.png") 2 2, auto !important;
 }
 
 /* TUTORIAL */

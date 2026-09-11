@@ -224,6 +224,9 @@ function caveBattle() {
         }
     }
 
+    // ACHIEVEMENTS CHECK 
+    checkAchievements();
+
     if (startBattle && !endBattle) {
         // draw projectiles and remove them if that went off the screen
         for (let i = projectiles.length - 1; i >= 0; i--) { 
@@ -481,6 +484,9 @@ function caveBattle() {
                     // delete projectile
                     projectiles.splice(i, 1);
 
+                    // increase the varible that represent how many slimes player has killed
+                    numberOfSlimesPlayerKilled++
+
                     break;
                 }
             }
@@ -558,6 +564,7 @@ function caveBattle() {
     // END BATTLE
     // show result
     if (endBattle) {
+        document.body.classList.remove("battle-mode");
         showResult();
     }
 
@@ -597,6 +604,9 @@ function caveBattle() {
 
                 // show player state
                 document.querySelector('.playerState').style.display = "block";
+
+                // show achievement button
+                document.querySelector("#achievementButton").style.display = "block"
 
                 // show the screen
                 gsap.to('#blackDiv', {
@@ -697,6 +707,9 @@ document.querySelector('#startBossFight').addEventListener('click', () => {
 
             document.querySelector('#caveBattle').style.display = "flex";
 
+            // change the cursor to a target
+            document.body.classList.add("battle-mode");
+
             // player has infinite ammo on the cave battle
             InfiniteAmmo = true;
 
@@ -735,4 +748,7 @@ document.querySelector('#continueButton').addEventListener('click', () => {
 
     // we dont want the player to have infinite ammon anymore
     InfiniteAmmo = false;
+
+    // Reset the cooldown back to 700
+    cooldown = 700;
 })
