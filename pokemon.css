@@ -695,6 +695,8 @@ button:hover {
     line-height:1.6;
 
     font-size:14px;
+
+    white-space: pre-wrap;
 }
 
 #arrowButton {

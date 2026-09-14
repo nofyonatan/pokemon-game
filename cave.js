@@ -2,6 +2,7 @@
 let CanGetOutCave = false; // A variable that represent if the player can get out from the cave
 let leavingCave = false; // A variable that causes the exit from the cave to only happen once, and not every frame until you exit
 let enterBattle = false; //A variable that causes the exit from the cave to only happen once, and not every frame until you exit
+let canEnterCaveBattle = true; // A variable that represent whether player can enter the cave battle ot not
 
 // DATA
 // cave collision
@@ -67,8 +68,14 @@ caveBackgroundImage.src = "images/cave.png";
 const greenRightStandingImage = new Image();
 greenRightStandingImage.src = "images/slime_green_right_standing.png";
 
+const slimeGreenLeftStandingImage = new Image();
+slimeGreenLeftStandingImage.src = "images/slime_green_left_standing.png";
+
 const greenSlimeWalkingImage = new Image();
 greenSlimeWalkingImage.src = "images/slime_green_right_walking.png";
+
+const greenSlimeLeftWalkingImage = new Image();
+greenSlimeLeftWalkingImage.src = "images/slime_green_left_walking.png";
 
 // coin image
 const caveCoinImage = new Image();
@@ -130,10 +137,12 @@ caveMonstersMap.forEach((row, i) => {
                     },
                     sprites: {
                         standing: {
-                            right: greenRightStandingImage
+                            right: greenRightStandingImage,
+                            left: slimeGreenLeftStandingImage
                         },
                         walking: {
-                            right: greenSlimeWalkingImage
+                            right: greenSlimeWalkingImage,
+                            left: greenSlimeLeftWalkingImage
                         }
                     },
                     animate: true,
@@ -588,16 +597,21 @@ function cave() {
 
         // If the player is within the monster's detection radius
         if (distance < 400) {
-            // change monster sprite
-            monster.image = monster.sprites.walking.right;
-            monster.frames.hold = 10;
-
             // monster pursuit speed
             const speed = 1.2;
 
             // How much the player needs to move in each axis
             const velocityX = (dx / distance) * speed;
             const velocityY = (dy / distance) * speed;
+
+            // change monster sprite
+            if (velocityX < 0) {
+                monster.image = monster.sprites.walking.left;
+            } else {
+                monster.image = monster.sprites.walking.right;
+            }
+            
+            monster.frames.hold = 10;
 
             // check collision with boundaries
             // X-axis
@@ -657,7 +671,13 @@ function cave() {
                 monster.position.y += velocityY;
             }
         } else {
-            monster.image = monster.sprites.standing.right;
+            if (monster.image === monster.sprites.walking.right || monster.image === monster.sprites.standing.right) {
+                    monster.image = monster.sprites.standing.right;
+            }
+            else if (monster.image === monster.sprites.walking.left || monster.image === monster.sprites.standing.left) {
+                monster.image = monster.sprites.standing.left;
+            }
+   
             monster.frames.hold = 30;
         }
     }
@@ -718,7 +738,7 @@ function cave() {
             rectangle1: player,
             rectangle2: battleEntery
         })) {
-            if (!enterBattle) {
+            if (!enterBattle && canEnterCaveBattle) {
                 // So that the exit from the cave only happens once and not every frame until he exits.
                 enterBattle = true; 
 
@@ -764,6 +784,10 @@ function cave() {
                         })
                     }
                 });
+            } else {
+                moveables.forEach(movable => {
+                    movable.position.y -= velocity;
+                })
             }
         }
     }

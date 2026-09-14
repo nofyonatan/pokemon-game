@@ -385,7 +385,8 @@ let categoriesNumberOfAchievementsComplete =
         "combat": 0,
         "money": 0,
         "social": 0,
-        "shop": 0
+        "shop": 0,
+        "cave": 0
     };
 
 // player variables
@@ -509,8 +510,14 @@ LeftHatImage.src = "images/hatLeft.png";
 const slime_blue_right_standing = new Image();
 slime_blue_right_standing.src = "images/slime_blue_right_standing.png";
 
+const slime_blue_left_standing = new Image();
+slime_blue_left_standing.src = "images/slime_blue_left_standing.png";
+
 const slime_blue_right_walking = new Image();
 slime_blue_right_walking.src = "images/slime_blue_right_walking.png";
+
+const slime_blue_left_walking = new Image();
+slime_blue_left_walking.src = "images/slime_blue_left_walking.png";
 
 // heart image
 const heartImage = new Image();
@@ -855,10 +862,12 @@ const slime = new Sprite({
     },
     sprites: {
         standing: {
-            right: slime_blue_right_standing
+            right: slime_blue_right_standing,
+            left: slime_blue_left_standing
         },
         walking: {
-            right: slime_blue_right_walking
+            right: slime_blue_right_walking,
+            left: slime_blue_left_walking
         }
     },
     animate: true,
@@ -893,10 +902,12 @@ const slime2 = new Sprite({
     },
     sprites: {
         standing: {
-            right: slime_blue_right_standing
+            right: slime_blue_right_standing,
+            left: slime_blue_left_standing
         },
         walking: {
-            right: slime_blue_right_walking
+            right: slime_blue_right_walking,
+            left: slime_blue_left_walking
         }
     },
     animate: true,
@@ -931,10 +942,12 @@ const slime3 = new Sprite({
     },
     sprites: {
         standing: {
-            right: slime_blue_right_standing
+            right: slime_blue_right_standing,
+            left: slime_blue_left_standing
         },
         walking: {
-            right: slime_blue_right_walking
+            right: slime_blue_right_walking,
+            left: slime_blue_left_walking
         }
     },
     animate: true,
@@ -969,10 +982,12 @@ const slime4 = new Sprite({
     },
     sprites: {
         standing: {
-            right: slime_blue_right_standing
+            right: slime_blue_right_standing,
+            left: slime_blue_left_standing
         },
         walking: {
-            right: slime_blue_right_walking
+            right: slime_blue_right_walking,
+            left: slime_blue_left_walking
         }
     },
     animate: true,
@@ -1155,7 +1170,15 @@ const Achievements = {
         {
             id: "enterCave",
             icon: "🗻" ,
-            title: "Is Anyone There... Ere... Re"
+            title: "Is Anyone There... Ere... Re",
+            description: "Enter the cave",
+            unlocked: false,
+            visible: true,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("defeatSlimesBoss");
+                }, 4000)
+            }
         }
     ],
 
@@ -1341,6 +1364,17 @@ const Achievements = {
             unlocked: false,
             visible: false
         }
+    ],
+
+    cave: [
+        {
+            id: "defeatSlimesBoss",
+            icon: "😈",
+            title: "King of the Slimes",
+            description: "Defeat the king of the slimes",
+            unlocked: false,
+            visible: false
+        }
     ]
 };
 
@@ -1453,8 +1487,6 @@ function unlockAchievement(id) {
     achievementCategory = findCategoryName(id);
 
     if (!achievementCategory) return;
-
-    console.log(achievementCategory);
 
     categoriesNumberOfAchievementsComplete[achievementCategory] += 1;
 
@@ -2161,6 +2193,9 @@ function animate() {
         // So that when the player returns, he won't go straight into the cave again.
         getIntoCave = false;
 
+        // unlocked achievement if enter the cave
+        unlockAchievement("enterCave");
+
         // stop map music
         audio.map.stop();
         audio.map.seek(0); // restart music
@@ -2605,16 +2640,21 @@ function animate() {
 
         // If the player is within the enemy's detection radius
         if (distance < 300) {
-            // change enemy sprite
-            enemy.image = enemy.sprites.walking.right;
-            enemy.frames.hold = 10;
-
             // Enemy pursuit speed
             const speed = 1.2;
 
             // How much the player needs to move in each axis
             const velocityX = (dx / distance) * speed;
             const velocityY = (dy / distance) * speed;
+
+            // change enemy sprite
+            if (velocityX < 0) {
+                enemy.image = enemy.sprites.walking.left;
+            } else {
+                enemy.image = enemy.sprites.walking.right;
+            }
+
+            enemy.frames.hold = 10;
 
             // check collision with boundaries
             // X-axis
@@ -2674,7 +2714,13 @@ function animate() {
                 enemy.position.y += velocityY;
             }
         } else {
-            enemy.image = enemy.sprites.standing.right;
+            if (enemy.image === enemy.sprites.walking.right || enemy.image === enemy.sprites.standing.right) {
+                enemy.image = enemy.sprites.standing.right;
+            }
+            else if (enemy.image === enemy.sprites.walking.left || enemy.image === enemy.sprites.standing.left) {
+                enemy.image = enemy.sprites.standing.left;
+            }
+            
             enemy.frames.hold = 30;
         }
     }
@@ -2836,20 +2882,79 @@ function nextDialogue() {
     showCurrentDialogue();
 }
 
+// A function that aims to cause the dialogue text to be divided into lines that fit the dialogue element.
+function wrapDialogueText(text, element) {
+    // Split the input text into an array of individual words
+    const words = text.split(" ");
+    const lines = [];
+    let currentLine = "";
+
+    // Create a temporary hidden DOM element to measure the visual width of the text
+    const measureElement = document.createElement("span");
+
+    measureElement.style.position = "absolute";
+    measureElement.style.visibility = "hidden";
+    measureElement.style.whiteSpace = "nowrap"; // Prevent the text from wrapping inside the measuring element
+
+    // Copy the relevant font styles from the target element to ensure identical text measurement
+    const style = window.getComputedStyle(element);
+
+    measureElement.style.fontFamily = style.fontFamily;
+    measureElement.style.fontSize = style.fontSize;
+    measureElement.style.fontWeight = style.fontWeight;
+    measureElement.style.letterSpacing = style.letterSpacing;
+
+    // Append to the body so the browser can calculate the layout widths
+    document.body.appendChild(measureElement);
+
+    // Iterate through each word to construct the wrapped lines
+    for (const word of words) {
+        // Construct a prospective line: add a space if the line already has text, otherwise start with the word
+        const testLine = currentLine
+            ? currentLine + " " + word
+            : word;
+
+        // Apply the prospective line to the hidden element to check its pixel width
+        measureElement.textContent = testLine;
+
+        // Check if the prospective line fits within the target element's available width
+        if (measureElement.offsetWidth <= element.clientWidth) {
+            // The word fits! Commit the test line as the current line
+            currentLine = testLine;
+        } else {
+            // The word doesn't fit! Push the completed current line to the results array...
+            lines.push(currentLine);
+            // ...and start a new line with the current word
+            currentLine = word;
+        }
+    }
+
+    // Push the very last line to the array if it contains any remaining text
+    if (currentLine) {
+        lines.push(currentLine);
+    }
+
+    // Clean up the DOM by removing the temporary measuring element
+    measureElement.remove();
+
+    // Recombine all the wrapped lines into a single string separated by newlines (\n)
+    return lines.join("\n");
+}
+
 // function for typing text dialogue in slow motion
 let interval;
 function typeDialogue(message) {
     // Canceling the previous timer (if any) to prevent duplication and concurrent writing
     clearInterval(interval);
 
-    // our text that we want to write
-    const text = message;
-
     // the element that we want the text to be write on
     const element = document.querySelector('#dialogueText');    
 
     // Reset existing text in an element before starting new printing
     element.textContent = "";
+
+    // our text that we want to write
+    const text = wrapDialogueText(message, element);
 
     // represent the letter in the word that we need to write
     let index = 0;
@@ -2883,6 +2988,8 @@ function typeDialogue(message) {
                 clearInterval(interval);
                 // The dialogue is no longer written
                 dialogueWritten = false;
+                // Ensure instantWriting is safely reset when typing finishes naturally
+                instantWriting = false;
             }
         }
     }, 100);

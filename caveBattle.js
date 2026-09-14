@@ -37,8 +37,14 @@ leftTorchImage.src = "images/Torch Yellow L.png";
 const redSlimeStandingImage = new Image();
 redSlimeStandingImage.src = "images/slime_red_right_standing.png";
 
+const redSlimeStandingLeftImage = new Image();
+redSlimeStandingLeftImage.src = "images/slime_red_left_standing.png";
+
 const redSlimeWalkingImage = new Image();
 redSlimeWalkingImage.src = "images/slime_red_right_walking.png";
+
+const redSlimeWalkingLeftImage = new Image();
+redSlimeWalkingLeftImage.src = "images/slime_red_left_walking.png";
 
 // CREATE SPRITES
 // create background
@@ -129,7 +135,7 @@ const redBosSlime = new RedBosSlime({
         x: 600,
         y: 100
     },
-    image: redSlimeStandingImage,
+    image: redSlimeStandingLeftImage,
     frames: {
         max: 4,
         hold: 30
@@ -383,16 +389,20 @@ function caveBattle() {
 
             // If the player is within the monster's detection radius
             if (distance < 300) {
-                // change monster sprite
-                monster.image = monster.sprites.walking.right;
-                monster.frames.hold = 10;
-
                 // monster pursuit speed
                 const speed = 1.2;
 
                 // How much the player needs to move in each axis
                 const velocityX = (dx / distance) * speed;
                 const velocityY = (dy / distance) * speed;
+
+                // change monster sprite
+                if (velocityX < 0) {
+                    monster.image = monster.sprites.walking.left;
+                } else {
+                    monster.image = monster.sprites.walking.right;
+                }
+                monster.frames.hold = 10;
 
                 // check collision with boundaries
                 // X-axis
@@ -452,7 +462,13 @@ function caveBattle() {
                     monster.position.y += velocityY;
                 }
             } else {
-                monster.image = monster.sprites.standing.right;
+                if (monster.image === monster.sprites.walking.right || monster.image === monster.sprites.standing.right) {
+                    monster.image = monster.sprites.standing.right;
+                }
+                else if (monster.image === monster.sprites.walking.left || monster.image === monster.sprites.standing.left) {
+                    monster.image = monster.sprites.standing.left;
+                }
+                
                 monster.frames.hold = 30;
             }
         }
@@ -514,6 +530,7 @@ function caveBattle() {
                     redBosSlime.alive = false
                     playerWon = true;
                     endBattle = true;
+                    unlockAchievement("defeatSlimesBoss");
                 }
                 // delete projectile
                 projectiles.splice(i, 1);
@@ -632,10 +649,12 @@ function summonMonster() {
             },
             sprites: {
                 standing: {
-                    right: redSlimeStandingImage
+                    right: redSlimeStandingImage,
+                    left: redSlimeWalkingLeftImage
                 },
                 walking: {
-                    right: redSlimeWalkingImage
+                    right: redSlimeWalkingImage,
+                    left: redSlimeWalkingLeftImage
                 }
             },
             animate: true,
@@ -740,6 +759,8 @@ document.querySelector('#continueButton').addEventListener('click', () => {
             numberOfCoins += 50;
         }
         updatePlayerCoins();
+
+        canEnterCaveBattle = false;
     }
     else if (!playerWon) {
         numberOfCoins = 0;
@@ -751,4 +772,9 @@ document.querySelector('#continueButton').addEventListener('click', () => {
 
     // Reset the cooldown back to 700
     cooldown = 700;
+
+    //
+    setTimeout(() => {
+        enterBattle = false;
+    }, 30000)
 })
