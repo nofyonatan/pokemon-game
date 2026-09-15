@@ -145,6 +145,36 @@ const redBosSlime = new RedBosSlime({
 })
 
 // FUNCTIONS
+function resetBattle() {
+     // Reset player health
+    caveBattlePLayerLives = 5;
+
+    // Reset boss
+    redBosSlime.health = 100;
+    redBosSlime.alive = true;
+
+    // Reset battle result
+    playerWon = null;
+
+    // Reset battle state
+    endBattle = false;
+    exitBattle = false;
+    startBattle = false;
+
+    // Remove all summoned slimes
+    caveBattleMonsters.length = 0;
+    
+    // Remove all projectiles
+    projectiles.length = 0;
+
+    // Reset summon time
+    summonTime = 5000;
+
+    // Reset health bars
+    document.querySelector('#caveBattleSlimeHealthBar').style.width = '100%';
+    document.querySelector('#caveBattlePlayerHealthBar').style.width = '100%';
+}
+
 function startCaveBattle() {
     // resize canvas
     canvas.width = caveBattleBackground.width;
@@ -170,6 +200,8 @@ function startCaveBattle() {
     // So that it doesn't look like the player is moving
     player.animate = false;
 
+    resetBattle();
+
     // start the battle(just the drawing)
     caveBattle();
 }
@@ -177,7 +209,9 @@ function startCaveBattle() {
 // after how much time we need to summon a monster each time
 let summonTime = 5000;
 function summonLoop() {
-    if (!redBosSlime.alive) return;
+    if (!startBattle || endBattle || !redBosSlime.alive) {
+        return;
+    }
 
     summonMonster();
 
@@ -636,42 +670,48 @@ function caveBattle() {
 }
 
 function summonMonster() {
-    caveBattleMonsters.push(
-        new regularSlime({
-            position: {
-                x: redBosSlime.position.x  + redBosSlime.hitbox.width/2 + redBosSlime.hitbox.width/4,
-                y: redBosSlime.position.y  + (redBosSlime.hitbox.height/2 + redBosSlime.hitbox.height/4)
-            },
-            image: redSlimeStandingImage,
-            frames: {
-                max: 4,
-                hold: 30
-            },
-            sprites: {
-                standing: {
-                    right: redSlimeStandingImage,
-                    left: redSlimeWalkingLeftImage
-                },
-                walking: {
-                    right: redSlimeWalkingImage,
-                    left: redSlimeWalkingLeftImage
-                }
-            },
-            animate: true,
-            scale: 3
-        })
-    )
+    const monster = new regularSlime({
+        position: {
+            x: redBosSlime.position.x + redBosSlime.hitbox.width / 2 + redBosSlime.hitbox.width / 4,
+            y: redBosSlime.position.y + redBosSlime.hitbox.height / 2 + redBosSlime.hitbox.height / 4
+        },
 
-    caveBattleMonsters[caveBattleMonsters.length - 1].unkillable = true;
+        image: redSlimeStandingImage,
 
-    gsap.to(caveBattleMonsters[caveBattleMonsters.length - 1].position, {
+        frames: {
+            max: 4,
+            hold: 30
+        },
+
+        sprites: {
+            standing: {
+                right: redSlimeStandingImage,
+                left: redSlimeStandingLeftImage
+            },
+
+            walking: {
+                right: redSlimeWalkingImage,
+                left: redSlimeWalkingLeftImage
+            }
+        },
+
+        animate: true,
+        scale: 3
+    });
+
+    monster.unkillable = true;
+
+    caveBattleMonsters.push(monster);
+
+    gsap.to(monster.position, {
         x: player.position.x,
         y: player.position.y,
         duration: 1.5,
+
         onComplete: () => {
-            caveBattleMonsters[caveBattleMonsters.length - 1].unkillable = false;
+            monster.unkillable = false;
         }
-    })
+    });
 }
 
 function updateBossPahse() {
@@ -736,8 +776,8 @@ document.querySelector('#startBossFight').addEventListener('click', () => {
             cooldown = 1000;
 
             // start game
-            summonLoop();
             startBattle = true; // so the player will be able to move
+            summonLoop();
         }
     });
 })
@@ -746,6 +786,7 @@ document.querySelector('#startBossFight').addEventListener('click', () => {
 document.querySelector('#continueButton').addEventListener('click', () => {
     endBattle = false; // so we will not see the result when fade
     exitBattle = true; // so we will return to the cave
+    startBattle = false; // battle finish
 
     // hide the battle result
     document.querySelector("#bossOverlay").style.display = "none";
@@ -773,7 +814,7 @@ document.querySelector('#continueButton').addEventListener('click', () => {
     // Reset the cooldown back to 700
     cooldown = 700;
 
-    //
+    // set a timer of 30 seconds before changing back the "enter battle" variable to true so the player will  be abke to enter again
     setTimeout(() => {
         enterBattle = false;
     }, 30000)

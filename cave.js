@@ -741,6 +741,8 @@ function cave() {
             if (!enterBattle && canEnterCaveBattle) {
                 // So that the exit from the cave only happens once and not every frame until he exits.
                 enterBattle = true; 
+                // So that we don't leave the cave immediately after entering
+                exitBattle = false;
 
                 // ENTER BATTLE
                 // deactivate current animation loop
