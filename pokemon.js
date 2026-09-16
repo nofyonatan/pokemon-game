@@ -394,6 +394,7 @@ let lives = 3; // the amount of lives player has
 let maxLives = 3; // the max amount of lives player can have.
 createHealthBar();
 updatePlayerHealthBar();
+let playerDead = false; // A variable that represent whether player is dead or not
 let InfiniteAmmo = false; // A variable that represent whether player has infinite ammo or not
 let pastNumberOfammo; // A variable that represent how much ammo player had in the past
 let numberOfammo = 5; // the amount of ammo player have
@@ -1362,6 +1363,48 @@ const Achievements = {
             title: "Ammunition collection",
             description: "Buy 20 bullets",
             unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("restore5HP");
+                }, 4000)
+            }
+        },
+
+        {
+            id: "restore5HP",
+            icon: "❤️",
+            title: "Not Dead Yet",
+            description: "Recover 5 HP",
+            unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("increaseMaxHP");
+                }, 4000)
+            }
+        },
+
+        {
+            id: "increaseMaxHP",
+            icon: "💪",
+            title: "Unstoppable",
+            description: "Increase your max HP by 3",
+            unlocked: false,
+            visible: false,
+            action: () => {
+                setTimeout(() => {
+                    newAchievement("buyPotion");
+                }, 4000)
+            }
+        },
+
+        {
+            id: "buyPotion",
+            icon: "🧪",
+            title: "A real scientist",
+            description: "Buy your first potion",
+            unlocked: false,
             visible: false
         }
     ],
@@ -1734,996 +1777,1022 @@ function animate() {
     // draw foreground
     foregorond.draw();
 
-    // ACHIEVEMENTS CHECK 
-    checkAchievements();
+    if (!playerDead) {
+        // ACHIEVEMENTS CHECK 
+        checkAchievements();
 
-    // ACTIVE A BATTLE
-    if (battle.initiated) return; // if we allready strated a battle we don't want the player to move
-    // active a battle
-    if (keys.w.pressed || keys.a.pressed || keys.s.pressed || keys.d.pressed) {
-        // check collisoin with battle zones
-        for (let i = 0; i < battleZones.length; i++) {
-            const battleZone = battleZones[i];
-            const overlappingArea = (Math.min(player.position.x + player.width, battleZone.position.x + battleZone.width) -
-                                    Math.max(player.position.x, battleZone.position.x)) *
-                                    (Math.min(player.position.y + player.height, battleZone.position.y + battleZone.height) -
-                                    Math.max(player.position.y, battleZone.position.y));
+        // ACTIVE A BATTLE
+        if (battle.initiated) return; // if we allready strated a battle we don't want the player to move
+        // active a battle
+        if (keys.w.pressed || keys.a.pressed || keys.s.pressed || keys.d.pressed) {
+            // check collisoin with battle zones
+            for (let i = 0; i < battleZones.length; i++) {
+                const battleZone = battleZones[i];
+                const overlappingArea = (Math.min(player.position.x + player.width, battleZone.position.x + battleZone.width) -
+                                        Math.max(player.position.x, battleZone.position.x)) *
+                                        (Math.min(player.position.y + player.height, battleZone.position.y + battleZone.height) -
+                                        Math.max(player.position.y, battleZone.position.y));
 
-            if (
-                rectangularCollision({
-                    rectangle1: player,
-                    rectangle2: battleZone
-                }) &&
-                overlappingArea > (player.width * player.height) / 2
-                && Math.random() < 0.01
-            ) {
+                if (
+                    rectangularCollision({
+                        rectangle1: player,
+                        rectangle2: battleZone
+                    }) &&
+                    overlappingArea > (player.width * player.height) / 2
+                    && Math.random() < 0.01
+                ) {
 
-                // deactivate current animation loop
-                window.cancelAnimationFrame(animationId);
+                    // deactivate current animation loop
+                    window.cancelAnimationFrame(animationId);
 
-                document.querySelector(".playerState").style.display = "none";
-                document.querySelector("#achievementButton").style.display = "none";
+                    document.querySelector(".playerState").style.display = "none";
+                    document.querySelector("#achievementButton").style.display = "none";
 
-                // stop map music, and start battle music
-                audio.map.stop();
-                audio.map.seek(0);
-                audio.initBattle.play();
-                audio.battle.play();
+                    // stop map music, and start battle music
+                    audio.map.stop();
+                    audio.map.seek(0);
+                    audio.initBattle.play();
+                    audio.battle.play();
 
-                battle.initiated = true;
+                    battle.initiated = true;
 
-                // fade
-                gsap.to('#blackDiv', {
-                    opacity: 1, 
-                    repeat: 3, 
-                    yoyo: true, // make a smooth fade
-                    duration: 0.4, // each fade take 0.4 secondes
-                    onComplete() { // when the all the fades finish stop fade and don't show nothing
-                        gsap.to('#blackDiv', {
-                            opacity: 1,
-                            duration: 0.4,
-                            onComplete() {
-                                // active a new animation loop
-                                initBattle();
-                                animateBattle();
-                                gsap.to('#blackDiv', {
-                                    opacity: 0,
-                                    duration: 0.4,
-                                })
-                            }
-                        })
-                    }
-                });
-                break;
+                    // fade
+                    gsap.to('#blackDiv', {
+                        opacity: 1, 
+                        repeat: 3, 
+                        yoyo: true, // make a smooth fade
+                        duration: 0.4, // each fade take 0.4 secondes
+                        onComplete() { // when the all the fades finish stop fade and don't show nothing
+                            gsap.to('#blackDiv', {
+                                opacity: 1,
+                                duration: 0.4,
+                                onComplete() {
+                                    // active a new animation loop
+                                    initBattle();
+                                    animateBattle();
+                                    gsap.to('#blackDiv', {
+                                        opacity: 0,
+                                        duration: 0.4,
+                                    })
+                                }
+                            })
+                        }
+                    });
+                    break;
+                }
             }
         }
-    }
 
-    // COLLISION
-    let talkingToSomeone = false; // A variable that represent if player talking to someone
-    // check if player collide with character number 2
-    if (rectangularCollision({
-        rectangle1: player, 
-        rectangle2: player2
-    })) {
-        // If player has not yet met this character then the number of people the player has met should increase.
-        if (!playerMeetings.player2) {
-            numberPeoplePlayerMeet++;
-            playerMeetings.player2 = true;
-        }
-
-        // player is talking to someone
-        talkingToSomeone = true;
-
-        // If the dialogue is not already open - open it
-        if (!openDialogue) {
-            openCharacterDialogue(
-                "Adam",
-                [
-                    {
-                        type: "text",
-                        text: "Hello! My name is Adam."
-                    },
-                    {
-                        type: "text",
-                        text: "How can I help you?"
-                    },
-                    {
-                        type: "text",
-                        text: "Feel free to enter my house!"
-                    }
-                ],
-                true
-            );
-        }
-
-        // there is collision with player 2
-        collisionPlayer1Player2 = true;
-    } else {
-        collisionPlayer1Player2 = false;
-    }
-
-    // check if player collide with character number 3
-    if (rectangularCollision({
-        rectangle1: player, 
-        rectangle2: player3
-    })) {
-        // If  player has not yet met this character then the number of people the player has met should increase.
-        if (!playerMeetings.player3) {
-            numberPeoplePlayerMeet++;
-            playerMeetings.player3 = true;
-        }
-
-        // player is talking to someone
-        talkingToSomeone = true;
-        
-        // player 3 needs to stop moving
-        player3moving = false;
-
-        // If the dialogue is not already open - open it
-        if (!openDialogue) {
-            openCharacterDialogue(
-                "Bob",
-                [
-                    {
-                        type: "text",
-                        text: "Hi!"
-                    },
-                    {
-                        type: "text",
-                        text: "Would you like to join me for a walk?"
-                    },
-                    {
-                        type: "text",
-                        text: "It's a perfect day!"
-                    }
-                ]
-            );
-        }
-    } else {
-        // player 3 can continue moving
-        player3moving = true;
-    }
-
-    // check collision between player and player 4
-    if (rectangularCollision({
-        rectangle1: player,
-        rectangle2: player4
-    })) {
-        // if can be a dialogue with player 4 - show dialogue
-        if (dialoguePlayer4) {
-            // If  player has not yet met this character then the number of people the player has met should increase.
-            if (!playerMeetings.player4) {
+        // COLLISION
+        let talkingToSomeone = false; // A variable that represent if player talking to someone
+        // check if player collide with character number 2
+        if (rectangularCollision({
+            rectangle1: player, 
+            rectangle2: player2
+        })) {
+            // If player has not yet met this character then the number of people the player has met should increase.
+            if (!playerMeetings.player2) {
                 numberPeoplePlayerMeet++;
-                playerMeetings.player4 = true;
+                playerMeetings.player2 = true;
             }
 
             // player is talking to someone
             talkingToSomeone = true;
 
-            // unlock achievemnt number 3
-            unlockAchievement("talkToRob");    
-
-            // open dialogue with player 4
             // If the dialogue is not already open - open it
             if (!openDialogue) {
-                playerTalkingWithPlayer4 = true // player is currently talking with player 4
-
-                if (!achievementRetureRobChickenComplete) {
-                    openCharacterDialogue(
-                        "Rob",
-                        [
-                            // 0
-                            {
-                                type: "text",
-                                text: "Hey, how are you?"
-                            },
-
-                            // 1
-                            {
-                                type: "text",
-                                text: "My name is Rob, I need your help."
-                            },
-
-                            // 2
-                            {
-                                type: "text",
-                                text: "I lost a chicken... I have to find it!"
-                            }
-                        ]
-                    );
-                } else {
-                    openCharacterDialogue(
-                        "Rob",
-                        [
-                            // 0
-                            {
-                                type: "text",
-                                text: "Oh thank God you found it."
-                            },
-
-                            // 1
-                            {
-                                type: "text",
-                                text: "I thank you so much! Here's something for you..."
-                            }
-                        ]
-                    );
-                }
+                openCharacterDialogue(
+                    "Adam",
+                    [
+                        {
+                            type: "text",
+                            text: "Hello! My name is Adam."
+                        },
+                        {
+                            type: "text",
+                            text: "How can I help you?"
+                        },
+                        {
+                            type: "text",
+                            text: "Feel free to enter my house!"
+                        }
+                    ],
+                    true
+                );
             }
 
+            // there is collision with player 2
+            collisionPlayer1Player2 = true;
+        } else {
+            collisionPlayer1Player2 = false;
         }
 
-    } 
-
-    // check collision between player to player 6
-    if (rectangularCollision({
-        rectangle1: player,
-        rectangle2: player6
-    })) {   
-        if (canDialogueWithPlayer6) {
+        // check if player collide with character number 3
+        if (rectangularCollision({
+            rectangle1: player, 
+            rectangle2: player3
+        })) {
             // If  player has not yet met this character then the number of people the player has met should increase.
-            if (!playerMeetings.player6) {
+            if (!playerMeetings.player3) {
                 numberPeoplePlayerMeet++;
-                playerMeetings.player6 = true;
+                playerMeetings.player3 = true;
             }
-
-            // player is talking with player 6 at the moment
-            playerIsTalkingWithPlayer6 = true;
 
             // player is talking to someone
             talkingToSomeone = true;
             
-            // Open the dialogue only if it is not already open
+            // player 3 needs to stop moving
+            player3moving = false;
+
+            // If the dialogue is not already open - open it
             if (!openDialogue) {
-                if (!playerEnterTheCave && !playerRefusedToEnterTheCave) {
-                    openCharacterDialogue(
-                        "Fisherman",
-                        player6Dialogue
-                    );
+                openCharacterDialogue(
+                    "Bob",
+                    [
+                        {
+                            type: "text",
+                            text: "Hi!"
+                        },
+                        {
+                            type: "text",
+                            text: "Would you like to join me for a walk?"
+                        },
+                        {
+                            type: "text",
+                            text: "It's a perfect day!"
+                        }
+                    ]
+                );
+            }
+        } else {
+            // player 3 can continue moving
+            player3moving = true;
+        }
+
+        // check collision between player and player 4
+        if (rectangularCollision({
+            rectangle1: player,
+            rectangle2: player4
+        })) {
+            // if can be a dialogue with player 4 - show dialogue
+            if (dialoguePlayer4) {
+                // If  player has not yet met this character then the number of people the player has met should increase.
+                if (!playerMeetings.player4) {
+                    numberPeoplePlayerMeet++;
+                    playerMeetings.player4 = true;
                 }
-                else if (playerEnterTheCave) {
-                    playerEnterTheCave = false;
-                    dialogueWithPlayer6AfterEnterCaveOpen = true;
-                    openCharacterDialogue(
-                        "Fisherman",
-                        player6DialogueAfterCave
-                    );
+
+                // player is talking to someone
+                talkingToSomeone = true;
+
+                // unlock achievemnt number 3
+                unlockAchievement("talkToRob");    
+
+                // open dialogue with player 4
+                // If the dialogue is not already open - open it
+                if (!openDialogue) {
+                    playerTalkingWithPlayer4 = true // player is currently talking with player 4
+
+                    if (!achievementRetureRobChickenComplete) {
+                        openCharacterDialogue(
+                            "Rob",
+                            [
+                                // 0
+                                {
+                                    type: "text",
+                                    text: "Hey, how are you?"
+                                },
+
+                                // 1
+                                {
+                                    type: "text",
+                                    text: "My name is Rob, I need your help."
+                                },
+
+                                // 2
+                                {
+                                    type: "text",
+                                    text: "I lost a chicken... I have to find it!"
+                                }
+                            ]
+                        );
+                    } else {
+                        openCharacterDialogue(
+                            "Rob",
+                            [
+                                // 0
+                                {
+                                    type: "text",
+                                    text: "Oh thank God you found it."
+                                },
+
+                                // 1
+                                {
+                                    type: "text",
+                                    text: "I thank you so much! Here's something for you..."
+                                }
+                            ]
+                        );
+                    }
                 }
-                else if (playerRefusedToEnterTheCave) {
-                    playerRefusedToEnterTheCave = false;
-                    dialogueWithPlayer6AfterRefuseEnterCaveOpened = true;
+
+            }
+
+        } 
+
+        // check collision between player to player 6
+        if (rectangularCollision({
+            rectangle1: player,
+            rectangle2: player6
+        })) {   
+            if (canDialogueWithPlayer6) {
+                // If  player has not yet met this character then the number of people the player has met should increase.
+                if (!playerMeetings.player6) {
+                    numberPeoplePlayerMeet++;
+                    playerMeetings.player6 = true;
+                }
+
+                // player is talking with player 6 at the moment
+                playerIsTalkingWithPlayer6 = true;
+
+                // player is talking to someone
+                talkingToSomeone = true;
+                
+                // Open the dialogue only if it is not already open
+                if (!openDialogue) {
+                    if (!playerEnterTheCave && !playerRefusedToEnterTheCave) {
+                        openCharacterDialogue(
+                            "Fisherman",
+                            player6Dialogue
+                        );
+                    }
+                    else if (playerEnterTheCave) {
+                        playerEnterTheCave = false;
+                        dialogueWithPlayer6AfterEnterCaveOpen = true;
+                        openCharacterDialogue(
+                            "Fisherman",
+                            player6DialogueAfterCave
+                        );
+                    }
+                    else if (playerRefusedToEnterTheCave) {
+                        playerRefusedToEnterTheCave = false;
+                        dialogueWithPlayer6AfterRefuseEnterCaveOpened = true;
+                        openCharacterDialogue(
+                            "Fisherman",
+                            player6DialogueAfterRefuseEnterCave
+                        );
+                    }
+                }
+            }
+        } 
+
+        // check collison between player and player 7
+        if (rectangularCollision({
+            rectangle1: player,
+            rectangle2: player7
+        })) {
+            // If  player has not yet met this character then the number of people the player has met should increase.
+            if (!playerMeetings.player7) {
+                numberPeoplePlayerMeet++;
+                playerMeetings.player7 = true;
+            }
+
+            // player is talking to someone
+            talkingToSomeone = true;
+
+            if (!openDialogue) {
+                if (!playerEnteredBar) {
                     openCharacterDialogue(
-                        "Fisherman",
-                        player6DialogueAfterRefuseEnterCave
+                        "Barman",
+                        player7Dialogue
+                    );
+                } else {
+                    openCharacterDialogue(
+                        "Barman",
+                        player7Dialogue2,
+                        false,
+                        true
                     );
                 }
             }
-        }
-    } 
+        } 
 
-    // check collison between player and player 7
-    if (rectangularCollision({
-        rectangle1: player,
-        rectangle2: player7
-    })) {
-        // If  player has not yet met this character then the number of people the player has met should increase.
-        if (!playerMeetings.player7) {
-            numberPeoplePlayerMeet++;
-            playerMeetings.player7 = true;
-        }
+        if (!talkingToSomeone) {
+            // // hide dialogue
+            // document.querySelector('#charactersDialogueBox').style.display = "none";
+            // // hide house icon
+            // document.querySelector('#houseDialogue').style.display = "none";
+            // // delete the text in the dialogue
+            // document.querySelector('#dialogueText').innerText = "";
+            // // dialogue is not already open
+            openDialogue = false;
+            closeDialogue();
 
-        // player is talking to someone
-        talkingToSomeone = true;
-
-        if (!openDialogue) {
-            if (!playerEnteredBar) {
-                openCharacterDialogue(
-                    "Barman",
-                    player7Dialogue
-                );
-            } else {
-                openCharacterDialogue(
-                    "Barman",
-                    player7Dialogue2,
-                    false,
-                    true
-                );
+            if (dialogueWithPlayer6AfterEnterCaveOpen) {
+                dialogueWithPlayer6AfterEnterCaveOpen = false;
+                playerEnterTheCave = true;
+            }
+            else if (dialogueWithPlayer6AfterRefuseEnterCaveOpened) {
+                dialogueWithPlayer6AfterRefuseEnterCaveOpened = false;
+                playerRefusedToEnterTheCave = true;
             }
         }
-    } 
-
-    if (!talkingToSomeone) {
-        // // hide dialogue
-        // document.querySelector('#charactersDialogueBox').style.display = "none";
-        // // hide house icon
-        // document.querySelector('#houseDialogue').style.display = "none";
-        // // delete the text in the dialogue
-        // document.querySelector('#dialogueText').innerText = "";
-        // // dialogue is not already open
-        openDialogue = false;
-        closeDialogue();
-
-        if (dialogueWithPlayer6AfterEnterCaveOpen) {
-            dialogueWithPlayer6AfterEnterCaveOpen = false;
-            playerEnterTheCave = true;
-        }
-        else if (dialogueWithPlayer6AfterRefuseEnterCaveOpened) {
-            dialogueWithPlayer6AfterRefuseEnterCaveOpened = false;
-            playerRefusedToEnterTheCave = true;
-        }
-    }
 
 
-    // check collision between player and Rob chicken
-    if (rectangularCollision({
-        rectangle1: player,
-        rectangle2: RobChicken
-    })) {
-        // show its Rob's chicken
-        document.querySelector('#RobChickenText').style.display = "block";
-        document.querySelector('#RobChickenText').style.left = RobChicken.position.x - 15 + "px";
-        document.querySelector('#RobChickenText').style.top = RobChicken.position.y - 5 + "px";
+        // check collision between player and Rob chicken
+        if (rectangularCollision({
+            rectangle1: player,
+            rectangle2: RobChicken
+        })) {
+            // show its Rob's chicken
+            document.querySelector('#RobChickenText').style.display = "block";
+            document.querySelector('#RobChickenText').style.left = RobChicken.position.x - 15 + "px";
+            document.querySelector('#RobChickenText').style.top = RobChicken.position.y - 5 + "px";
 
-        if (!achievementRetureRobChickenComplete && findAchievement("findRobChicken").visible) {
-            document.querySelector('#catchRobChicken').style.display = "block";
-            document.querySelector('#catchRobChicken').style.left = player.position.x - 13 + "px";
-            document.querySelector('#catchRobChicken').style.top = player.position.y + 50 + "px";
+            if (!achievementRetureRobChickenComplete && findAchievement("findRobChicken").visible) {
+                document.querySelector('#catchRobChicken').style.display = "block";
+                document.querySelector('#catchRobChicken').style.left = player.position.x - 13 + "px";
+                document.querySelector('#catchRobChicken').style.top = player.position.y + 50 + "px";
 
-            collisionPlayerRobChicken = true;
+                collisionPlayerRobChicken = true;
+            }
+
+        } else {
+            document.querySelector('#RobChickenText').style.display = "none";
+            if (!achievementRetureRobChickenComplete) {
+                document.querySelector('#catchRobChicken').style.display = "none";
+            }
         }
 
-    } else {
-        document.querySelector('#RobChickenText').style.display = "none";
-        if (!achievementRetureRobChickenComplete) {
-            document.querySelector('#catchRobChicken').style.display = "none";
+        // check collision between each projectile to each enemy
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            for (let j = enemies.length - 1; j >= 0; j--) {
+                const projectile = projectiles[i];
+                const enemy = enemies[j];
+
+                // if enemy not alive continue to another loop
+                if (!enemy.about.alive) continue;
+
+                if (hitboxCollision({
+                    enemy: enemy,
+                    rectangle2: projectile
+                })) {
+                    // enemy not alive (you can't see him)
+                    enemy.about.alive = false
+
+                    // delete the projectile
+                    projectiles.splice(i, 1);    
+
+                    // increase the varible that represent how many slimes player has killed
+                    numberOfSlimesPlayerKilled++
+
+                    // create a coin where we killed the enemy
+                    coins.push(
+                        new Sprite({
+                            position: {
+                                x: enemy.position.x + enemy.width / 2 - 7,
+                                y: enemy.position.y + enemy.height / 2 - 7
+                            },
+                            image: coinImage,
+                            scale: 1.5
+                        })
+                    )
+
+                    // after 10 seconds the enemy respawn
+                    setTimeout(() => {
+                        respawnEnemy(enemy);
+                    }, 10000)
+
+                    break;
+                }
+            }
         }
-    }
 
-    // check collision between each projectile to each enemy
-    for (let i = projectiles.length - 1; i >= 0; i--) {
-        for (let j = enemies.length - 1; j >= 0; j--) {
-            const projectile = projectiles[i];
-            const enemy = enemies[j];
+        // check collision between projectiles to boundaries
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            for (let j = 0; j < boundaries.length; j++) {
+                const projectile = projectiles[i];
+                const boundary = boundaries[j];
 
-            // if enemy not alive continue to another loop
+                if (!projectile) continue;
+
+                if (rectangularCollision({
+                    rectangle1: projectile,
+                    rectangle2: boundary
+                })) {
+                    // delete projectile
+                    projectiles.splice(i, 1);
+                }
+            }
+        }
+
+        // check collision between each enemy to the player
+        for (let i = enemies.length - 1; i >= 0; i--) {
+            const enemy = enemies[i];
+
             if (!enemy.about.alive) continue;
 
             if (hitboxCollision({
                 enemy: enemy,
-                rectangle2: projectile
+                rectangle2: player
             })) {
-                // enemy not alive (you can't see him)
-                enemy.about.alive = false
+                enemy.about.alive = false;
+                if (lives > 0 && !playerInvincible) {
+                    lives -= 1;
+                    if (lives <= 0) {
+                        handlePlayerDeath();
+                    }
+                    updatePlayerHealthBar();
+                }
 
-                // delete the projectile
-                projectiles.splice(i, 1);    
-
-                // increase the varible that represent how many slimes player has killed
-                numberOfSlimesPlayerKilled++
-
-                // create a coin where we killed the enemy
-                coins.push(
-                    new Sprite({
-                        position: {
-                            x: enemy.position.x + enemy.width / 2 - 7,
-                            y: enemy.position.y + enemy.height / 2 - 7
-                        },
-                        image: coinImage,
-                        scale: 1.5
-                    })
-                )
-
-                // after 10 seconds the enemy respawn
                 setTimeout(() => {
                     respawnEnemy(enemy);
                 }, 10000)
-
-                break;
             }
         }
-    }
 
-    // check collision between projectiles to boundaries
-    for (let i = projectiles.length - 1; i >= 0; i--) {
-        for (let j = 0; j < boundaries.length; j++) {
-            const projectile = projectiles[i];
-            const boundary = boundaries[j];
-
-            if (!projectile) continue;
+        // check collisoin betwwen player to a coin
+        for (let i = 0; i < coins.length; i++) {
+            const coin = coins[i];
 
             if (rectangularCollision({
-                rectangle1: projectile,
-                rectangle2: boundary
+                rectangle1: player,
+                rectangle2: coin
             })) {
-                // delete projectile
-                projectiles.splice(i, 1);
+                coins.splice(i, 1);
+
+                if (playerDoubleCoins) {
+                    numberOfCoins += 2;
+                } else {
+                    numberOfCoins += 1;
+                }
+                
+                updatePlayerCoins();
             }
         }
-    }
 
-    // check collision between each enemy to the player
-    for (let i = enemies.length - 1; i >= 0; i--) {
-        const enemy = enemies[i];
+        if (getIntoCave) {
+            // deactivate current animation loop
+            window.cancelAnimationFrame(animationId);
 
-        if (!enemy.about.alive) continue;
+            // don't let the player start map music
+            clicked = true;
 
-        if (hitboxCollision({
-            enemy: enemy,
-            rectangle2: player
-        })) {
-            enemy.about.alive = false;
-            if (lives > 0 && !playerInvincible) {
-                lives -= 1;
-                updatePlayerHealthBar();
-            }
-            setTimeout(() => {
-                respawnEnemy(enemy);
-            }, 10000)
-        }
-    }
+            // So that when the player returns, he won't go straight into the cave again.
+            getIntoCave = false;
 
-    // check collisoin betwwen player to a coin
-    for (let i = 0; i < coins.length; i++) {
-        const coin = coins[i];
+            // unlocked achievement if enter the cave
+            unlockAchievement("enterCave");
 
-        if (rectangularCollision({
-            rectangle1: player,
-            rectangle2: coin
-        })) {
-            coins.splice(i, 1);
+            // stop map music
+            audio.map.stop();
+            audio.map.seek(0); // restart music
 
-            if (playerDoubleCoins) {
-                numberOfCoins += 2;
-            } else {
-                numberOfCoins += 1;
-            }
-            
-            updatePlayerCoins();
-        }
-    }
+            // hide dialogue
+            document.querySelector('#character6Dialogue').style.display = "none";
 
-    if (getIntoCave) {
-        // deactivate current animation loop
-        window.cancelAnimationFrame(animationId);
-
-        // don't let the player start map music
-        clicked = true;
-
-        // So that when the player returns, he won't go straight into the cave again.
-        getIntoCave = false;
-
-        // unlocked achievement if enter the cave
-        unlockAchievement("enterCave");
-
-        // stop map music
-        audio.map.stop();
-        audio.map.seek(0); // restart music
-
-        // hide dialogue
-        document.querySelector('#character6Dialogue').style.display = "none";
-
-        // fade
-        gsap.to('#blackDiv', {
-            opacity: 1, 
-            repeat: 3, 
-            yoyo: true, // make a smooth fade
-            duration: 0.4, // each fade take 0.4 secondes
-            onComplete() { // when the all the fades finish stop fade and don't show nothing
-                gsap.to('#blackDiv', {
-                    opacity: 1,
-                    duration: 0.4,
-                    onComplete() {
-                        // active a new animation loop
-                        player.image = player.sprites.down;
-                        //start cave music
-                        audio.cave.play();
-                        // start the cave function
-                        initcave();
-                        cave();
-                        // The player cannot leave the cave for a few seconds after entering.
-                        CanGetOutCave = false;
-                        // So the player can exit the cave
-                        leavingCave = false;
-                        // show screen
-                        gsap.to('#blackDiv', {
-                            opacity: 0,
-                            duration: 0.4,
-                        })
-                    }
-                })
-            }
-        });
-    }
-
-    // MOVEMENT
-    let moving = true; // A varible to check whenever we should move or not
-    player.animate = false; // 'true' when the player is moving and need to change frame
-
-    // "move" player (Move everything except the player to create the feeling that the player is moving)
-    if (keys.w.pressed && lastKey === 'w') {
-        player.animate  = true;
-        player.image = player.sprites.up;
-
-        // if player bought the speed boost potion he should have blue outline around him
-        if (playerSpeedBoost) {
-            player.image = player.sprites.speedBoost.up;
-        }
-
-        // check collision with things on the map(except battle zones)
-        for (let i = 0; i < boundaries.length; i++) {
-            const Boundary = boundaries[i];
-            if (
-                rectangularCollision({
-                    rectangle1: player,
-                    rectangle2: {...Boundary,
-                        position: {
-                            x: Boundary.position.x,
-                            y: Boundary.position.y + velocity
+            // fade
+            gsap.to('#blackDiv', {
+                opacity: 1, 
+                repeat: 3, 
+                yoyo: true, // make a smooth fade
+                duration: 0.4, // each fade take 0.4 secondes
+                onComplete() { // when the all the fades finish stop fade and don't show nothing
+                    gsap.to('#blackDiv', {
+                        opacity: 1,
+                        duration: 0.4,
+                        onComplete() {
+                            // active a new animation loop
+                            player.image = player.sprites.down;
+                            //start cave music
+                            audio.cave.play();
+                            // start the cave function
+                            initcave();
+                            cave();
+                            // The player cannot leave the cave for a few seconds after entering.
+                            CanGetOutCave = false;
+                            // So the player can exit the cave
+                            leavingCave = false;
+                            // show screen
+                            gsap.to('#blackDiv', {
+                                opacity: 0,
+                                duration: 0.4,
+                            })
                         }
-                    }
-                })
-            ) {
-                moving = false;
-                break;
+                    })
+                }
+            });
+        }
+
+        // MOVEMENT
+        let moving = true; // A varible to check whenever we should move or not
+        player.animate = false; // 'true' when the player is moving and need to change frame
+
+        // "move" player (Move everything except the player to create the feeling that the player is moving)
+        if (keys.w.pressed && lastKey === 'w') {
+            player.animate  = true;
+            player.image = player.sprites.up;
+
+            // if player bought the speed boost potion he should have blue outline around him
+            if (playerSpeedBoost) {
+                player.image = player.sprites.speedBoost.up;
             }
-        }
 
-        if (moving) {
-            movables.forEach((movable) => {
-                movable.position.y += velocity;
-            })
-        }
-    }
-    else if (keys.a.pressed && lastKey === 'a') {
-        player.animate  = true;
-        player.image = player.sprites.left;
-
-        // if player bought the speed boost potion he should have blue outline around him
-        if (playerSpeedBoost) {
-            player.image = player.sprites.speedBoost.left;
-        }
-
-        // if player claimed the hat, also change the sprite of the hat to adjust the direction player is walking
-        if (playerClaimHat) {
-            hat.image = hat.sprites.left;
-        }
-
-        // check collision with things on the map(except battle zones)
-        for (let i = 0; i < boundaries.length; i++) {
-            const Boundary = boundaries[i];
-            if (
-                rectangularCollision({
-                    rectangle1: player,
-                    rectangle2: {...Boundary,
-                        position: {
-                            x: Boundary.position.x + velocity,
-                            y: Boundary.position.y
+            // check collision with things on the map(except battle zones)
+            for (let i = 0; i < boundaries.length; i++) {
+                const Boundary = boundaries[i];
+                if (
+                    rectangularCollision({
+                        rectangle1: player,
+                        rectangle2: {...Boundary,
+                            position: {
+                                x: Boundary.position.x,
+                                y: Boundary.position.y + velocity
+                            }
                         }
-                    }
+                    })
+                ) {
+                    moving = false;
+                    break;
+                }
+            }
+
+            if (moving) {
+                movables.forEach((movable) => {
+                    movable.position.y += velocity;
                 })
-            ) {
-                moving = false;
-                break;
             }
         }
+        else if (keys.a.pressed && lastKey === 'a') {
+            player.animate  = true;
+            player.image = player.sprites.left;
 
-        if (moving) {
-            movables.forEach((movable) => {
-                movable.position.x += velocity;
-            })            
-        }
-    }
-    else if (keys.s.pressed && lastKey === 's') {
-        player.animate  = true;
-        player.image = player.sprites.down;
+            // if player bought the speed boost potion he should have blue outline around him
+            if (playerSpeedBoost) {
+                player.image = player.sprites.speedBoost.left;
+            }
 
-        // if player bought the speed boost potion he should have blue outline around him
-        if (playerSpeedBoost) {
-            player.image = player.sprites.speedBoost.down;
-        }
+            // if player claimed the hat, also change the sprite of the hat to adjust the direction player is walking
+            if (playerClaimHat) {
+                hat.image = hat.sprites.left;
+            }
 
-        // check collision with things on the map(except battle zones)
-        for (let i = 0; i < boundaries.length; i++) {
-            const Boundary = boundaries[i];
-            if (
-                rectangularCollision({
-                    rectangle1: player,
-                    rectangle2: {...Boundary,
-                        position: {
-                            x: Boundary.position.x,
-                            y: Boundary.position.y - velocity
+            // check collision with things on the map(except battle zones)
+            for (let i = 0; i < boundaries.length; i++) {
+                const Boundary = boundaries[i];
+                if (
+                    rectangularCollision({
+                        rectangle1: player,
+                        rectangle2: {...Boundary,
+                            position: {
+                                x: Boundary.position.x + velocity,
+                                y: Boundary.position.y
+                            }
                         }
-                    }
-                })
-            ) {
-                moving = false;
-                break;
+                    })
+                ) {
+                    moving = false;
+                    break;
+                }
+            }
+
+            if (moving) {
+                movables.forEach((movable) => {
+                    movable.position.x += velocity;
+                })            
             }
         }
+        else if (keys.s.pressed && lastKey === 's') {
+            player.animate  = true;
+            player.image = player.sprites.down;
 
-        if (moving) {
-            movables.forEach((movable) => {
-                movable.position.y -= velocity;
-            })
-        }
-    } 
-    else if (keys.d.pressed && lastKey === 'd') {
-        player.animate  = true;
-        player.image = player.sprites.right;
+            // if player bought the speed boost potion he should have blue outline around him
+            if (playerSpeedBoost) {
+                player.image = player.sprites.speedBoost.down;
+            }
 
-        // if player bought the speed boost potion he should have blue outline around him
-        if (playerSpeedBoost) {
-            player.image = player.sprites.speedBoost.right;
+            // check collision with things on the map(except battle zones)
+            for (let i = 0; i < boundaries.length; i++) {
+                const Boundary = boundaries[i];
+                if (
+                    rectangularCollision({
+                        rectangle1: player,
+                        rectangle2: {...Boundary,
+                            position: {
+                                x: Boundary.position.x,
+                                y: Boundary.position.y - velocity
+                            }
+                        }
+                    })
+                ) {
+                    moving = false;
+                    break;
+                }
+            }
+
+            if (moving) {
+                movables.forEach((movable) => {
+                    movable.position.y -= velocity;
+                })
+            }
         } 
+        else if (keys.d.pressed && lastKey === 'd') {
+            player.animate  = true;
+            player.image = player.sprites.right;
 
-        // if player claimed the hat, also change the sprite of the hat to adjust the direction player is walking
-        if (playerClaimHat) {
-            hat.image = hat.sprites.right;
-        }
+            // if player bought the speed boost potion he should have blue outline around him
+            if (playerSpeedBoost) {
+                player.image = player.sprites.speedBoost.right;
+            } 
 
-        // check collision with things on the map(except battle zones)
-        for (let i = 0; i < boundaries.length; i++) {
-            const Boundary = boundaries[i];
-            if (
-                rectangularCollision({
-                    rectangle1: player,
-                    rectangle2: {...Boundary,
-                        position: {
-                            x: Boundary.position.x - velocity,
-                            y: Boundary.position.y
+            // if player claimed the hat, also change the sprite of the hat to adjust the direction player is walking
+            if (playerClaimHat) {
+                hat.image = hat.sprites.right;
+            }
+
+            // check collision with things on the map(except battle zones)
+            for (let i = 0; i < boundaries.length; i++) {
+                const Boundary = boundaries[i];
+                if (
+                    rectangularCollision({
+                        rectangle1: player,
+                        rectangle2: {...Boundary,
+                            position: {
+                                x: Boundary.position.x - velocity,
+                                y: Boundary.position.y
+                            }
                         }
-                    }
-                })
-            ) {
-                moving = false;
-                break;
-            }
-        }
-        
-        if (moving) {
-            movables.forEach((movable) => {
-                movable.position.x -= velocity;
-            })
-        }
-    } 
-    else if (enterPlayer2House) {
-        // deactivate current animation loop
-        window.cancelAnimationFrame(animationId);
-
-        // if this is the first time player has entered the house unlock the achievement of entering a house
-        unlockAchievement("enterHouse");
-
-        // fade
-        gsap.to('#blackDiv', {
-            opacity: 1, 
-            repeat: 3, 
-            yoyo: true, // make a smooth fade
-            duration: 0.4, // each fade take 0.4 secondes
-            onComplete() { // when the all the fades finish stop fade and don't show nothing
-                gsap.to('#blackDiv', {
-                    opacity: 1,
-                    duration: 0.4,
-                    onComplete() {
-                        // active a new animation loop
-                        // save player 1 and player 2 and hat position
-                        pastPlayerPosition.x = player.position.x;
-                        pastPlayerPosition.y = player.position.y;
-                        pastPlayer2Position.x = player2.position.x;
-                        pastPlayer2Position.y = player2.position.y;
-                        pastHatPosition.x = hat.position.x;
-                        pastHatPosition.y = hat.position.y;
-                        // change player 1 and player 2 position
-                        player.position.x = 504;
-                        player.position.y = 544;
-                        player2.position.x = 484;
-                        player2.position.y = 324;
-                        hat.position.x = player.position.x - 5;
-                        hat.position.y = player.position.y - 12;
-
-                        // hide big player health bar and show a small button instand
-                        hidePlayerState();
-                        showHealthButton();
-
-                        // Move the achievements button so it doesn't cover the health bar
-                        document.querySelector('#achievementButton').style.left = 5 + "px";
-                        document.querySelector('#achievementButton').style.top = 55 + "px";
-
-                        getIntoHouse();
-                        gsap.to('#blackDiv', {
-                            opacity: 0,
-                            duration: 0.4,
-                        })
-                    }
-                })
-            }
-        });
-    }
-    else if (playerWantToEnterBar) {
-        // deactivate current animation loop
-        window.cancelAnimationFrame(animationId);
-
-        playerWantToEnterBar = false; // So the player will not enter the bar instanly when coming back
-
-        // if this is the first time player enter the bar unlock the achievement of entering the bar
-        unlockAchievement("enterBar");
-        
-        // don't let the player start map music
-        clicked = true;
-
-        // stop map music
-        audio.map.stop();
-        audio.map.seek(0); // restart music
-
-        // fade
-        gsap.to('#blackDiv', {
-            opacity: 1, 
-            repeat: 3, 
-            yoyo: true, // make a smooth fade
-            duration: 0.4, // each fade take 0.4 secondes
-            onComplete() { // when the all the fades finish stop fade and don't show nothing
-                gsap.to('#blackDiv', {
-                    opacity: 1,
-                    duration: 0.4,
-                    onComplete() {
-                        // active a new animation loop
-                        // save player 1 and player 7 and hat position
-                        pastPlayerPosition.x = player.position.x;
-                        pastPlayerPosition.y = player.position.y;
-                        pastPlayer7Position.x = player7.position.x;
-                        pastPlayer7Position.y = player7.position.y;
-                        pastHatPosition.x = hat.position.x;
-                        pastHatPosition.y = hat.position.y;
-                        // change player 1 and player 2 position
-                        player.position.x = 504;
-                        player.position.y = 400;
-                        player7.position.x = 750;
-                        player7.position.y = 285;
-                        hat.position.x = player.position.x - 5;
-                        hat.position.y = player.position.y - 12;
-                        // start bar music
-                        audio.bar.play();
-                        getIntoBar();
-                        gsap.to('#blackDiv', {
-                            opacity: 0,
-                            duration: 0.4,
-                        })
-                    }
-                })
-            }
-        });
-    }
-    else if (keys.r.pressed && collisionPlayerRobChicken && !achievementRetureRobChickenComplete) {
-        //if (!alreadyCalldUnlockAchievement) {
-        unlockAchievement("findRobChicken");    
-            //alreadyCalldUnlockAchievement = true;
-        //}
-        
-        gsap.to(RobChicken, {
-            opacity: 0,
-            onComplete: () => {
-                RobChicken.position.x = player4.position.x + player4.width + 5;
-                RobChicken.position.y = player4.position.y + player4.height - RobChicken.height;
-
-                document.querySelector('#catchRobChicken').remove();
-
-                achievementRetureRobChickenComplete = true;
-
-                gsap.to(RobChicken, {
-                    opacity: 1
-                })
-            }
-        })
-    }
-
-    // MOVE CHARACTERS
-    // player 3
-    if (player3Data.walkedDistance !== player3Data.maxDistance) { // if player 3 needs to move
-        if (!player3moving) {
-            player3.animate= false;
-        } else {
-            player3.animate = true; // player 3 needs to start animate
-
-            if (player3.frames.elapsed % 10 === 0) { // with that the animation will not be to quickly
-                player3.position.x += player3Data.velocityX; // move player (left or right)
-                // increase the walked distance of player 3 (to see when he gets to the location which he needs to gets)
-                player3Data.walkedDistance += player3Data.velocityX; 
-            }
-        }
-    } else {
-        player3.animate = false; // stop player 3 animation
-        player3.frames.val = 1; // restart his frame
-        player3Data.walkedDistance = 0; // restart walked distance of player 3
-        player3Data.maxDistance *= -1; // chage max distance to match the reverse direction
-        player3Data.velocityX *= -1; // change velocity x to match the reverse direction
-        // Change the image to match the direction we changed. 
-        if (player3Data.velocityX < 0) {
-            player3.image = player3.sprites.left; 
-        }
-        else if (player3Data.velocityX > 0) {
-            player3.image = player3.sprites.right;
-        }
-        player3.animate = true;
-    }
-
-    // player 5
-    if (player5Data.walkedDistance !== player5Data.maxDistance) { // if player 5 needs to move
-        if (!player5moving) {
-            player5.animate= false;
-        } else {
-            player5.animate = true; // player 5 needs to start animate
-
-            if (player5.frames.elapsed % 10 === 0) { // with that the animation will not be to quickly
-                player5.position.x += player5Data.velocityX; // move player (left or right)
-                lawnMower.position.x += player5Data.velocityX; // move the lawn mower with the player
-                // increase the walked distance of player 5 (to see when he gets to the location which he needs to gets)
-                player5Data.walkedDistance += player5Data.velocityX; 
-            }
-        }
-        
-    } else {
-        player5.animate = false; // stop player 5 animation
-        player5.frames.val = 1; // restart his frame
-        player5Data.walkedDistance = 0; // restart walked distance of player 5
-        player5Data.maxDistance *= -1; // chage max distance to match the reverse direction
-        player5Data.velocityX *= -1; // change velocity x to match the reverse direction
-        // Change the image to match the direction we changed. 
-        if (player5Data.velocityX < 0) {
-            player5.image = player5.sprites.left;
-            lawnMower.image = lawnMower.sprites.left; 
-            lawnMower.position.x = player5.position.x - 55.75;
-        }
-        else if (player5Data.velocityX > 0) {
-            player5.image = player5.sprites.right;
-            lawnMower.image = lawnMower.sprites.right;
-            lawnMower.position.x = player5.position.x + 45;
-        }
-        player5.animate = true;
-    }
-
-    // MOVE CHICKENS
-    if (!chickenData.waiting) {
-        if (chickenData.walkedDistance !== chickenData.maxDistance) { // chicken needs still to mive
-
-            chicken.animate = true;
-
-            if (chicken.frames.elapsed % 10 === 0) { // with that the animation will not be to quickly
-                chicken.position.x += chickenData.velocityX; // move chicken (left or right)
-                // increase the walked distance of the chicken (to see when it gets to the location which he needs to gets)
-                chickenData.walkedDistance += chickenData.velocityX; 
-            }
-        } else {
-            chicken.animate = false;
-            chicken.frames.val = 1; // restart his frame
-
-            // srart waiting
-            chickenData.waiting = true;
-
-            setTimeout(() => {
-                chickenData.walkedDistance = 0; // restart walked distance of player 5
-                chickenData.maxDistance *= -1; // chage max distance to match the reverse direction
-                chickenData.velocityX *= -1; // change velocity x to match the reverse direction
-                // Change the image to match the direction we changed. 
-                if (chickenData.velocityX < 0) {
-                    chicken.image = chicken.sprites.left;
-                }
-                else if (chickenData.velocityX > 0) {
-                    chicken.image = chicken.sprites.right;
-                }
-                chicken.animate = true; // continue moving
-
-                //stop waiting
-                chickenData.waiting = false;
-            }, 2000); // wait 2 seconds
-        }
-    }
-
-    // move enemies(if needed)
-    for (let i = 0; i < enemies.length; i++) {
-        const enemy = enemies[i];
-
-        // c.beginPath()
-        // c.arc(enemy.position.x + enemy.width/2, enemy.position.y + enemy.height/2, 300, 0 , Math.PI * 2);
-        // c.strokeStyle = "rgba(255, 0, 0, 1)";
-        // c.stroke();
-        // c.closePath();
-
-        // Calculating the distance on the X axis between the player and the enemy
-        const dx = player.position.x - enemy.position.x;
-
-        // Calculate the distance on the Y axis between the player and the enemy
-        const dy = player.position.y - enemy.position.y;
-
-        // Calculating the direct distance (in the air) between the player and the enemy
-        // According to the Pythagorean theorem
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        // If the player is within the enemy's detection radius
-        if (distance < 300) {
-            // Enemy pursuit speed
-            const speed = 1.2;
-
-            // How much the player needs to move in each axis
-            const velocityX = (dx / distance) * speed;
-            const velocityY = (dy / distance) * speed;
-
-            // change enemy sprite
-            if (velocityX < 0) {
-                enemy.image = enemy.sprites.walking.left;
-            } else {
-                enemy.image = enemy.sprites.walking.right;
-            }
-
-            enemy.frames.hold = 10;
-
-            // check collision with boundaries
-            // X-axis
-            let canMoveX = true;
-
-            for (const boundary of boundaries) {
-                if (
-                    hitboxCollision({
-                        enemy: {
-                            ...enemy,
-                            position: {
-                                x: enemy.position.x + velocityX,
-                                y: enemy.position.y
-                            }
-                        },
-                        rectangle2: boundary
                     })
                 ) {
-                    canMoveX = false;
+                    moving = false;
                     break;
                 }
-            }
-
-            // Y-axis
-            let canMoveY = true;
-
-            for (const boundary of boundaries) {
-                if (
-                    hitboxCollision({
-                        enemy: {
-                            ...enemy,
-                            position: {
-                                x: enemy.position.x,
-                                y: enemy.position.y + velocityY
-                            }
-                        },
-                        rectangle2: boundary
-                    })
-                ) {
-                    canMoveY = false;
-                    break;
-                }
-            }
-
-
-            // dx / distance and dy / distance
-            // create a normalized vector (length 1)
-            // i.e. just direction without the effect of distance
-
-            // Moving the enemy towards the player on the X axis
-            if (canMoveX) {
-                enemy.position.x += velocityX;
-            }
-
-            // Moving the enemy towards the player on the Y axis
-            if (canMoveY) {
-                enemy.position.y += velocityY;
-            }
-        } else {
-            if (enemy.image === enemy.sprites.walking.right || enemy.image === enemy.sprites.standing.right) {
-                enemy.image = enemy.sprites.standing.right;
-            }
-            else if (enemy.image === enemy.sprites.walking.left || enemy.image === enemy.sprites.standing.left) {
-                enemy.image = enemy.sprites.standing.left;
             }
             
-            enemy.frames.hold = 30;
+            if (moving) {
+                movables.forEach((movable) => {
+                    movable.position.x -= velocity;
+                })
+            }
+        } 
+        else if (enterPlayer2House) {
+            // deactivate current animation loop
+            window.cancelAnimationFrame(animationId);
+
+            // if this is the first time player has entered the house unlock the achievement of entering a house
+            unlockAchievement("enterHouse");
+
+            // fade
+            gsap.to('#blackDiv', {
+                opacity: 1, 
+                repeat: 3, 
+                yoyo: true, // make a smooth fade
+                duration: 0.4, // each fade take 0.4 secondes
+                onComplete() { // when the all the fades finish stop fade and don't show nothing
+                    gsap.to('#blackDiv', {
+                        opacity: 1,
+                        duration: 0.4,
+                        onComplete() {
+                            // active a new animation loop
+                            // save player 1 and player 2 and hat position
+                            pastPlayerPosition.x = player.position.x;
+                            pastPlayerPosition.y = player.position.y;
+                            pastPlayer2Position.x = player2.position.x;
+                            pastPlayer2Position.y = player2.position.y;
+                            pastHatPosition.x = hat.position.x;
+                            pastHatPosition.y = hat.position.y;
+                            // change player 1 and player 2 position
+                            player.position.x = 504;
+                            player.position.y = 544;
+                            player2.position.x = 484;
+                            player2.position.y = 324;
+                            hat.position.x = player.position.x - 5;
+                            hat.position.y = player.position.y - 12;
+
+                            // hide big player health bar and show a small button instand
+                            hidePlayerState();
+                            showHealthButton();
+
+                            // Move the achievements button so it doesn't cover the health bar
+                            document.querySelector('#achievementButton').style.left = 5 + "px";
+                            document.querySelector('#achievementButton').style.top = 55 + "px";
+
+                            getIntoHouse();
+                            gsap.to('#blackDiv', {
+                                opacity: 0,
+                                duration: 0.4,
+                            })
+                        }
+                    })
+                }
+            });
+        }
+        else if (playerWantToEnterBar) {
+            // deactivate current animation loop
+            window.cancelAnimationFrame(animationId);
+
+            playerWantToEnterBar = false; // So the player will not enter the bar instanly when coming back
+
+            // if this is the first time player enter the bar unlock the achievement of entering the bar
+            unlockAchievement("enterBar");
+            
+            // don't let the player start map music
+            clicked = true;
+
+            // stop map music
+            audio.map.stop();
+            audio.map.seek(0); // restart music
+
+            // fade
+            gsap.to('#blackDiv', {
+                opacity: 1, 
+                repeat: 3, 
+                yoyo: true, // make a smooth fade
+                duration: 0.4, // each fade take 0.4 secondes
+                onComplete() { // when the all the fades finish stop fade and don't show nothing
+                    gsap.to('#blackDiv', {
+                        opacity: 1,
+                        duration: 0.4,
+                        onComplete() {
+                            // active a new animation loop
+                            // save player 1 and player 7 and hat position
+                            pastPlayerPosition.x = player.position.x;
+                            pastPlayerPosition.y = player.position.y;
+                            pastPlayer7Position.x = player7.position.x;
+                            pastPlayer7Position.y = player7.position.y;
+                            pastHatPosition.x = hat.position.x;
+                            pastHatPosition.y = hat.position.y;
+                            // change player 1 and player 2 position
+                            player.position.x = 504;
+                            player.position.y = 400;
+                            player7.position.x = 750;
+                            player7.position.y = 285;
+                            hat.position.x = player.position.x - 5;
+                            hat.position.y = player.position.y - 12;
+                            // start bar music
+                            audio.bar.play();
+                            getIntoBar();
+                            gsap.to('#blackDiv', {
+                                opacity: 0,
+                                duration: 0.4,
+                            })
+                        }
+                    })
+                }
+            });
+        }
+        else if (keys.r.pressed && collisionPlayerRobChicken && !achievementRetureRobChickenComplete) {
+            //if (!alreadyCalldUnlockAchievement) {
+            unlockAchievement("findRobChicken");    
+                //alreadyCalldUnlockAchievement = true;
+            //}
+            
+            gsap.to(RobChicken, {
+                opacity: 0,
+                onComplete: () => {
+                    RobChicken.position.x = player4.position.x + player4.width + 5;
+                    RobChicken.position.y = player4.position.y + player4.height - RobChicken.height;
+
+                    document.querySelector('#catchRobChicken').remove();
+
+                    achievementRetureRobChickenComplete = true;
+
+                    gsap.to(RobChicken, {
+                        opacity: 1
+                    })
+                }
+            })
+        }
+
+        // MOVE CHARACTERS
+        // player 3
+        if (player3Data.walkedDistance !== player3Data.maxDistance) { // if player 3 needs to move
+            if (!player3moving) {
+                player3.animate= false;
+            } else {
+                player3.animate = true; // player 3 needs to start animate
+
+                if (player3.frames.elapsed % 10 === 0) { // with that the animation will not be to quickly
+                    player3.position.x += player3Data.velocityX; // move player (left or right)
+                    // increase the walked distance of player 3 (to see when he gets to the location which he needs to gets)
+                    player3Data.walkedDistance += player3Data.velocityX; 
+                }
+            }
+        } else {
+            player3.animate = false; // stop player 3 animation
+            player3.frames.val = 1; // restart his frame
+            player3Data.walkedDistance = 0; // restart walked distance of player 3
+            player3Data.maxDistance *= -1; // chage max distance to match the reverse direction
+            player3Data.velocityX *= -1; // change velocity x to match the reverse direction
+            // Change the image to match the direction we changed. 
+            if (player3Data.velocityX < 0) {
+                player3.image = player3.sprites.left; 
+            }
+            else if (player3Data.velocityX > 0) {
+                player3.image = player3.sprites.right;
+            }
+            player3.animate = true;
+        }
+
+        // player 5
+        if (player5Data.walkedDistance !== player5Data.maxDistance) { // if player 5 needs to move
+            if (!player5moving) {
+                player5.animate= false;
+            } else {
+                player5.animate = true; // player 5 needs to start animate
+
+                if (player5.frames.elapsed % 10 === 0) { // with that the animation will not be to quickly
+                    player5.position.x += player5Data.velocityX; // move player (left or right)
+                    lawnMower.position.x += player5Data.velocityX; // move the lawn mower with the player
+                    // increase the walked distance of player 5 (to see when he gets to the location which he needs to gets)
+                    player5Data.walkedDistance += player5Data.velocityX; 
+                }
+            }
+            
+        } else {
+            player5.animate = false; // stop player 5 animation
+            player5.frames.val = 1; // restart his frame
+            player5Data.walkedDistance = 0; // restart walked distance of player 5
+            player5Data.maxDistance *= -1; // chage max distance to match the reverse direction
+            player5Data.velocityX *= -1; // change velocity x to match the reverse direction
+            // Change the image to match the direction we changed. 
+            if (player5Data.velocityX < 0) {
+                player5.image = player5.sprites.left;
+                lawnMower.image = lawnMower.sprites.left; 
+                lawnMower.position.x = player5.position.x - 55.75;
+            }
+            else if (player5Data.velocityX > 0) {
+                player5.image = player5.sprites.right;
+                lawnMower.image = lawnMower.sprites.right;
+                lawnMower.position.x = player5.position.x + 45;
+            }
+            player5.animate = true;
+        }
+
+        // MOVE CHICKENS
+        if (!chickenData.waiting) {
+            if (chickenData.walkedDistance !== chickenData.maxDistance) { // chicken needs still to mive
+
+                chicken.animate = true;
+
+                if (chicken.frames.elapsed % 10 === 0) { // with that the animation will not be to quickly
+                    chicken.position.x += chickenData.velocityX; // move chicken (left or right)
+                    // increase the walked distance of the chicken (to see when it gets to the location which he needs to gets)
+                    chickenData.walkedDistance += chickenData.velocityX; 
+                }
+            } else {
+                chicken.animate = false;
+                chicken.frames.val = 1; // restart his frame
+
+                // srart waiting
+                chickenData.waiting = true;
+
+                setTimeout(() => {
+                    chickenData.walkedDistance = 0; // restart walked distance of player 5
+                    chickenData.maxDistance *= -1; // chage max distance to match the reverse direction
+                    chickenData.velocityX *= -1; // change velocity x to match the reverse direction
+                    // Change the image to match the direction we changed. 
+                    if (chickenData.velocityX < 0) {
+                        chicken.image = chicken.sprites.left;
+                    }
+                    else if (chickenData.velocityX > 0) {
+                        chicken.image = chicken.sprites.right;
+                    }
+                    chicken.animate = true; // continue moving
+
+                    //stop waiting
+                    chickenData.waiting = false;
+                }, 2000); // wait 2 seconds
+            }
+        }
+
+        // move enemies(if needed)
+        for (let i = 0; i < enemies.length; i++) {
+            const enemy = enemies[i];
+
+            // c.beginPath()
+            // c.arc(enemy.position.x + enemy.width/2, enemy.position.y + enemy.height/2, 300, 0 , Math.PI * 2);
+            // c.strokeStyle = "rgba(255, 0, 0, 1)";
+            // c.stroke();
+            // c.closePath();
+
+            // Calculating the distance on the X axis between the player and the enemy
+            const dx = player.position.x - enemy.position.x;
+
+            // Calculate the distance on the Y axis between the player and the enemy
+            const dy = player.position.y - enemy.position.y;
+
+            // Calculating the direct distance (in the air) between the player and the enemy
+            // According to the Pythagorean theorem
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // If the player is within the enemy's detection radius
+            if (distance < 300) {
+                // Enemy pursuit speed
+                const speed = 1.2;
+
+                // How much the player needs to move in each axis
+                const velocityX = (dx / distance) * speed;
+                const velocityY = (dy / distance) * speed;
+
+                // change enemy sprite
+                if (velocityX < 0) {
+                    enemy.image = enemy.sprites.walking.left;
+                } else {
+                    enemy.image = enemy.sprites.walking.right;
+                }
+
+                enemy.frames.hold = 10;
+
+                // check collision with boundaries
+                // X-axis
+                let canMoveX = true;
+
+                for (const boundary of boundaries) {
+                    if (
+                        hitboxCollision({
+                            enemy: {
+                                ...enemy,
+                                position: {
+                                    x: enemy.position.x + velocityX,
+                                    y: enemy.position.y
+                                }
+                            },
+                            rectangle2: boundary
+                        })
+                    ) {
+                        canMoveX = false;
+                        break;
+                    }
+                }
+
+                // Y-axis
+                let canMoveY = true;
+
+                for (const boundary of boundaries) {
+                    if (
+                        hitboxCollision({
+                            enemy: {
+                                ...enemy,
+                                position: {
+                                    x: enemy.position.x,
+                                    y: enemy.position.y + velocityY
+                                }
+                            },
+                            rectangle2: boundary
+                        })
+                    ) {
+                        canMoveY = false;
+                        break;
+                    }
+                }
+
+
+                // dx / distance and dy / distance
+                // create a normalized vector (length 1)
+                // i.e. just direction without the effect of distance
+
+                // Moving the enemy towards the player on the X axis
+                if (canMoveX) {
+                    enemy.position.x += velocityX;
+                }
+
+                // Moving the enemy towards the player on the Y axis
+                if (canMoveY) {
+                    enemy.position.y += velocityY;
+                }
+            } else {
+                if (enemy.image === enemy.sprites.walking.right || enemy.image === enemy.sprites.standing.right) {
+                    enemy.image = enemy.sprites.standing.right;
+                }
+                else if (enemy.image === enemy.sprites.walking.left || enemy.image === enemy.sprites.standing.left) {
+                    enemy.image = enemy.sprites.standing.left;
+                }
+                
+                enemy.frames.hold = 30;
+            }
         }
     }
+}
+
+function handlePlayerDeath() {
+    //
+    playerDead = true;
+
+    gsap.to(player, {
+        opacity: 0,
+        duration: 1,
+        onComplete: () => {
+            gsap.to('#blackDiv', {
+                opacity: 1,
+                duration: 3,
+                onComplete: () => {
+                    player.position.x = canvas.width/2 - 192/8;
+                    player.position.y =  canvas.height/2 - 68/2;
+                }
+            })
+        }
+    })
 }
 
 function respawnEnemy(enemy) {
@@ -3113,10 +3182,19 @@ function checkAchievements() {
 
     // shop
     if (numberBulletsBought >= 20) {
-        //if (!alreadyCalldUnlockAchievement) {
         unlockAchievement("buy20Bullets");    
-            //alreadyCalldUnlockAchievement = true;
-        //}
+    }
+
+    if (numberWineBought >= 5) {
+        unlockAchievement("restore5HP");
+    }
+
+    if (numberGoldenBerriesBought >= 3) {
+        unlockAchievement("increaseMaxHP");
+    }
+
+    if (playerBoughtPotion) {
+        unlockAchievement("buyPotion");
     }
 }
 

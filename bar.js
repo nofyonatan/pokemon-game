@@ -25,6 +25,9 @@ const foregorondBar = new Sprite({
 let playerCantMove = false;
 let inShop = false;
 let numberBulletsBought = 0;
+let numberWineBought = 0;
+let numberGoldenBerriesBought = 0;
+let playerBoughtPotion = false;
 let goldenBerryPrice = 15;
 document.querySelector('#goldenBerryPrice').innerText = goldenBerryPrice;
 
@@ -315,6 +318,7 @@ document.querySelector('#buyWine').addEventListener('click', () => {
     if (numberOfCoins >= 5) {
         if (lives < maxLives) {
             lives++;
+            numberWineBought++;
             updatePlayerHealthBar();
             numberOfCoins -= 5;
             updatePlayerCoins();
@@ -326,6 +330,7 @@ document.querySelector('#buyWine').addEventListener('click', () => {
 document.querySelector('#buyGoldenBerry').addEventListener('click', () => {
     if (numberOfCoins >= goldenBerryPrice) {
         maxLives++;
+        numberGoldenBerriesBought++;
         createHealthBar();
         updatePlayerHealthBar();
         numberOfCoins -= goldenBerryPrice;
@@ -342,6 +347,7 @@ document.querySelector("#buySpeedPotion").addEventListener('click', () => {
         updatePlayerCoins();
         playerSpeedBoost = true;
         velocity *= 2;
+        playerBoughtPotion = true;
         setTimeout(() => {
             velocity = velocity / 2;
             playerSpeedBoost = false;
@@ -355,6 +361,7 @@ document.querySelector('#buyinvinciblePotion').addEventListener('click', () => {
         numberOfCoins -= 50;
         updatePlayerCoins();
         playerInvincible = true;
+        playerBoughtPotion = true;
         setTimeout(() => {
             playerInvincible = false;
         }, 30000)
@@ -367,6 +374,7 @@ document.querySelector('#buyGreedPotion').addEventListener('click', () => {
         numberOfCoins -= 30;
         updatePlayerCoins();
         playerDoubleCoins = true;
+        playerBoughtPotion = true;
         setTimeout(() => {
             playerDoubleCoins = false;
         }, 45000)
