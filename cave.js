@@ -1,8 +1,13 @@
 // VARIABLES
+let caveAnimationId = null; // A variable that represent the the game loop of the cave
+let caveStartingPosition = null; // A varible that store all the postions of all the objects that are moving,
+                                //  at the start of the game
 let CanGetOutCave = false; // A variable that represent if the player can get out from the cave
 let leavingCave = false; // A variable that causes the exit from the cave to only happen once, and not every frame until you exit
 let enterBattle = false; //A variable that causes the exit from the cave to only happen once, and not every frame until you exit
 let canEnterCaveBattle = true; // A variable that represent whether player can enter the cave battle ot not
+let playerAlreadyEnterCaveForFirstTime = false; // A variable that represent whether player already entered the cave 
+                                                // for his first time
 
 // DATA
 // cave collision
@@ -328,21 +333,99 @@ const caveBackground = new Sprite({
     image: caveBackgroundImage
 });
 
+function handleCaveDeath() {
+    if (playerDead) return;
+
+    playerDead = true;
+    diedInCave = true;
+    inCave = false;
+
+    // Stop cave animation loop
+    window.cancelAnimationFrame(caveAnimationId);
+
+    // Stop cave music
+    audio.cave.stop();
+    audio.cave.seek(0);
+
+    // Save the amount of coins the player lost
+    document.querySelector("#goldLoss").innerText = numberOfCoins;
+
+    // Hide the player
+    gsap.to(player, {
+        opacity: 0,
+        duration: 1,
+        onComplete: () => {
+
+            // Show death screen
+            document.querySelector("#deathScreen").style.display = "flex";
+
+            gsap.to("#deathScreen", {
+                opacity: 1,
+                duration: 2
+            });
+        }
+    });
+}
+
 function initcave() {
     setTimeout(() => {
         CanGetOutCave = true;
     }, 1000)
 
     c.imageSmoothingEnabled = false;
+
+    console.log(caveStartingPosition);
+
+    if (playerAlreadyEnterCaveForFirstTime) {
+        // Return world objects to their exact starting positions
+        caveStartingPosition.forEach(({ object, x, y }) => {
+            object.position.x = x;
+            object.position.y = y;
+        });
+
+        // Clear temporary objects
+        projectiles.length = 0;
+        caveCoins.length = 0;
+
+        // Return player to starting position
+        player.position.x = canvas.width / 2 - 192 / 8;
+        player.position.y = canvas.height / 2 - 68 / 2;
+
+        // Return hat
+        hat.position.x = player.position.x - 5;
+        hat.position.y = player.position.y - 12;
+    } else {
+        playerAlreadyEnterCaveForFirstTime = true;
+    }
+
+    cave();
 }
 
 function cave() {
-    const animationId = requestAnimationFrame(cave);
+    const caveAnimationId = requestAnimationFrame(cave);
 
     const moveables = [
         caveBackground, ...caveBoundaries, ...caveMonsters, ...projectiles, ...caveCoins, ...caveTorches,
          ...caveWaterfallsUp, ...caveWaterfallsLeft, ...caveWaterfallsDown, ...caveExit, ...caveEnterBattle
     ];
+
+    if (caveStartingPosition === null) {
+        caveStartingPosition = [
+            caveBackground,
+            ...caveBoundaries, 
+            ...caveMonsters, 
+            ...caveTorches,
+            ...caveWaterfallsUp, 
+            ...caveWaterfallsLeft, 
+            ...caveWaterfallsDown, 
+            ...caveExit, 
+            ...caveEnterBattle
+        ].map(movable => ({
+            object: movable,
+            x: movable.position.x,
+            y: movable.position.y
+        }));
+    }
     
     // DRAWING
     // clear canvas
@@ -432,460 +515,463 @@ function cave() {
         coin.draw();
     })
 
-    // ACHIEVEMENTS CHECK 
-    checkAchievements();
+    if (!playerDead) {
+        // MOVEMENT
+        let moving = true;// A varible to check whenever we should move or not
+        player.animate = false; // 'true' when the player is moving and need to change frame
 
-    // MOVEMENT
-    let moving = true;// A varible to check whenever we should move or not
-    player.animate = false; // 'true' when the player is moving and need to change frame
+        // player
+        // move player up
+        if (keys.w.pressed && lastKey === 'w') {
+            player.animate = true;
+            player.image = player.sprites.up;
 
-    // player
-    // move player up
-    if (keys.w.pressed && lastKey === 'w') {
-        player.animate = true;
-        player.image = player.sprites.up;
+            // check collision with things on the map
+            for (let i = 0; i < caveBoundaries.length; i++) {
+                const Boundary = caveBoundaries[i];
 
-        // check collision with things on the map
-        for (let i = 0; i < caveBoundaries.length; i++) {
-            const Boundary = caveBoundaries[i];
-
-            if (
-                rectangularCollision({
-                    rectangle1: player,
-                    rectangle2: {...Boundary,
-                        position: {
-                            x: Boundary.position.x,
-                            y: Boundary.position.y + velocity
-                        }
-                    }
-                })
-            ) {
-                moving = false;
-                break;
-            }
-        }
-
-        if (moving) {
-            moveables.forEach((moveable) => {
-                moveable.position.y += velocity;
-            })
-        }
-    }
-    // move player down
-    else if (keys.s.pressed && lastKey === 's') {
-        player.animate = true;
-        player.image = player.sprites.down;
-
-        // check collision with things on the map
-        for (let i = 0; i < caveBoundaries.length; i++) {
-            const Boundary = caveBoundaries[i];
-
-            if (
-                rectangularCollision({
-                    rectangle1: player,
-                    rectangle2: {...Boundary,
-                        position: {
-                            x: Boundary.position.x,
-                            y: Boundary.position.y - velocity
-                        }
-                    }
-                })
-            ) {
-                moving = false;
-                break;
-            }
-        }
-
-        if (moving) {
-            moveables.forEach((moveable) => {
-                moveable.position.y -= velocity;
-            })
-        }
-    }
-    // move player right
-    else if(keys.d.pressed && lastKey === 'd') {
-        player.animate = true;
-        player.image = player.sprites.right;
-
-        // if player claimed the hat, also change the sprite of the hat to adjust the direction player is walking
-        if (playerClaimHat) {
-            hat.image = hat.sprites.right;
-        }
-
-        // check collision with things on the map
-        for (let i = 0; i < caveBoundaries.length; i++) {
-            const Boundary = caveBoundaries[i];
-
-            if (
-                rectangularCollision({
-                    rectangle1: player,
-                    rectangle2: {...Boundary,
-                        position: {
-                            x: Boundary.position.x - velocity,
-                            y: Boundary.position.y
-                        }
-                    }
-                })
-            ) {
-                moving = false;
-                break;
-            }
-        }
-
-        if (moving) {
-            moveables.forEach((movable) => {
-                movable.position.x -= velocity;
-            })
-        }
-    }
-    // move player left
-    else if(keys.a.pressed && lastKey === 'a') {
-        player.animate = true;
-        player.image = player.sprites.left;
-
-        // if player claimed the hat, also change the sprite of the hat to adjust the direction player is walking
-        if (playerClaimHat) {
-            hat.image = hat.sprites.left;
-        }
-
-        // check collision with things on the map
-        for (let i = 0; i < caveBoundaries.length; i++) {
-            const Boundary = caveBoundaries[i];
-
-            if (
-                rectangularCollision({
-                    rectangle1: player,
-                    rectangle2: {...Boundary,
-                        position: {
-                            x: Boundary.position.x + velocity,
-                            y: Boundary.position.y
-                        }
-                    }
-                })
-            ) {
-                moving = false;
-                break;
-            }
-        }
-
-        if (moving) {
-            moveables.forEach((movable) => {
-                movable.position.x += velocity;
-            })
-        }
-    }
-
-    // move monsters(if needed)
-    for (let i = 0; i < caveMonsters.length; i++) {
-        const monster = caveMonsters[i];
-
-        c.beginPath()
-        c.arc(monster.position.x + monster.width/2, monster.position.y + monster.height/2, 400, 0 , Math.PI * 2);
-        c.strokeStyle = "rgba(255, 0, 0, 0)";
-        c.stroke();
-        c.closePath();
-
-        // Calculating the distance on the X axis between the player and the monster
-        const dx = player.position.x - monster.position.x;
-
-        // Calculate the distance on the Y axis between the player and the monster
-        const dy = player.position.y - monster.position.y;
-
-        // Calculating the direct distance (in the air) between the player and the monster
-        // According to the Pythagorean theorem
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        // If the player is within the monster's detection radius
-        if (distance < 400) {
-            // monster pursuit speed
-            const speed = 1.2;
-
-            // How much the player needs to move in each axis
-            const velocityX = (dx / distance) * speed;
-            const velocityY = (dy / distance) * speed;
-
-            // change monster sprite
-            if (velocityX < 0) {
-                monster.image = monster.sprites.walking.left;
-            } else {
-                monster.image = monster.sprites.walking.right;
-            }
-            
-            monster.frames.hold = 10;
-
-            // check collision with boundaries
-            // X-axis
-            let canMoveX = true;
-
-            for (const boundary of caveBoundaries) {
                 if (
-                    hitboxCollision({
-                        enemy: {
-                            ...monster,
+                    rectangularCollision({
+                        rectangle1: player,
+                        rectangle2: {...Boundary,
                             position: {
-                                x: monster.position.x + velocityX,
-                                y: monster.position.y
+                                x: Boundary.position.x,
+                                y: Boundary.position.y + velocity
                             }
-                        },
-                        rectangle2: boundary
+                        }
                     })
                 ) {
-                    canMoveX = false;
+                    moving = false;
                     break;
                 }
             }
 
-            // Y-axis
-            let canMoveY = true;
+            if (moving) {
+                moveables.forEach((moveable) => {
+                    moveable.position.y += velocity;
+                })
+            }
+        }
+        // move player down
+        else if (keys.s.pressed && lastKey === 's') {
+            player.animate = true;
+            player.image = player.sprites.down;
 
-            for (const boundary of caveBoundaries) {
+            // check collision with things on the map
+            for (let i = 0; i < caveBoundaries.length; i++) {
+                const Boundary = caveBoundaries[i];
+
                 if (
-                    hitboxCollision({
-                        enemy: {
-                            ...monster,
+                    rectangularCollision({
+                        rectangle1: player,
+                        rectangle2: {...Boundary,
                             position: {
-                                x: monster.position.x,
-                                y: monster.position.y + velocityY
+                                x: Boundary.position.x,
+                                y: Boundary.position.y - velocity
                             }
-                        },
-                        rectangle2: boundary
+                        }
                     })
                 ) {
-                    canMoveY = false;
+                    moving = false;
                     break;
                 }
             }
 
-
-            // dx / distance and dy / distance
-            // create a normalized vector (length 1)
-            // i.e. just direction without the effect of distance
-
-            // Moving the monster towards the player on the X axis
-            if (canMoveX) {
-                monster.position.x += velocityX;
-            }
-
-            // Moving the monster towards the player on the Y axis
-            if (canMoveY) {
-                monster.position.y += velocityY;
-            }
-        } else {
-            if (monster.image === monster.sprites.walking.right || monster.image === monster.sprites.standing.right) {
-                    monster.image = monster.sprites.standing.right;
-            }
-            else if (monster.image === monster.sprites.walking.left || monster.image === monster.sprites.standing.left) {
-                monster.image = monster.sprites.standing.left;
-            }
-   
-            monster.frames.hold = 30;
-        }
-    }
-
-    // COLLISION
-    // check collsision between player and exit
-    for (let i = 0; i < caveExit.length; i++) {
-        const Exit = caveExit[i];
-
-        if (rectangularCollision({
-            rectangle1: Exit,
-            rectangle2: player
-        })) {
-            if (CanGetOutCave && !leavingCave) {
-                // So that the exit from the cave only happens once and not every frame until he exits.
-                leavingCave = true; 
-
-                // player is not in cave anymore
-                inCave = false;
-
-                // GET OUT FROM THE CAVE
-                // deactivate current animation loop
-                window.cancelAnimationFrame(animationId);
-
-                // stop cave audio
-                audio.cave.stop();
-                audio.cave.seek(0);
-
-                // fade
-                gsap.to('#blackDiv', {
-                    opacity: 1, 
-                    onComplete() {
-                        // active a new animation loop:            
-                        // start main animation loop
-                        animate();
-                        // start map music
-                        audio.map.stop();
-                        audio.map.play();
-                        clicked = true;
-
-                        // show the screen
-                        gsap.to('#blackDiv', {
-                            opacity: 0,
-                            duration: 0.4,
-                        })
-                    }
-                });
-            } else {
-                moveables.forEach(movable => {
-                    movable.position.y -= velocity;
+            if (moving) {
+                moveables.forEach((moveable) => {
+                    moveable.position.y -= velocity;
                 })
             }
         }
-    }
+        // move player right
+        else if(keys.d.pressed && lastKey === 'd') {
+            player.animate = true;
+            player.image = player.sprites.right;
 
-    // check collision between player to battle entery
-    for (let i = 0; i < caveEnterBattle.length; i++) {
-        const battleEntery = caveEnterBattle[i];
+            // if player claimed the hat, also change the sprite of the hat to adjust the direction player is walking
+            if (playerClaimHat) {
+                hat.image = hat.sprites.right;
+            }
 
-        if (rectangularCollision({
-            rectangle1: player,
-            rectangle2: battleEntery
-        })) {
-            if (!enterBattle && canEnterCaveBattle) {
-                // So that the exit from the cave only happens once and not every frame until he exits.
-                enterBattle = true; 
-                // So that we don't leave the cave immediately after entering
-                exitBattle = false;
+            // check collision with things on the map
+            for (let i = 0; i < caveBoundaries.length; i++) {
+                const Boundary = caveBoundaries[i];
 
-                // ENTER BATTLE
-                // deactivate current animation loop
-                window.cancelAnimationFrame(animationId);
+                if (
+                    rectangularCollision({
+                        rectangle1: player,
+                        rectangle2: {...Boundary,
+                            position: {
+                                x: Boundary.position.x - velocity,
+                                y: Boundary.position.y
+                            }
+                        }
+                    })
+                ) {
+                    moving = false;
+                    break;
+                }
+            }
 
-                // stop cave audio
-                audio.cave.stop();
-                audio.cave.seek(0);
-
-                // fade
-                gsap.to('#blackDiv', {
-                    opacity: 1, 
-                    onComplete() {
-                        // save player position and than change it
-                        pastPlayerPosition.x = player.position.x;
-                        pastPlayerPosition.y = player.position.y;
-                        player.position.x = canvas.width/2;
-                        player.position.y = canvas.height - 25;
-
-                        // save hat position and than change it to adjust the player new position
-                        pastHatPosition.x = hat.position.x;
-                        pastHatPosition.y = hat.position.y;
-                        hat.position.x = player.position.x - 5;
-                        hat.position.y = player.position.y - 12;
-
-                        // hide achievement button
-                        document.querySelector("#achievementButton").style.display = "none";
-
-                        // active a new animation loop:            
-                        // start main animation loop
-                        startCaveBattle();
-
-                        // start cave battle music
-                        audio.caveBattle.stop();
-                        audio.caveBattle.play();
-
-                        // show the screen
-                        gsap.to('#blackDiv', {
-                            opacity: 0,
-                            duration: 0.4,
-                        })
-                    }
-                });
-            } else {
-                moveables.forEach(movable => {
-                    movable.position.y -= velocity;
+            if (moving) {
+                moveables.forEach((movable) => {
+                    movable.position.x -= velocity;
                 })
             }
         }
-    }
+        // move player left
+        else if(keys.a.pressed && lastKey === 'a') {
+            player.animate = true;
+            player.image = player.sprites.left;
 
-    // collision between player and monsters
-    for (let i = caveMonsters.length - 1; i >= 0; i--) {
-        const monster = caveMonsters[i];
+            // if player claimed the hat, also change the sprite of the hat to adjust the direction player is walking
+            if (playerClaimHat) {
+                hat.image = hat.sprites.left;
+            }
 
-        if (!monster.alive) continue;
+            // check collision with things on the map
+            for (let i = 0; i < caveBoundaries.length; i++) {
+                const Boundary = caveBoundaries[i];
 
-        if (hitboxCollision({
-            enemy: monster,
-            rectangle2: player
-        })) {
-            monster.alive = false;
-            if (lives > 0 && !playerInvincible) {
-                lives--;
-                updatePlayerHealthBar();
+                if (
+                    rectangularCollision({
+                        rectangle1: player,
+                        rectangle2: {...Boundary,
+                            position: {
+                                x: Boundary.position.x + velocity,
+                                y: Boundary.position.y
+                            }
+                        }
+                    })
+                ) {
+                    moving = false;
+                    break;
+                }
+            }
+
+            if (moving) {
+                moveables.forEach((movable) => {
+                    movable.position.x += velocity;
+                })
             }
         }
-    }
 
-    // check collision between each projectile to each enemy
-    for (let i = projectiles.length - 1; i >= 0; i--) {
-        for (let j = caveMonsters.length - 1; j >= 0; j--) {
-            const projectile = projectiles[i];
-            const monster = caveMonsters[j];
+        // move monsters(if needed)
+        for (let i = 0; i < caveMonsters.length; i++) {
+            const monster = caveMonsters[i];
 
-            // if enemy not alive continue to the next loop
+            c.beginPath()
+            c.arc(monster.position.x + monster.width/2, monster.position.y + monster.height/2, 400, 0 , Math.PI * 2);
+            c.strokeStyle = "rgba(255, 0, 0, 0)";
+            c.stroke();
+            c.closePath();
+
+            // Calculating the distance on the X axis between the player and the monster
+            const dx = player.position.x - monster.position.x;
+
+            // Calculate the distance on the Y axis between the player and the monster
+            const dy = player.position.y - monster.position.y;
+
+            // Calculating the direct distance (in the air) between the player and the monster
+            // According to the Pythagorean theorem
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // If the player is within the monster's detection radius
+            if (distance < 400) {
+                // monster pursuit speed
+                const speed = 1.2;
+
+                // How much the player needs to move in each axis
+                const velocityX = (dx / distance) * speed;
+                const velocityY = (dy / distance) * speed;
+
+                // change monster sprite
+                if (velocityX < 0) {
+                    monster.image = monster.sprites.walking.left;
+                } else {
+                    monster.image = monster.sprites.walking.right;
+                }
+                
+                monster.frames.hold = 10;
+
+                // check collision with boundaries
+                // X-axis
+                let canMoveX = true;
+
+                for (const boundary of caveBoundaries) {
+                    if (
+                        hitboxCollision({
+                            enemy: {
+                                ...monster,
+                                position: {
+                                    x: monster.position.x + velocityX,
+                                    y: monster.position.y
+                                }
+                            },
+                            rectangle2: boundary
+                        })
+                    ) {
+                        canMoveX = false;
+                        break;
+                    }
+                }
+
+                // Y-axis
+                let canMoveY = true;
+
+                for (const boundary of caveBoundaries) {
+                    if (
+                        hitboxCollision({
+                            enemy: {
+                                ...monster,
+                                position: {
+                                    x: monster.position.x,
+                                    y: monster.position.y + velocityY
+                                }
+                            },
+                            rectangle2: boundary
+                        })
+                    ) {
+                        canMoveY = false;
+                        break;
+                    }
+                }
+
+
+                // dx / distance and dy / distance
+                // create a normalized vector (length 1)
+                // i.e. just direction without the effect of distance
+
+                // Moving the monster towards the player on the X axis
+                if (canMoveX) {
+                    monster.position.x += velocityX;
+                }
+
+                // Moving the monster towards the player on the Y axis
+                if (canMoveY) {
+                    monster.position.y += velocityY;
+                }
+            } else {
+                if (monster.image === monster.sprites.walking.right || monster.image === monster.sprites.standing.right) {
+                        monster.image = monster.sprites.standing.right;
+                }
+                else if (monster.image === monster.sprites.walking.left || monster.image === monster.sprites.standing.left) {
+                    monster.image = monster.sprites.standing.left;
+                }
+    
+                monster.frames.hold = 30;
+            }
+        }
+
+        // COLLISION
+        // check collsision between player and exit
+        for (let i = 0; i < caveExit.length; i++) {
+            const Exit = caveExit[i];
+
+            if (rectangularCollision({
+                rectangle1: Exit,
+                rectangle2: player
+            })) {
+                if (CanGetOutCave && !leavingCave) {
+                    // So that the exit from the cave only happens once and not every frame until he exits.
+                    leavingCave = true; 
+
+                    // player is not in cave anymore
+                    inCave = false;
+
+                    // GET OUT FROM THE CAVE
+                    // deactivate current animation loop
+                    window.cancelAnimationFrame(caveAnimationId);
+
+                    // stop cave audio
+                    audio.cave.stop();
+                    audio.cave.seek(0);
+
+                    // fade
+                    gsap.to('#blackDiv', {
+                        opacity: 1, 
+                        onComplete() {
+                            // active a new animation loop:            
+                            // start main animation loop
+                            animate();
+                            // start map music
+                            audio.map.stop();
+                            audio.map.play();
+                            clicked = true;
+
+                            // show the screen
+                            gsap.to('#blackDiv', {
+                                opacity: 0,
+                                duration: 0.4,
+                            })
+                        }
+                    });
+                } else {
+                    moveables.forEach(movable => {
+                        movable.position.y -= velocity;
+                    })
+                }
+            }
+        }
+
+        // check collision between player to battle entery
+        for (let i = 0; i < caveEnterBattle.length; i++) {
+            const battleEntery = caveEnterBattle[i];
+
+            if (rectangularCollision({
+                rectangle1: player,
+                rectangle2: battleEntery
+            })) {
+                if (!enterBattle && canEnterCaveBattle) {
+                    // So that the exit from the cave only happens once and not every frame until he exits.
+                    enterBattle = true; 
+                    // So that we don't leave the cave immediately after entering
+                    exitBattle = false;
+
+                    // ENTER BATTLE
+                    // deactivate current animation loop
+                    window.cancelAnimationFrame(caveAnimationId);
+
+                    // stop cave audio
+                    audio.cave.stop();
+                    audio.cave.seek(0);
+
+                    // fade
+                    gsap.to('#blackDiv', {
+                        opacity: 1, 
+                        onComplete() {
+                            // save player position and than change it
+                            pastPlayerPosition.x = player.position.x;
+                            pastPlayerPosition.y = player.position.y;
+                            player.position.x = canvas.width/2;
+                            player.position.y = canvas.height - 25;
+
+                            // save hat position and than change it to adjust the player new position
+                            pastHatPosition.x = hat.position.x;
+                            pastHatPosition.y = hat.position.y;
+                            hat.position.x = player.position.x - 5;
+                            hat.position.y = player.position.y - 12;
+
+                            // hide achievement button
+                            document.querySelector("#achievementButton").style.display = "none";
+
+                            // active a new animation loop:            
+                            // start main animation loop
+                            startCaveBattle();
+
+                            // start cave battle music
+                            audio.caveBattle.stop();
+                            audio.caveBattle.play();
+
+                            // show the screen
+                            gsap.to('#blackDiv', {
+                                opacity: 0,
+                                duration: 0.4,
+                            })
+                        }
+                    });
+                } else {
+                    moveables.forEach(movable => {
+                        movable.position.y -= velocity;
+                    })
+                }
+            }
+        }
+
+        // collision between player and monsters
+        for (let i = caveMonsters.length - 1; i >= 0; i--) {
+            const monster = caveMonsters[i];
+
             if (!monster.alive) continue;
 
             if (hitboxCollision({
                 enemy: monster,
-                rectangle2: projectile
+                rectangle2: player
             })) {
-                // decrease monster lives
-                monster.lives--;
-                // if monster lives is equal to 0 - don't show the monster
-                if (monster.lives <= 0) {
-                    // enemy not alive (you can't see him)
-                    monster.alive = false
+                monster.alive = false;
+                if (lives > 0 && !playerInvincible) {
+                    lives--;
+                    updatePlayerHealthBar();
 
-                    // increase the varible that represent how many slimes player has killed
-                    numberOfSlimesPlayerKilled++
+                    if (lives <= 0) {
+                        handleCaveDeath();
+                    }
                 }
-
-                // delete projectile
-                projectiles.splice(i, 1);
-
-                break;
             }
         }
-    }
 
-    // check collision between projectiles to boundaries
-    for (let i = projectiles.length - 1; i >= 0; i--) {
-        for (let j = 0; j < caveBoundaries.length; j++) {
-            const projectile = projectiles[i];
-            const boundary = caveBoundaries[j];
+        // check collision between each projectile to each enemy
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            for (let j = caveMonsters.length - 1; j >= 0; j--) {
+                const projectile = projectiles[i];
+                const monster = caveMonsters[j];
 
-            if (!projectile) continue;
+                // if enemy not alive continue to the next loop
+                if (!monster.alive) continue;
+
+                if (hitboxCollision({
+                    enemy: monster,
+                    rectangle2: projectile
+                })) {
+                    // decrease monster lives
+                    monster.lives--;
+                    // if monster lives is equal to 0 - don't show the monster
+                    if (monster.lives <= 0) {
+                        // enemy not alive (you can't see him)
+                        monster.alive = false
+
+                        // increase the varible that represent how many slimes player has killed
+                        numberOfSlimesPlayerKilled++
+                    }
+
+                    // delete projectile
+                    projectiles.splice(i, 1);
+
+                    break;
+                }
+            }
+        }
+
+        // check collision between projectiles to boundaries
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            for (let j = 0; j < caveBoundaries.length; j++) {
+                const projectile = projectiles[i];
+                const boundary = caveBoundaries[j];
+
+                if (!projectile) continue;
+
+                if (rectangularCollision({
+                    rectangle1: projectile,
+                    rectangle2: boundary
+                })) {
+                    // delete projectile
+                    projectiles.splice(i, 1);
+                }
+            }
+        }
+
+        // check collision between player to coins
+        for (let i = caveCoins.length - 1; i >= 0; i--) {
+            const coin = caveCoins[i];
 
             if (rectangularCollision({
-                rectangle1: projectile,
-                rectangle2: boundary
+                rectangle1: coin,
+                rectangle2: player
             })) {
-                // delete projectile
-                projectiles.splice(i, 1);
+                // increase number of coins
+                if (playerDoubleCoins) {
+                    numberOfCoins += 2;
+                } else {
+                    numberOfCoins++
+                }
+                updatePlayerCoins();
+
+                // delete coin
+                caveCoins.splice(i, 1);
             }
         }
+
+        // ACHIEVEMENTS CHECK
+        checkAchievements();
     }
-
-    // check collision between player to coins
-    for (let i = caveCoins.length - 1; i >= 0; i--) {
-        const coin = caveCoins[i];
-
-        if (rectangularCollision({
-            rectangle1: coin,
-            rectangle2: player
-        })) {
-            // increase number of coins
-            if (playerDoubleCoins) {
-                numberOfCoins += 2;
-            } else {
-                numberOfCoins++
-            }
-            updatePlayerCoins();
-
-            // delete coin
-            caveCoins.splice(i, 1);
-        }
-    }
-
-    // ACHIEVEMENTS CHECK
-    checkAchievements();
 }

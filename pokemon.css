@@ -115,8 +115,8 @@ button:hover {
   top: 0; left: 0; width: 100vw; height: 100vh;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: grayscale(100%) contrast(120%); /* Creates the game from behind to gray and dramatic */
-  opacity: 1;
-  display: flex;
+  opacity: 0;
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -151,7 +151,7 @@ button:hover {
     margin-top: 10px;
 }
 
-#gold-loss {
+#goldLoss {
     color: #ffcc00;
     margin: 20px;
     font-size: 1rem;
@@ -181,14 +181,12 @@ button:hover {
 }
 
 #respawnButton:hover {
-    transform: scale(1.05);
-    transform: translateY(-2px);
+   transform: scale(1.05) translateY(-2px);
     filter: brightness(1.05);
 }
 
 #respawnButton:active {
-    transform: translateY(3px);
-    transform: scale(0.90);
+    transform: scale(0.90) translateY(3px);
 }
 
 /* player state */

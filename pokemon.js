@@ -398,6 +398,7 @@ let maxLives = 3; // the max amount of lives player can have.
 createHealthBar();
 updatePlayerHealthBar();
 let playerDead = false; // A variable that represent whether player is dead or not
+let diedInCave = false; // A variable that represenr whether player died in cave or not
 let InfiniteAmmo = false; // A variable that represent whether player has infinite ammo or not
 let pastNumberOfammo; // A variable that represent how much ammo player had in the past
 let numberOfammo = 5; // the amount of ammo player have
@@ -2228,7 +2229,7 @@ function animate() {
                 if (lives > 0 && !playerInvincible) {
                     lives -= 1;
                     if (lives <= 0) {
-                        respawnWorld();
+                        handlePlayerDeath();
                     }
                     updatePlayerHealthBar();
                 }
@@ -2299,7 +2300,6 @@ function animate() {
                             audio.cave.play();
                             // start the cave function
                             initcave();
-                            cave();
                             // The player cannot leave the cave for a few seconds after entering.
                             CanGetOutCave = false;
                             // So the player can exit the cave
@@ -2806,27 +2806,32 @@ function animate() {
     }
 }
 
-function respawnWorld() {
+function handlePlayerDeath() {
+    if (playerDead) return;
+
     playerDead = true;
 
-    audio.map.stop();
-    audio.map.seek(0);
+    // Save the amount of coins the player lost
+    document.querySelector("#goldLoss").innerText = numberOfCoins;
 
+    // Hide the player
     gsap.to(player, {
         opacity: 0,
         duration: 1,
         onComplete: () => {
-            document.querySelector("#goldLoss").innerText = numberOfCoins;
+
+            // Show death screen
             document.querySelector("#deathScreen").style.display = "flex";
-            gsap.to('#deathScreen', {
+
+            gsap.to("#deathScreen", {
                 opacity: 1,
                 duration: 2
-            })
+            });
         }
-    })
+    });
 }
 
-document.querySelector("#respawnButton").addEventListener("click", () => {
+function respawnWorld() {
     // Return world objects to their exact starting positions
     worldStartPositions.forEach(({ object, x, y }) => {
         object.position.x = x;
@@ -2837,11 +2842,19 @@ document.querySelector("#respawnButton").addEventListener("click", () => {
     projectiles.length = 0;
     coins.length = 0;
 
+    // Lose all coins
+    numberOfCoins = 0;
+    updatePlayerCoins();
+
+    // Restore full HP
+    lives = maxLives;
+    updatePlayerHealthBar();
+
     // Return player to starting position
     player.position.x = canvas.width / 2 - 192 / 8;
     player.position.y = canvas.height / 2 - 68 / 2;
 
-    // Reset player
+    // Reset player sprite
     player.image = player.sprites.down;
     player.animate = false;
     player.frames.val = 0;
@@ -2851,99 +2864,32 @@ document.querySelector("#respawnButton").addEventListener("click", () => {
     hat.position.x = player.position.x - 5;
     hat.position.y = player.position.y - 12;
 
-    // reset coins
-    numberOfCoins = 0;
-    updatePlayerCoins();
-
-    // reset HP
-    lives = maxLives;
-    updatePlayerHealthBar();
-
-    gsap.to(player, {
-        opacity: 1,
+    // Hide death screen
+    gsap.to("#deathScreen", {
+        opacity: 0,
+        duration: 1,
         onComplete: () => {
             document.querySelector("#deathScreen").style.display = "none";
-            gsap.to("#deathScreen", {
-                opacity: 0,
-                onComplete: () => {
-                    audio.map.play();
-                    playerDead = false;
-                }
-            })
+
+            // Show player again
+            player.opacity = 1;
+
+            // Start the main world ONLY if we came from the cave
+            if (diedInCave) {
+                audio.map.play();
+                animate();
+                diedInCave = false;
+            }
+
+            playerDead = false;
+
         }
-    })
+    });
+}
+
+document.querySelector("#respawnButton").addEventListener("click", () => {
+    respawnWorld();
 })
-
-// function respawnWorld() {
-//     playerDead = true;
-
-//     audio.map.stop();
-//     audio.map.seek(0);
-
-//     gsap.to(player, {
-//         opacity: 0,
-//         duration: 3,
-//         onComplete: () => {
-//             gsap.to('#blackDiv', {
-//                 opacity: 1,
-//                 duration: 3,
-//                 onComplete: () => {
-//                     // Return world objects to their exact starting positions
-//                     worldStartPositions.forEach(({ object, x, y }) => {
-//                         object.position.x = x;
-//                         object.position.y = y;
-//                     });
-
-//                     // Clear temporary objects
-//                     projectiles.length = 0;
-//                     coins.length = 0;
-
-//                     // Return player to starting position
-//                     player.position.x = canvas.width / 2 - 192 / 8;
-//                     player.position.y = canvas.height / 2 - 68 / 2;
-
-//                     // Reset player
-//                     player.image = player.sprites.down;
-//                     player.animate = false;
-//                     player.frames.val = 0;
-//                     player.frames.elapsed = 0;
-
-//                     // Return hat
-//                     hat.position.x = player.position.x - 5;
-//                     hat.position.y = player.position.y - 12;
-
-//                     // reset coins
-//                     numberOfCoins = 0;
-//                     updatePlayerCoins();
-
-//                     // reset HP
-//                     lives = maxLives;
-//                     updatePlayerHealthBar();
-
-//                     document.querySelector("#deathScreen").style.display = "flex";
-
-//                     gsap.to("#blackDiv", {
-//                         opacity: 0
-//                     })
-
-//                     // gsap.to(player, {
-//                     //     opacity: 1,
-//                     //     onComplete: () => {
-//                     //         gsap.to("#blackDiv", {
-//                     //             opacity: 0,
-//                     //             duration: 3,
-//                     //             onComplete: () => {
-//                     //                 audio.map.play();
-//                     //                 playerDead = false;
-//                     //             }
-//                     //         })
-//                     //     }
-//                     // })
-//                 }
-//             })
-//         }
-//     })
-// }
 
 function respawnEnemy(enemy) {
     enemy.position.x =
