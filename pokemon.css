@@ -73,6 +73,124 @@ button:hover {
     cursor: pointer;
 }
 
+/* death screen for player when he died
+#deathScreen {
+    position: fixed;
+    inset: 0;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.85);
+
+    z-index: 200;
+
+    font-family: "Press Start 2P", cursive;
+}
+
+#deathBox {
+    text-align: center;
+    padding: 40px;
+
+    border: 4px solid white;
+
+    background: #111;
+
+    box-shadow:
+        0 0 0 4px #111,
+        0 0 25px rgba(255, 255, 255, 0.25);
+}
+
+#deathBox h1 {
+    margin: 0 0 25px;
+
+    font-size: 42px;
+
+    letter-spacing: 4px;
+} */
+
+#deathScreen {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: grayscale(100%) contrast(120%); /* Creates the game from behind to gray and dramatic */
+  opacity: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', monospace; /* Classic Pixel Font */
+  image-rendering: pixelated; /* Keeps the pixels sharp */
+  z-index: 200;
+}
+
+#deathBox {
+    text-align: center;
+    padding: 40px;
+
+    /* border: 4px solid white;
+
+    background: #111;
+
+    box-shadow:
+        0 0 0 4px #111,
+        0 0 25px rgba(255, 255, 255, 0.25); */
+}
+
+#deathBox h1 {
+  color: #8b0000; /* blood red */
+  font-size: 3rem;
+  text-shadow: 4px 4px 0px #000;
+  animation: shake 0.5s ease-in-out; /* A slight tremor at the moment of death */
+}
+
+#goldLossImg {
+    font-size: 70px;
+
+    margin-top: 10px;
+}
+
+#gold-loss {
+    color: #ffcc00;
+    margin: 20px;
+    font-size: 1rem;
+    text-decoration: line-through; 
+}
+
+#deathBox p {
+    color: whitesmoke;
+    font-size: 12px;
+    margin-bottom: 35px;
+}
+
+#respawnButton {
+    font-family: "Press Start 2P", cursive;
+
+    font-size: 14px;
+
+    padding: 15px 25px;
+
+    cursor: pointer;
+
+    background: white;
+    color: black;
+
+    border: none;
+    border-radius: 10px;
+}
+
+#respawnButton:hover {
+    transform: scale(1.05);
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+#respawnButton:active {
+    transform: translateY(3px);
+    transform: scale(0.90);
+}
+
 /* player state */
 .playerState {
     position: absolute;

@@ -695,6 +695,9 @@ function cave() {
                 // So that the exit from the cave only happens once and not every frame until he exits.
                 leavingCave = true; 
 
+                // player is not in cave anymore
+                inCave = false;
+
                 // GET OUT FROM THE CAVE
                 // deactivate current animation loop
                 window.cancelAnimationFrame(animationId);

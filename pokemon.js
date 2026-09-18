@@ -57,6 +57,8 @@ for (let i = 1; i < Allachievements.length; i++) {
 
 // game variables
 let gameStarted = false; // A varible that represent if the game can start or not
+let worldStartPositions = null; // A varible that store all the postions of all the objects that are moving,
+                                //  at the start of the game
 let velocity = 3  // A varible that shows what is the velocity of the player
 let enterPlayer2House = false; // A variable that represent if player needs to enter player 2 house
 let playerClaimHat = false; // A varible that represents if player claim the hat
@@ -64,6 +66,7 @@ let playerEnterTheCave = false; // A variable that represent whether the player 
 let playerRefusedToEnterTheCave = false; // A variable that represent whether the player refused to enter the cave or not
 let getIntoCave = false; // A varible that represents if player needs to gets into the cave
 let playerWantToEnterBar = false; // A variable that represent whether player needs to get into the bar or not
+let inCave = false; // A variable that represent whether player is in cave or not
 
 // moving varaibles
 let player3moving = true; // A variable that represents when player number 3(a bot) can move
@@ -1689,6 +1692,31 @@ function animate() {
         ...coins
     ]; 
 
+    if (worldStartPositions === null) {
+        worldStartPositions = [
+            background,
+            ...boundaries,
+            foregorond,
+            ...battleZones,
+            player2,
+            player3,
+            player4,
+            player5,
+            player6,
+            player7,
+            lawnMower,
+            fishingRod,
+            chicken,
+            chicken2,
+            RobChicken,
+            ...enemies
+        ].map(movable => ({
+            object: movable,
+            x: movable.position.x,
+            y: movable.position.y
+        }));
+    }
+
     c.clearRect(0, 0, canvas.width, canvas.height);
 
     // draw beckground
@@ -2200,7 +2228,7 @@ function animate() {
                 if (lives > 0 && !playerInvincible) {
                     lives -= 1;
                     if (lives <= 0) {
-                        handlePlayerDeath();
+                        respawnWorld();
                     }
                     updatePlayerHealthBar();
                 }
@@ -2240,6 +2268,9 @@ function animate() {
 
             // So that when the player returns, he won't go straight into the cave again.
             getIntoCave = false;
+
+            // player is on cave right now
+            inCave = true;
 
             // unlocked achievement if enter the cave
             unlockAchievement("enterCave");
@@ -2775,25 +2806,144 @@ function animate() {
     }
 }
 
-function handlePlayerDeath() {
-    //
+function respawnWorld() {
     playerDead = true;
+
+    audio.map.stop();
+    audio.map.seek(0);
 
     gsap.to(player, {
         opacity: 0,
         duration: 1,
         onComplete: () => {
-            gsap.to('#blackDiv', {
+            document.querySelector("#goldLoss").innerText = numberOfCoins;
+            document.querySelector("#deathScreen").style.display = "flex";
+            gsap.to('#deathScreen', {
                 opacity: 1,
-                duration: 3,
-                onComplete: () => {
-                    player.position.x = canvas.width/2 - 192/8;
-                    player.position.y =  canvas.height/2 - 68/2;
-                }
+                duration: 2
             })
         }
     })
 }
+
+document.querySelector("#respawnButton").addEventListener("click", () => {
+    // Return world objects to their exact starting positions
+    worldStartPositions.forEach(({ object, x, y }) => {
+        object.position.x = x;
+        object.position.y = y;
+    });
+
+    // Clear temporary objects
+    projectiles.length = 0;
+    coins.length = 0;
+
+    // Return player to starting position
+    player.position.x = canvas.width / 2 - 192 / 8;
+    player.position.y = canvas.height / 2 - 68 / 2;
+
+    // Reset player
+    player.image = player.sprites.down;
+    player.animate = false;
+    player.frames.val = 0;
+    player.frames.elapsed = 0;
+
+    // Return hat
+    hat.position.x = player.position.x - 5;
+    hat.position.y = player.position.y - 12;
+
+    // reset coins
+    numberOfCoins = 0;
+    updatePlayerCoins();
+
+    // reset HP
+    lives = maxLives;
+    updatePlayerHealthBar();
+
+    gsap.to(player, {
+        opacity: 1,
+        onComplete: () => {
+            document.querySelector("#deathScreen").style.display = "none";
+            gsap.to("#deathScreen", {
+                opacity: 0,
+                onComplete: () => {
+                    audio.map.play();
+                    playerDead = false;
+                }
+            })
+        }
+    })
+})
+
+// function respawnWorld() {
+//     playerDead = true;
+
+//     audio.map.stop();
+//     audio.map.seek(0);
+
+//     gsap.to(player, {
+//         opacity: 0,
+//         duration: 3,
+//         onComplete: () => {
+//             gsap.to('#blackDiv', {
+//                 opacity: 1,
+//                 duration: 3,
+//                 onComplete: () => {
+//                     // Return world objects to their exact starting positions
+//                     worldStartPositions.forEach(({ object, x, y }) => {
+//                         object.position.x = x;
+//                         object.position.y = y;
+//                     });
+
+//                     // Clear temporary objects
+//                     projectiles.length = 0;
+//                     coins.length = 0;
+
+//                     // Return player to starting position
+//                     player.position.x = canvas.width / 2 - 192 / 8;
+//                     player.position.y = canvas.height / 2 - 68 / 2;
+
+//                     // Reset player
+//                     player.image = player.sprites.down;
+//                     player.animate = false;
+//                     player.frames.val = 0;
+//                     player.frames.elapsed = 0;
+
+//                     // Return hat
+//                     hat.position.x = player.position.x - 5;
+//                     hat.position.y = player.position.y - 12;
+
+//                     // reset coins
+//                     numberOfCoins = 0;
+//                     updatePlayerCoins();
+
+//                     // reset HP
+//                     lives = maxLives;
+//                     updatePlayerHealthBar();
+
+//                     document.querySelector("#deathScreen").style.display = "flex";
+
+//                     gsap.to("#blackDiv", {
+//                         opacity: 0
+//                     })
+
+//                     // gsap.to(player, {
+//                     //     opacity: 1,
+//                     //     onComplete: () => {
+//                     //         gsap.to("#blackDiv", {
+//                     //             opacity: 0,
+//                     //             duration: 3,
+//                     //             onComplete: () => {
+//                     //                 audio.map.play();
+//                     //                 playerDead = false;
+//                     //             }
+//                     //         })
+//                     //     }
+//                     // })
+//                 }
+//             })
+//         }
+//     })
+// }
 
 function respawnEnemy(enemy) {
     enemy.position.x =
